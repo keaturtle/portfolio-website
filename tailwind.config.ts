@@ -1,0 +1,85 @@
+import type { Config } from 'tailwindcss'
+
+const config: Config = {
+  content: [
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {
+      colors: {
+        'background': '#faf8ff',
+        'surface': '#faf8ff',
+        'outline-variant': '#bbcabf',
+        'on-surface': '#131b2e',
+        'primary': '#006c49',
+        'primary-container': '#10b981',
+        'secondary-container': '#adedd3',
+        'on-secondary-container': '#306d58',
+        'on-primary': '#ffffff',
+        'on-primary-container': '#00422b',
+        'surface-container': '#eaedff',
+        'surface-container-low': '#f2f3ff',
+        'surface-container-lowest': '#ffffff',
+        'surface-container-high': '#e2e7ff',
+        'on-surface-variant': '#3c4a42',
+        'outline': '#6c7a71',
+        'secondary': '#2b6954',
+        'inverse-surface': '#283044',
+        'error': '#ba1a1a',
+        // Additional tokens from Stitch mockup
+        'on-error': '#ffffff',
+        'surface-bright': '#faf8ff',
+        'on-background': '#131b2e',
+        'on-secondary': '#ffffff',
+        'secondary-fixed': '#b0f0d6',
+        'on-secondary-fixed': '#002117',
+        'error-container': '#ffdad6',
+        'surface-variant': '#dae2fd',
+        'inverse-on-surface': '#eef0ff',
+      },
+      spacing: {
+        'margin-page': '40px',
+        'unit': '8px',
+        'container-max': '1200px',
+        'stack-lg': '32px',
+        'gutter': '24px',
+        'stack-sm': '8px',
+        'stack-md': '16px',
+      },
+      fontFamily: {
+        'h1': ['Space Grotesk', 'sans-serif'],
+        'h2': ['Space Grotesk', 'sans-serif'],
+        'h3': ['Space Grotesk', 'sans-serif'],
+        'body-lg': ['Inter', 'sans-serif'],
+        'body-md': ['Inter', 'sans-serif'],
+        'label-caps': ['Inter', 'sans-serif'],
+        'code': ['monospace'],
+      },
+      fontSize: {
+        'h1': ['48px', { lineHeight: '1.1', fontWeight: '700' }],
+        'h2': ['32px', { lineHeight: '1.2', fontWeight: '600' }],
+        'h3': ['24px', { lineHeight: '1.3', fontWeight: '600' }],
+        'body-lg': ['18px', { lineHeight: '1.6', fontWeight: '400' }],
+        'body-md': ['16px', { lineHeight: '1.5', fontWeight: '400' }],
+        'label-caps': ['12px', { lineHeight: '1.0', letterSpacing: '0.05em', fontWeight: '600' }],
+        'code': ['14px', { lineHeight: '1.5', fontWeight: '400' }],
+      },
+      borderRadius: {
+        'DEFAULT': '0.25rem',
+        'lg': '0.5rem',
+        'xl': '0.75rem',
+        '2xl': '1rem',
+        'full': '9999px',
+      },
+      maxWidth: {
+        'container': '1200px',
+      },
+    },
+  },
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
+}
+export default config
