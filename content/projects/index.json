@@ -6,7 +6,7 @@
     "thumbnail": "/images/projects/solar-concentrator.jpg",
     "tags": ["Mechanical Engineering", "SolidWorks", "Thermal", "CAD"],
     "featured": true,
-    "date": "2023-05"
+    "date": "2022-05"
   },
   {
     "slug": "suv-camp-platform",
@@ -15,24 +15,42 @@
     "thumbnail": "/images/projects/suv-camp-platform.jpg",
     "tags": ["Design-Build", "Fabrication", "Woodworking"],
     "featured": true,
-    "date": "2023-08"
+    "date": "2021-08"
   },
   {
     "slug": "keatens-krunch",
     "title": "Keaten's Krunch",
-    "description": "Started a non-profit business to highlight nonprofits through the sale of homemade granola.",
+    "description": "Founded a non-profit business to highlight nonprofits through the sale of homemade granola. Managed operations, sales, and partnerships.",
     "thumbnail": "/images/projects/keatens-krunch.jpg",
     "tags": ["Non-Profit", "Entrepreneurship", "Business"],
     "featured": false,
-    "date": "2022-01"
+    "date": "2021-01"
   },
   {
     "slug": "utana-tech",
     "title": "Utana Tech",
     "description": "Won a pitch competition and carried out designing a product and building a company from the ground up.",
     "thumbnail": "/images/projects/utana-tech.jpg",
-    "tags": ["Product Startup", "Pitch Competition", "Product Design"],
+    "tags": ["Startup", "Pitch Competition", "Product Design"],
     "featured": false,
-    "date": "2023-11"
+    "date": "2022-11"
+  },
+  {
+    "slug": "motion-timelapse-device",
+    "title": "Electronic Motion Time-lapse Device",
+    "description": "Designed and built an electronic device to produce smooth motion time-lapse photography by precisely controlling camera movement over time.",
+    "thumbnail": "/images/projects/motion-timelapse-device.jpg",
+    "tags": ["Electronics", "Design-Build", "Photography", "Fabrication"],
+    "featured": false,
+    "date": "2021-03"
+  },
+  {
+    "slug": "fea-steel-angle",
+    "title": "FEA Steel Angle Analysis",
+    "description": "Performed finite element analysis on a steel angle bracket to determine stress distribution, deformation, and factor of safety under loading conditions.",
+    "thumbnail": "/images/projects/fea-steel-angle.jpg",
+    "tags": ["FEA", "Mechanical Engineering", "SolidWorks", "Structural Analysis"],
+    "featured": false,
+    "date": "2021-06"
   }
 ]

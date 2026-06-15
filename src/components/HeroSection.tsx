@@ -54,8 +54,8 @@ export default function HeroSection() {
             {...fadeUp}
             transition={{ duration: 0.5, ease: 'easeOut', delay: 0.3 }}
           >
-            Mechanical engineering graduate with a passion for building practical tools
-            and solving real-world problems — from CAD models to software utilities.
+            Cal Poly SLO Mechanical Engineering graduate with a passion for building practical
+            tools and solving real-world problems — from CAD models and FEA to software utilities.
           </motion.p>
 
           {/* CTA buttons */}

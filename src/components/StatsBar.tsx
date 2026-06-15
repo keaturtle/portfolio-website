@@ -9,9 +9,9 @@ interface Stat {
 }
 
 const stats: Stat[] = [
-  { value: '4+', label: 'Projects Completed' },
+  { value: '6+', label: 'Projects Completed' },
   { value: '2', label: 'Tools Built' },
-  { value: 'ME', label: 'Degree Earned' },
+  { value: 'Cal Poly', label: 'BS Mech. Engineering' },
   { value: '1', label: 'Startup Founded' },
 ];
 
