@@ -22,11 +22,11 @@ export const metadata: Metadata = {
     template: '%s | Keaten Tuttle',
   },
   description: 'Mechanical engineer, builder, and tool maker. Explore my projects and interactive tools.',
-  metadataBase: new URL('https://portfolio-website-m8sg.vercel.app'),
+  metadataBase: new URL('https://keatentuttle.com'),
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://portfolio-website-m8sg.vercel.app',
+    url: 'https://keatentuttle.com',
     siteName: 'Keaten Tuttle',
   },
 };

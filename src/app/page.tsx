@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: 'Keaten Tuttle — Portfolio',
   description:
     'Mechanical engineer, builder, and tool maker. Explore my engineering projects and interactive tools.',
-  metadataBase: new URL('https://portfolio-website-m8sg.vercel.app'),
+  metadataBase: new URL('https://keatentuttle.com'),
   openGraph: {
     title: 'Keaten Tuttle — Portfolio',
     description: 'Mechanical engineer, builder, and tool maker.',
