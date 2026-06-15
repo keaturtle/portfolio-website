@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { Terminal, ArrowRight, Code2 } from 'lucide-react';
+import { Terminal, ArrowRight } from 'lucide-react';
 
 export default function HeroSection() {
   const shouldReduceMotion = useReducedMotion();
@@ -94,11 +94,12 @@ export default function HeroSection() {
 
           {/* Card */}
           <div className="border border-[#bbcabf] bg-white p-4 rounded-xl shadow-xl relative overflow-hidden group">
-            {/* Placeholder image */}
-            <div className="rounded-lg w-full h-[400px] bg-gradient-to-br from-[#adedd3] to-[#eaedff] flex items-center justify-center">
-              <Code2 size={80} className="text-[#006c49] opacity-20" />
-            </div>
-
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/keaten-backpacking.jpg"
+              alt="Keaten Tuttle backpacking on the coast"
+              className="rounded-lg w-full h-[400px] object-cover object-center"
+            />
             {/* Hover overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6 rounded-xl">
               <span className="text-white font-mono text-sm">

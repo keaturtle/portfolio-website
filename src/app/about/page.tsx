@@ -125,19 +125,15 @@ export default function AboutPage() {
             </div>
           </div>
 
-          {/* Profile photo placeholder — replace src with real photo */}
           <div className="relative hidden lg:block">
             <div className="absolute -top-8 -right-8 w-48 h-48 bg-[#10b981]/10 rounded-full blur-3xl pointer-events-none" />
             <div className="border border-[#bbcabf] bg-white p-4 rounded-xl shadow-xl">
-              <div className="rounded-lg w-full h-[400px] bg-gradient-to-br from-[#adedd3] to-[#eaedff] flex items-center justify-center">
-                {/* Replace this div with <img src="/images/profile.jpg" ... /> once you have a photo */}
-                <span
-                  className="text-[#006c49] text-8xl font-bold opacity-20"
-                  style={{ fontFamily: 'var(--font-space-grotesk)' }}
-                >
-                  KT
-                </span>
-              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/profile.jpg"
+                alt="Keaten Tuttle"
+                className="rounded-lg w-full h-[400px] object-cover object-top"
+              />
             </div>
           </div>
         </section>

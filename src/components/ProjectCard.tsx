@@ -15,14 +15,23 @@ export default function ProjectCard({ project }: { project: ProjectMeta }) {
 
       {/* Image */}
       <div className="relative h-48 mb-4 rounded-lg overflow-hidden bg-[#e2e7ff] border border-[#bbcabf]/30">
-        <div className="w-full h-full bg-gradient-to-br from-[#adedd3] to-[#eaedff] flex items-center justify-center">
-          <span
-            className="text-[#006c49] text-4xl font-bold opacity-20"
-            style={{ fontFamily: 'var(--font-space-grotesk)' }}
-          >
-            {project.title.charAt(0)}
-          </span>
-        </div>
+        {project.thumbnail ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={project.thumbnail}
+            alt={project.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-[#adedd3] to-[#eaedff] flex items-center justify-center">
+            <span
+              className="text-[#006c49] text-4xl font-bold opacity-20"
+              style={{ fontFamily: 'var(--font-space-grotesk)' }}
+            >
+              {project.title.charAt(0)}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Content */}

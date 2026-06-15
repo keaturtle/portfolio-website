@@ -18,7 +18,10 @@ export default function BentoGrid({ projects }: { projects: ProjectMeta[] }) {
       {/* Large card */}
       {large && (
         <Link href={`/projects/${large.slug}`} className="md:col-span-8 group cursor-pointer">
-          <div className="relative overflow-hidden rounded-xl border border-[#bbcabf] aspect-video bg-gradient-to-br from-[#adedd3] to-[#eaedff]">
+          <div
+            className="relative overflow-hidden rounded-xl border border-[#bbcabf] aspect-video bg-gradient-to-br from-[#adedd3] to-[#eaedff]"
+            style={large.thumbnail ? { backgroundImage: `url(${large.thumbnail})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+          >
             <div className="absolute inset-0 bg-gradient-to-t from-[#131b2e]/90 via-[#131b2e]/20 to-transparent p-8 flex flex-col justify-end">
               <div className="flex gap-2 mb-4">
                 {large.tags.slice(0, 2).map((tag) => (
@@ -50,7 +53,10 @@ export default function BentoGrid({ projects }: { projects: ProjectMeta[] }) {
             href={`/projects/${project.slug}`}
             className="group cursor-pointer flex flex-col"
           >
-            <div className="relative flex-grow overflow-hidden rounded-xl border border-[#bbcabf] mb-4 h-40 bg-gradient-to-br from-[#eaedff] to-[#adedd3] group-hover:scale-[1.02] transition-transform duration-500" />
+            <div
+              className="relative flex-grow overflow-hidden rounded-xl border border-[#bbcabf] mb-4 h-40 bg-gradient-to-br from-[#eaedff] to-[#adedd3] group-hover:scale-[1.02] transition-transform duration-500"
+              style={project.thumbnail ? { backgroundImage: `url(${project.thumbnail})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+            />
             <h4
               className="text-[24px] font-semibold leading-[1.3] text-[#131b2e] group-hover:text-[#006c49] transition-colors"
               style={{ fontFamily: 'var(--font-space-grotesk)' }}
