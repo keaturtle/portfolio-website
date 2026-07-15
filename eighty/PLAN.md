@@ -60,7 +60,10 @@ Timestamps stored UTC; each `day` carries its local-date label assigned at loggi
 ```ts
 export type Strictness = 'flexible' | 'strict' | 'hardcore';
 
-export interface ItemDef { id: string; categoryId: string; label: string; isBonus: boolean }
+export interface ItemDef {
+  id: string; categoryId: string; label: string; isBonus: boolean;
+  timeOfDay?: 'morning' | 'day' | 'evening' | 'bed'; // Today-screen ordering hint; ignored by scoring
+}
 
 export interface ChallengeConfig {
   durationDays: number;            // 80

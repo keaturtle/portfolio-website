@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Eighty — Final direction: Night Fir (C palette × B structure)</title>
+<title>Eighty — Final direction: Night Fir (time-of-day layout)</title>
 <style>
   :root{
     --bg:#0d1411; --card:#141d18; --card2:#1a2620; --ink:#edf3ee; --sub:#8da399;
@@ -68,6 +68,7 @@
     padding:6px 16px;margin-bottom:12px}
   .cat-head{display:flex;justify-content:space-between;align-items:center;padding:13px 2px 7px}
   .cat-head h2{font-size:13px;font-weight:700}
+  .cat-head .when{font-size:11px;color:var(--sub);font-weight:500;margin-left:7px}
   .pill{font-family:var(--round);font-size:11.5px;font-weight:700;color:var(--mint);
     background:var(--mint-soft);border-radius:99px;padding:3px 9px}
   .row{display:flex;align-items:center;gap:13px;padding:11px 2px;border-top:1px solid var(--line)}
@@ -77,6 +78,9 @@
   .done .tick-c{background:var(--mint);border-color:var(--mint);box-shadow:var(--glow)}
   .label{font-size:14px;line-height:1.35;flex:1}
   .done .label{color:var(--sub)}
+  .tag{display:inline-block;margin-left:7px;font-size:9.5px;font-weight:700;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--sub);background:var(--card2);border-radius:5px;
+    padding:2px 5px;vertical-align:1px;white-space:nowrap}
   .flag{display:inline-flex;align-items:center;gap:5px;margin-top:4px;font-size:11.5px;font-weight:600;
     color:var(--sienna);background:var(--sienna-soft);border-radius:7px;padding:3px 8px}
 
@@ -141,56 +145,48 @@
   </section>
 
   <section class="cat">
-    <div class="cat-head"><h2>Workout</h2><span class="pill">5/6</span></div>
-    <div class="row done"><span class="tick-c">✓</span><span class="label">Workout 1 — outside, 15 min minimum</span></div>
-    <div class="row done"><span class="tick-c">✓</span><span class="label">Workout 2 — any workout</span></div>
-    <div class="row done"><span class="tick-c">✓</span><span class="label">60+ min intentional exercise or recovery</span></div>
-    <div class="row done"><span class="tick-c">✓</span><span class="label">Pushups in morning</span></div>
-    <div class="row"><span class="tick-c"></span><span class="label">Pull-ups sometime in day<br><span class="flag">⚠ missed yesterday — don’t miss twice</span></span></div>
-    <div class="row done"><span class="tick-c">✓</span><span class="label">At least one workout different from previous day</span></div>
+    <div class="cat-head"><h2>🌅 Morning<span class="when">within an hour of waking</span></h2><span class="pill">3/3</span></div>
+    <div class="row done"><span class="tick-c">✓</span><span class="label">≥5 min of sun within 1 hour of waking<span class="tag">Sleep</span></span></div>
+    <div class="row done"><span class="tick-c">✓</span><span class="label">Pushups in morning<span class="tag">Workout</span></span></div>
+    <div class="row done"><span class="tick-c">✓</span><span class="label">Morning supplements<span class="tag">Supplements</span></span></div>
   </section>
 
   <section class="cat">
-    <div class="cat-head"><h2>Diet</h2><span class="pill">4/5</span></div>
-    <div class="row done"><span class="tick-c">✓</span><span class="label">No food after 8:30pm or before 9am</span></div>
-    <div class="row"><span class="tick-c"></span><span class="label">No sweets (dessert / cookies / candy)</span></div>
-    <div class="row done"><span class="tick-c">✓</span><span class="label">No alcohol</span></div>
-    <div class="row done"><span class="tick-c">✓</span><span class="label">Protein &gt;100g</span></div>
-    <div class="row done"><span class="tick-c">✓</span><span class="label">Probiotic source once in day</span></div>
+    <div class="cat-head"><h2>☀️ During the day</h2><span class="pill">9/10</span></div>
+    <div class="row done"><span class="tick-c">✓</span><span class="label">Workout 1 — outside, 15 min minimum<span class="tag">Workout</span></span></div>
+    <div class="row done"><span class="tick-c">✓</span><span class="label">Workout 2 — any workout<span class="tag">Workout</span></span></div>
+    <div class="row done"><span class="tick-c">✓</span><span class="label">60+ min intentional exercise or recovery<span class="tag">Workout</span></span></div>
+    <div class="row"><span class="tick-c"></span><span class="label">Pull-ups sometime in day<span class="tag">Workout</span><br><span class="flag">⚠ missed yesterday — don’t miss twice</span></span></div>
+    <div class="row done"><span class="tick-c">✓</span><span class="label">At least one workout different from previous day<span class="tag">Workout</span></span></div>
+    <div class="row done"><span class="tick-c">✓</span><span class="label">Protein &gt;100g<span class="tag">Diet</span></span></div>
+    <div class="row done"><span class="tick-c">✓</span><span class="label">Probiotic source once in day<span class="tag">Diet</span></span></div>
+    <div class="row done"><span class="tick-c">✓</span><span class="label">≥10 min meditation<span class="tag">Mental</span></span></div>
+    <div class="row done"><span class="tick-c">✓</span><span class="label">Practiced a creative activity or hobby<span class="tag">Mental</span></span></div>
+    <div class="row done"><span class="tick-c">✓</span><span class="label">Log ≥2 emotions in How We Feel<span class="tag">Mental</span></span></div>
   </section>
 
   <section class="cat">
-    <div class="cat-head"><h2>Sleep</h2><span class="pill">2/5</span></div>
-    <div class="row"><span class="tick-c"></span><span class="label">In bed by 11pm</span></div>
-    <div class="row"><span class="tick-c"></span><span class="label">At least 8 hours in bed</span></div>
-    <div class="row done"><span class="tick-c">✓</span><span class="label">Read ≥5 min in bed</span></div>
-    <div class="row"><span class="tick-c"></span><span class="label">No phone in bed (morning and night)</span></div>
-    <div class="row done"><span class="tick-c">✓</span><span class="label">≥5 min of sun within 1 hour of waking</span></div>
+    <div class="cat-head"><h2>🌆 Evening<span class="when">before winding down</span></h2><span class="pill">4/8</span></div>
+    <div class="row done"><span class="tick-c">✓</span><span class="label">No food after 8:30pm or before 9am<span class="tag">Diet</span></span></div>
+    <div class="row"><span class="tick-c"></span><span class="label">No sweets (dessert / cookies / candy)<span class="tag">Diet</span></span></div>
+    <div class="row done"><span class="tick-c">✓</span><span class="label">No alcohol<span class="tag">Diet</span></span></div>
+    <div class="row"><span class="tick-c"></span><span class="label">&lt;2 hours solo phone / TV<span class="tag">Mental</span></span></div>
+    <div class="row"><span class="tick-c"></span><span class="label">Go to sleep with a clean kitchen<span class="tag">Mental</span><br><span class="flag">⚠ missed yesterday — don’t miss twice</span></span></div>
+    <div class="row"><span class="tick-c"></span><span class="label">Night supplements<span class="tag">Supplements</span></span></div>
+    <div class="row done"><span class="tick-c">✓</span><span class="label">Brush AM; brush + floss PM<span class="tag">Hygiene</span></span></div>
+    <div class="row"><span class="tick-c"></span><span class="label">Moisturizer morning and night<span class="tag">Hygiene</span></span></div>
   </section>
 
   <section class="cat">
-    <div class="cat-head"><h2>Supplements</h2><span class="pill">1/2</span></div>
-    <div class="row done"><span class="tick-c">✓</span><span class="label">Morning supplements</span></div>
-    <div class="row"><span class="tick-c"></span><span class="label">Night supplements</span></div>
-  </section>
-
-  <section class="cat">
-    <div class="cat-head"><h2>Mental Health</h2><span class="pill">3/5</span></div>
-    <div class="row done"><span class="tick-c">✓</span><span class="label">≥10 min meditation</span></div>
-    <div class="row"><span class="tick-c"></span><span class="label">&lt;2 hours solo phone / TV</span></div>
-    <div class="row done"><span class="tick-c">✓</span><span class="label">Practiced a creative activity or hobby</span></div>
-    <div class="row done"><span class="tick-c">✓</span><span class="label">Log ≥2 emotions in How We Feel</span></div>
-    <div class="row"><span class="tick-c"></span><span class="label">Go to sleep with a clean kitchen<br><span class="flag">⚠ missed yesterday — don’t miss twice</span></span></div>
-  </section>
-
-  <section class="cat">
-    <div class="cat-head"><h2>Hygiene</h2><span class="pill">1/2</span></div>
-    <div class="row done"><span class="tick-c">✓</span><span class="label">Brush AM; brush + floss PM</span></div>
-    <div class="row"><span class="tick-c"></span><span class="label">Moisturizer morning and night</span></div>
+    <div class="cat-head"><h2>🛏 Bed<span class="when">logged tonight or tomorrow morning</span></h2><span class="pill">1/4</span></div>
+    <div class="row"><span class="tick-c"></span><span class="label">In bed by 11pm<span class="tag">Sleep</span></span></div>
+    <div class="row"><span class="tick-c"></span><span class="label">At least 8 hours in bed<span class="tag">Sleep</span></span></div>
+    <div class="row done"><span class="tick-c">✓</span><span class="label">Read ≥5 min in bed<span class="tag">Sleep</span></span></div>
+    <div class="row"><span class="tick-c"></span><span class="label">No phone in bed (morning and night)<span class="tag">Sleep</span></span></div>
   </section>
 
   <section class="cat bonus">
-    <div class="cat-head"><h2>Bonus · Extra credit</h2><span class="pill">+1</span></div>
+    <div class="cat-head"><h2>✨ Bonus · Extra credit</h2><span class="pill">+1</span></div>
     <p class="sub">Counts toward your %, never against it.</p>
     <div class="row done"><span class="tick-c">✓</span><span class="label">1+ hour socially with friends</span></div>
     <div class="row"><span class="tick-c"></span><span class="label">No added refined sugars</span></div>
@@ -210,7 +206,7 @@
     <div class="notes">Long run felt great. Kitchen got away from me again — prep before dinner tomorrow.</div>
   </section>
 
-  <div class="foot">Eighty · Final direction · “Night Fir”</div>
+  <div class="foot">Eighty · Final · “Night Fir” · time-of-day layout</div>
 </div>
 </body>
 </html>
