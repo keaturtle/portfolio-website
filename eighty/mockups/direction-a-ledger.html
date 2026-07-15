@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eighty — Direction A: Ledger</title>
+<style>
+  :root{
+    --paper:#f7f3ea; --card:#fcfaf3; --ink:#1c2721; --ink2:#5a675e;
+    --rule:#ddd5c4; --forest:#28463a; --sienna:#a85732; --wash:#e9efe7;
+    --warn-bg:#f4e5da;
+    --serif: ui-serif, "New York", Georgia, "Times New Roman", serif;
+    --sans: -apple-system, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#141a17; --card:#1a221d; --ink:#e9e6dc; --ink2:#9aa69d;
+      --rule:#2b352f; --forest:#8fb8a3; --sienna:#d08256; --wash:#1f2a24;
+      --warn-bg:#332319;
+    }
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);
+       display:flex;justify-content:center;min-height:100vh}
+  .phone{width:100%;max-width:400px;padding:20px 22px 48px}
+
+  /* masthead */
+  .masthead{padding:14px 0 18px;border-bottom:2px solid var(--ink)}
+  .kicker{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--sienna);font-weight:600}
+  .masthead h1{font-family:var(--serif);font-weight:600;font-size:34px;line-height:1.05;margin-top:6px}
+  .dateline{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--ink2)}
+  .dateline em{font-family:var(--serif)}
+
+  /* close-out banner */
+  .closeout{margin-top:16px;border:1px solid var(--rule);background:var(--card);
+    padding:12px 14px;display:flex;align-items:center;gap:12px;font-size:13.5px}
+  .closeout .dot{width:8px;height:8px;border-radius:50%;background:var(--sienna);flex:none}
+  .closeout b{font-weight:600}
+  .closeout .go{margin-left:auto;font-family:var(--serif);font-style:italic;color:var(--sienna);white-space:nowrap}
+
+  /* progress plate */
+  .plate{display:flex;gap:20px;align-items:center;padding:22px 0;border-bottom:1px solid var(--rule)}
+  .ring{width:112px;height:112px;flex:none;position:relative}
+  .ring svg{width:100%;height:100%}
+  .ring .track{fill:none;stroke:var(--rule);stroke-width:6}
+  .ring .fill{fill:none;stroke:var(--forest);stroke-width:6;stroke-linecap:butt}
+  .ring .tick{stroke:var(--sienna);stroke-width:2.5}
+  .ring .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .ring .pct{font-family:var(--serif);font-size:30px;font-weight:600;line-height:1}
+  .ring .of{font-size:10px;letter-spacing:.14em;color:var(--ink2);margin-top:3px}
+  .plate dl{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:12px 8px}
+  .plate dt{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink2)}
+  .plate dd{font-family:var(--serif);font-size:21px;font-weight:600;margin-top:1px}
+  .plate dd small{font-size:13px;color:var(--ink2);font-weight:400}
+  .toline{font-size:13px;color:var(--ink2);padding:10px 0 0;font-style:italic;font-family:var(--serif)}
+  .toline b{color:var(--sienna);font-style:normal}
+
+  /* categories */
+  .cat{padding-top:22px}
+  .cat-head{display:flex;align-items:baseline;justify-content:space-between;
+    border-bottom:1px solid var(--ink);padding-bottom:6px;margin-bottom:2px}
+  .cat-head h2{font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;font-weight:700}
+  .cat-head .count{font-family:var(--serif);font-size:13px;color:var(--ink2)}
+  .row{display:flex;align-items:center;gap:13px;padding:11px 0;border-bottom:1px solid var(--rule)}
+  .box{width:21px;height:21px;border:1.5px solid var(--ink);flex:none;display:flex;
+       align-items:center;justify-content:center;font-size:14px;color:var(--paper)}
+  .done .box{background:var(--forest);border-color:var(--forest)}
+  .label{font-size:14.5px;line-height:1.35;flex:1}
+  .done .label{color:var(--ink2);text-decoration:line-through;text-decoration-color:var(--rule);text-decoration-thickness:1px}
+  .warn{margin-left:34px;margin-top:-6px;padding:5px 0 10px;font-size:12px;color:var(--sienna);
+        border-bottom:1px solid var(--rule)}
+  .warn::before{content:"⚠ ";}
+  .row.warned{border-bottom:none}
+
+  /* bonus */
+  .bonus .cat-head{border-bottom-color:var(--sienna)}
+  .bonus .cat-head h2{color:var(--sienna)}
+  .bonus .box{border-style:dashed;border-color:var(--sienna);color:var(--card)}
+  .bonus .done .box{background:var(--sienna);border-style:solid;border-color:var(--sienna)}
+  .bonus .label{font-family:var(--serif);font-style:italic;font-size:14.5px}
+  .bonus-note{font-size:11.5px;color:var(--ink2);padding:8px 0 0}
+
+  /* day log */
+  .daylog{margin-top:26px;border-top:2px solid var(--ink);padding-top:18px}
+  .daylog h2{font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;margin-bottom:14px}
+  .scale-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0}
+  .scale-row .name{font-size:14px}
+  .scale{display:flex;gap:8px}
+  .scale span{width:30px;height:30px;border:1.5px solid var(--rule);display:flex;align-items:center;
+    justify-content:center;font-family:var(--serif);font-size:14px;color:var(--ink2)}
+  .scale span.sel{border-color:var(--forest);background:var(--forest);color:var(--paper);font-weight:600}
+  .travel{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--rule);margin-top:8px}
+  .travel .name{font-size:14px}
+  .switch{width:44px;height:26px;border:1.5px solid var(--rule);border-radius:13px;position:relative;background:var(--card)}
+  .switch::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--ink2)}
+  .notes{margin-top:14px;border:1px solid var(--rule);background:var(--card);padding:12px 14px;
+    font-family:var(--serif);font-style:italic;font-size:14px;color:var(--ink2);min-height:64px}
+  .foot{margin-top:26px;text-align:center;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink2)}
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <header class="masthead">
+    <div class="kicker">Eighty · 80/80/80 Challenge</div>
+    <h1>Day Twelve</h1>
+    <div class="dateline"><span>Tuesday, July 15</span><em>68 days remain</em></div>
+  </header>
+
+  <div class="closeout">
+    <span class="dot"></span>
+    <span><b>Yesterday is still open.</b> Log sleep &amp; bedtime items, then close it out.</span>
+    <span class="go">Close →</span>
+  </div>
+
+  <section class="plate">
+    <div class="ring">
+      <svg viewBox="0 0 120 120">
+        <circle class="track" cx="60" cy="60" r="54"/>
+        <circle class="fill" cx="60" cy="60" r="54" stroke-dasharray="230.7 339.3" transform="rotate(-90 60 60)"/>
+        <line class="tick" x1="60" y1="1" x2="60" y2="13" transform="rotate(288 60 60)"/>
+      </svg>
+      <div class="center"><div class="pct">68<small>%</small></div><div class="of">OF 80% LINE</div></div>
+    </div>
+    <dl>
+      <div><dt>Done</dt><dd>17<small> / 25</small></dd></div>
+      <div><dt>Bonus</dt><dd>1</dd></div>
+      <div><dt>Success days</dt><dd>9<small> / 11</small></dd></div>
+      <div><dt>Margin</dt><dd>14<small> misses</small></dd></div>
+    </dl>
+  </section>
+  <p class="toline"><b>3 more items</b> to make today a success.</p>
+
+  <section class="cat">
+    <div class="cat-head"><h2>Workout</h2><span class="count">5 of 6</span></div>
+    <div class="row done"><span class="box">✓</span><span class="label">Workout 1 — outside, 15 min minimum</span></div>
+    <div class="row done"><span class="box">✓</span><span class="label">Workout 2 — any workout</span></div>
+    <div class="row done"><span class="box">✓</span><span class="label">60+ min intentional exercise or recovery</span></div>
+    <div class="row done"><span class="box">✓</span><span class="label">Pushups in morning</span></div>
+    <div class="row warned"><span class="box"></span><span class="label">Pull-ups sometime in day</span></div>
+    <div class="warn">missed yesterday — don’t miss twice</div>
+    <div class="row done"><span class="box">✓</span><span class="label">At least one workout different from previous day</span></div>
+  </section>
+
+  <section class="cat">
+    <div class="cat-head"><h2>Diet</h2><span class="count">4 of 5</span></div>
+    <div class="row done"><span class="box">✓</span><span class="label">No food after 8:30pm or before 9am</span></div>
+    <div class="row"><span class="box"></span><span class="label">No sweets (dessert / cookies / candy)</span></div>
+    <div class="row done"><span class="box">✓</span><span class="label">No alcohol</span></div>
+    <div class="row done"><span class="box">✓</span><span class="label">Protein &gt;100g</span></div>
+    <div class="row done"><span class="box">✓</span><span class="label">Probiotic source once in day</span></div>
+  </section>
+
+  <section class="cat">
+    <div class="cat-head"><h2>Sleep</h2><span class="count">2 of 5</span></div>
+    <div class="row"><span class="box"></span><span class="label">In bed by 11pm</span></div>
+    <div class="row"><span class="box"></span><span class="label">At least 8 hours in bed</span></div>
+    <div class="row done"><span class="box">✓</span><span class="label">Read ≥5 min in bed</span></div>
+    <div class="row"><span class="box"></span><span class="label">No phone in bed (morning and night)</span></div>
+    <div class="row done"><span class="box">✓</span><span class="label">≥5 min of sun within 1 hour of waking</span></div>
+  </section>
+
+  <section class="cat">
+    <div class="cat-head"><h2>Supplements</h2><span class="count">1 of 2</span></div>
+    <div class="row done"><span class="box">✓</span><span class="label">Morning supplements</span></div>
+    <div class="row"><span class="box"></span><span class="label">Night supplements</span></div>
+  </section>
+
+  <section class="cat">
+    <div class="cat-head"><h2>Mental Health</h2><span class="count">3 of 5</span></div>
+    <div class="row done"><span class="box">✓</span><span class="label">≥10 min meditation</span></div>
+    <div class="row"><span class="box"></span><span class="label">&lt;2 hours solo phone / TV</span></div>
+    <div class="row done"><span class="box">✓</span><span class="label">Practiced a creative activity or hobby</span></div>
+    <div class="row done"><span class="box">✓</span><span class="label">Log ≥2 emotions in How We Feel</span></div>
+    <div class="row warned"><span class="box"></span><span class="label">Go to sleep with a clean kitchen</span></div>
+    <div class="warn">missed yesterday — don’t miss twice</div>
+  </section>
+
+  <section class="cat">
+    <div class="cat-head"><h2>Hygiene</h2><span class="count">1 of 2</span></div>
+    <div class="row done"><span class="box">✓</span><span class="label">Brush AM; brush + floss PM</span></div>
+    <div class="row"><span class="box"></span><span class="label">Moisturizer morning and night</span></div>
+  </section>
+
+  <section class="cat bonus">
+    <div class="cat-head"><h2>Bonus — Extra Credit</h2><span class="count">1</span></div>
+    <div class="row done"><span class="box">✓</span><span class="label">1+ hour socially with friends</span></div>
+    <div class="row"><span class="box"></span><span class="label">No added refined sugars</span></div>
+    <div class="row"><span class="box"></span><span class="label">No overprocessed foods</span></div>
+    <div class="row"><span class="box"></span><span class="label">1 selfless act</span></div>
+    <div class="row"><span class="box"></span><span class="label">30 min meditation</span></div>
+    <div class="row"><span class="box"></span><span class="label">3+ hours intentional exercise / recovery</span></div>
+    <p class="bonus-note">Bonus items add to your score but are never required.</p>
+  </section>
+
+  <section class="daylog">
+    <h2>Day Log</h2>
+    <div class="scale-row"><span class="name">Overall satisfaction</span>
+      <div class="scale"><span>1</span><span>2</span><span>3</span><span class="sel">4</span><span>5</span></div></div>
+    <div class="scale-row"><span class="name">Overall mood</span>
+      <div class="scale"><span>1</span><span>2</span><span class="sel">3</span><span>4</span><span>5</span></div></div>
+    <div class="travel"><span class="name">Travel day</span><span class="switch"></span></div>
+    <div class="notes">Long run felt great. Kitchen got away from me again — prep before dinner tomorrow.</div>
+  </section>
+
+  <div class="foot">Eighty · Direction A · “Ledger”</div>
+</div>
+</body>
+</html>

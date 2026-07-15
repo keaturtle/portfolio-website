@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eighty — Direction C: Nightfall</title>
+<style>
+  :root{
+    --bg:#0d1411; --panel:#141d18; --panel2:#1a2620; --text:#edf3ee; --dim:#8da399;
+    --mint:#7fdcb2; --mint-deep:#2b5c47; --sienna:#e0805a; --line:#22302a;
+    --glow:0 0 18px rgba(127,220,178,.25);
+    --sans:-apple-system, "SF Pro Display", "Segoe UI", system-ui, sans-serif;
+    --mono:ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#eef1ee; --panel:#f8faf8; --panel2:#e6ebe7; --text:#17241d; --dim:#5f7168;
+      --mint:#177651; --mint-deep:#bcdccd; --sienna:#b95c34; --line:#dde3de;
+      --glow:none;
+    }
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);
+       display:flex;justify-content:center;min-height:100vh}
+  .phone{width:100%;max-width:400px;padding:22px 18px 46px}
+
+  header{padding:8px 2px 20px}
+  .app{font-family:var(--mono);font-size:11px;letter-spacing:.3em;color:var(--mint);text-transform:uppercase}
+  .dayline{display:flex;align-items:baseline;gap:12px;margin-top:8px}
+  .dayline .big{font-size:58px;font-weight:800;letter-spacing:-.045em;line-height:1}
+  .dayline .frac{font-family:var(--mono);font-size:13px;color:var(--dim);line-height:1.5}
+  .date{font-size:13px;color:var(--dim);margin-top:6px}
+
+  .closeout{border:1px solid var(--line);background:var(--panel);border-radius:14px;
+    padding:12px 14px;display:flex;gap:12px;align-items:center;margin-bottom:16px}
+  .closeout .pulse{width:9px;height:9px;border-radius:50%;background:var(--sienna);
+    box-shadow:0 0 10px var(--sienna);flex:none}
+  .closeout p{font-size:13px;line-height:1.35;flex:1;color:var(--dim)}
+  .closeout p b{color:var(--text)}
+  .closeout .go{font-family:var(--mono);font-size:12px;color:var(--sienna);white-space:nowrap}
+
+  .board{background:var(--panel);border:1px solid var(--line);border-radius:18px;
+    padding:18px;display:flex;gap:18px;align-items:center;margin-bottom:18px}
+  .ring{width:116px;height:116px;position:relative;flex:none}
+  .ring svg{width:100%;height:100%}
+  .ring .track{fill:none;stroke:var(--panel2);stroke-width:9}
+  .ring .fill{fill:none;stroke:var(--mint);stroke-width:9;stroke-linecap:round;filter:drop-shadow(0 0 6px rgba(127,220,178,.5))}
+  .ring .tick{stroke:var(--sienna);stroke-width:3;stroke-linecap:round}
+  .ring .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .ring .pct{font-size:30px;font-weight:800;letter-spacing:-.03em}
+  .ring .goal{font-family:var(--mono);font-size:9.5px;color:var(--dim);margin-top:2px;letter-spacing:.12em}
+  .board dl{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:13px 10px}
+  .board dt{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+  .board dd{font-size:19px;font-weight:800;letter-spacing:-.02em;margin-top:2px}
+  .board dd small{font-size:12px;color:var(--dim);font-weight:500}
+  .need{margin:-8px 0 18px;font-family:var(--mono);font-size:12px;color:var(--sienna);padding:0 4px}
+
+  .cat{margin-bottom:18px}
+  .cat-head{display:flex;justify-content:space-between;align-items:baseline;padding:0 4px 8px}
+  .cat-head h2{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim)}
+  .cat-head .n{font-family:var(--mono);font-size:11px;color:var(--mint)}
+  .stack{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  .row{display:flex;align-items:center;gap:13px;padding:12px 14px;border-top:1px solid var(--line)}
+  .row:first-child{border-top:none}
+  .chk{width:24px;height:24px;border-radius:8px;border:1.5px solid var(--line);background:var(--panel2);
+    flex:none;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--bg);font-weight:800}
+  .done{background:linear-gradient(90deg, rgba(127,220,178,.07), transparent 55%)}
+  .done .chk{background:var(--mint);border-color:var(--mint);box-shadow:var(--glow)}
+  .label{font-size:14px;line-height:1.35;flex:1}
+  .done .label{color:var(--dim)}
+  .flag{display:block;margin-top:3px;font-family:var(--mono);font-size:10.5px;color:var(--sienna)}
+
+  .bonus .cat-head .n{color:var(--sienna)}
+  .bonus .stack{border-style:dashed;border-color:var(--sienna);background:transparent}
+  .bonus .chk{border-radius:50%}
+  .bonus .done{background:linear-gradient(90deg, rgba(224,128,90,.09), transparent 55%)}
+  .bonus .done .chk{background:var(--sienna);border-color:var(--sienna);box-shadow:0 0 14px rgba(224,128,90,.35)}
+
+  .daylog{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:4px}
+  .daylog h2{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+  .scale-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0}
+  .scale-row .name{font-size:13.5px;color:var(--dim)}
+  .scale{display:flex;gap:7px}
+  .scale span{width:31px;height:31px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;color:var(--dim)}
+  .scale span.sel{background:var(--mint);border-color:var(--mint);color:var(--bg);font-weight:700;box-shadow:var(--glow)}
+  .travel{display:flex;justify-content:space-between;align-items:center;padding:11px 0 3px;border-top:1px solid var(--line);margin-top:7px}
+  .travel .name{font-size:13.5px;color:var(--dim)}
+  .switch{width:46px;height:27px;border-radius:14px;background:var(--panel2);border:1px solid var(--line);position:relative}
+  .switch::after{content:"";position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:var(--dim)}
+  .notes{margin-top:12px;background:var(--panel2);border-radius:12px;padding:12px 14px;
+    font-size:13.5px;color:var(--dim);line-height:1.5;min-height:60px}
+  .foot{margin-top:26px;text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <header>
+    <div class="app">Eighty — 80·80·80</div>
+    <div class="dayline"><span class="big">Day 12</span><span class="frac">/ 80<br>68 left</span></div>
+    <div class="date">Tuesday, July 15</div>
+  </header>
+
+  <div class="closeout">
+    <span class="pulse"></span>
+    <p><b>Yesterday is still open.</b> Log sleep &amp; bedtime, then close it out.</p>
+    <span class="go">CLOSE →</span>
+  </div>
+
+  <section class="board">
+    <div class="ring">
+      <svg viewBox="0 0 120 120">
+        <circle class="track" cx="60" cy="60" r="52"/>
+        <circle class="fill" cx="60" cy="60" r="52" stroke-dasharray="222.2 326.7" transform="rotate(-90 60 60)"/>
+        <line class="tick" x1="60" y1="2" x2="60" y2="14" transform="rotate(288 60 60)"/>
+      </svg>
+      <div class="center"><div class="pct">68%</div><div class="goal">GOAL 80%</div></div>
+    </div>
+    <dl>
+      <div><dt>Done</dt><dd>17<small>/25</small></dd></div>
+      <div><dt>Bonus</dt><dd>+1</dd></div>
+      <div><dt>Success</dt><dd>9<small>/11</small></dd></div>
+      <div><dt>Margin</dt><dd>14<small> left</small></dd></div>
+    </dl>
+  </section>
+  <p class="need">▲ 3 MORE ITEMS TO CLEAR 80%</p>
+
+  <section class="cat">
+    <div class="cat-head"><h2>Workout</h2><span class="n">5/6</span></div>
+    <div class="stack">
+      <div class="row done"><span class="chk">✓</span><span class="label">Workout 1 — outside, 15 min minimum</span></div>
+      <div class="row done"><span class="chk">✓</span><span class="label">Workout 2 — any workout</span></div>
+      <div class="row done"><span class="chk">✓</span><span class="label">60+ min intentional exercise or recovery</span></div>
+      <div class="row done"><span class="chk">✓</span><span class="label">Pushups in morning</span></div>
+      <div class="row"><span class="chk"></span><span class="label">Pull-ups sometime in day<span class="flag">⚠ MISSED YESTERDAY — DON’T MISS TWICE</span></span></div>
+      <div class="row done"><span class="chk">✓</span><span class="label">At least one workout different from previous day</span></div>
+    </div>
+  </section>
+
+  <section class="cat">
+    <div class="cat-head"><h2>Diet</h2><span class="n">4/5</span></div>
+    <div class="stack">
+      <div class="row done"><span class="chk">✓</span><span class="label">No food after 8:30pm or before 9am</span></div>
+      <div class="row"><span class="chk"></span><span class="label">No sweets (dessert / cookies / candy)</span></div>
+      <div class="row done"><span class="chk">✓</span><span class="label">No alcohol</span></div>
+      <div class="row done"><span class="chk">✓</span><span class="label">Protein &gt;100g</span></div>
+      <div class="row done"><span class="chk">✓</span><span class="label">Probiotic source once in day</span></div>
+    </div>
+  </section>
+
+  <section class="cat">
+    <div class="cat-head"><h2>Sleep</h2><span class="n">2/5</span></div>
+    <div class="stack">
+      <div class="row"><span class="chk"></span><span class="label">In bed by 11pm</span></div>
+      <div class="row"><span class="chk"></span><span class="label">At least 8 hours in bed</span></div>
+      <div class="row done"><span class="chk">✓</span><span class="label">Read ≥5 min in bed</span></div>
+      <div class="row"><span class="chk"></span><span class="label">No phone in bed (morning and night)</span></div>
+      <div class="row done"><span class="chk">✓</span><span class="label">≥5 min of sun within 1 hour of waking</span></div>
+    </div>
+  </section>
+
+  <section class="cat">
+    <div class="cat-head"><h2>Supplements</h2><span class="n">1/2</span></div>
+    <div class="stack">
+      <div class="row done"><span class="chk">✓</span><span class="label">Morning supplements</span></div>
+      <div class="row"><span class="chk"></span><span class="label">Night supplements</span></div>
+    </div>
+  </section>
+
+  <section class="cat">
+    <div class="cat-head"><h2>Mental Health</h2><span class="n">3/5</span></div>
+    <div class="stack">
+      <div class="row done"><span class="chk">✓</span><span class="label">≥10 min meditation</span></div>
+      <div class="row"><span class="chk"></span><span class="label">&lt;2 hours solo phone / TV</span></div>
+      <div class="row done"><span class="chk">✓</span><span class="label">Practiced a creative activity or hobby</span></div>
+      <div class="row done"><span class="chk">✓</span><span class="label">Log ≥2 emotions in How We Feel</span></div>
+      <div class="row"><span class="chk"></span><span class="label">Go to sleep with a clean kitchen<span class="flag">⚠ MISSED YESTERDAY — DON’T MISS TWICE</span></span></div>
+    </div>
+  </section>
+
+  <section class="cat">
+    <div class="cat-head"><h2>Hygiene</h2><span class="n">1/2</span></div>
+    <div class="stack">
+      <div class="row done"><span class="chk">✓</span><span class="label">Brush AM; brush + floss PM</span></div>
+      <div class="row"><span class="chk"></span><span class="label">Moisturizer morning and night</span></div>
+    </div>
+  </section>
+
+  <section class="cat bonus">
+    <div class="cat-head"><h2>Bonus · Extra Credit</h2><span class="n">+1</span></div>
+    <div class="stack">
+      <div class="row done"><span class="chk">✓</span><span class="label">1+ hour socially with friends</span></div>
+      <div class="row"><span class="chk"></span><span class="label">No added refined sugars</span></div>
+      <div class="row"><span class="chk"></span><span class="label">No overprocessed foods</span></div>
+      <div class="row"><span class="chk"></span><span class="label">1 selfless act</span></div>
+      <div class="row"><span class="chk"></span><span class="label">30 min meditation</span></div>
+      <div class="row"><span class="chk"></span><span class="label">3+ hours intentional exercise / recovery</span></div>
+    </div>
+  </section>
+
+  <section class="daylog">
+    <h2>Day Log</h2>
+    <div class="scale-row"><span class="name">Satisfaction</span>
+      <div class="scale"><span>1</span><span>2</span><span>3</span><span class="sel">4</span><span>5</span></div></div>
+    <div class="scale-row"><span class="name">Mood</span>
+      <div class="scale"><span>1</span><span>2</span><span class="sel">3</span><span>4</span><span>5</span></div></div>
+    <div class="travel"><span class="name">Travel day</span><span class="switch"></span></div>
+    <div class="notes">Long run felt great. Kitchen got away from me again — prep before dinner tomorrow.</div>
+  </section>
+
+  <div class="foot">Eighty · Direction C · Nightfall</div>
+</div>
+</body>
+</html>
