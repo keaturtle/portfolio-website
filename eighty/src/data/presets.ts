@@ -1,0 +1,63 @@
+import { ChallengePreset, PresetItem } from './repository';
+import { TimeOfDay } from '@engine';
+
+const i = (
+  id: string,
+  categoryId: string,
+  label: string,
+  timeOfDay: TimeOfDay,
+  isBonus = false,
+): PresetItem => ({ id, categoryId, label, timeOfDay, isBonus });
+
+/** The flagship 80/80/80 preset — 25 regular items + 6 bonus, flexible mode. */
+export const EIGHTY_PRESET: ChallengePreset = {
+  name: '80/80/80',
+  durationDays: 80,
+  dailyThresholdPct: 80,
+  challengeThresholdPct: 80,
+  strictness: 'flexible',
+  noRepeatMiss: true,
+  travelExemption: true,
+  categories: [
+    { id: 'workout', name: 'Workout' },
+    { id: 'diet', name: 'Diet' },
+    { id: 'sleep', name: 'Sleep' },
+    { id: 'supplements', name: 'Supplements' },
+    { id: 'mental', name: 'Mental Health' },
+    { id: 'hygiene', name: 'Hygiene' },
+    { id: 'bonus', name: 'Bonus' },
+  ],
+  items: [
+    i('w1', 'workout', 'Workout 1 — outside, 15 min minimum', 'day'),
+    i('w2', 'workout', 'Workout 2 — any workout', 'day'),
+    i('w60', 'workout', '60+ min intentional exercise or recovery', 'day'),
+    i('wpush', 'workout', 'Pushups in morning', 'morning'),
+    i('wpull', 'workout', 'Pull-ups sometime in day', 'day'),
+    i('wdiff', 'workout', 'At least one workout different from previous day', 'day'),
+    i('dwindow', 'diet', 'No food after 8:30pm or before 9am', 'evening'),
+    i('dsweets', 'diet', 'No sweets (dessert / cookies / candy)', 'evening'),
+    i('dalcohol', 'diet', 'No alcohol', 'evening'),
+    i('dprotein', 'diet', 'Protein >100g', 'day'),
+    i('dprobiotic', 'diet', 'Probiotic source once in day', 'day'),
+    i('sbed11', 'sleep', 'In bed by 11pm', 'bed'),
+    i('s8h', 'sleep', 'At least 8 hours in bed', 'bed'),
+    i('sread', 'sleep', 'Read ≥5 min in bed', 'bed'),
+    i('snophone', 'sleep', 'No phone in bed (morning and night)', 'bed'),
+    i('ssun', 'sleep', '≥5 min of sun within 1 hour of waking', 'morning'),
+    i('supam', 'supplements', 'Morning supplements', 'morning'),
+    i('suppm', 'supplements', 'Night supplements', 'evening'),
+    i('mmed', 'mental', '≥10 min meditation', 'day'),
+    i('mscreen', 'mental', '<2 hours solo phone / TV', 'evening'),
+    i('mcreative', 'mental', 'Practiced a creative activity or hobby', 'day'),
+    i('mhwf', 'mental', 'Log ≥2 emotions in How We Feel', 'day'),
+    i('mkitchen', 'mental', 'Go to sleep with a clean kitchen', 'evening'),
+    i('hbrush', 'hygiene', 'Brush AM; brush + floss PM', 'evening'),
+    i('hmoist', 'hygiene', 'Moisturizer morning and night', 'evening'),
+    i('bsocial', 'bonus', '1+ hour socially with friends', 'day', true),
+    i('bsugar', 'bonus', 'No added refined sugars', 'evening', true),
+    i('bprocessed', 'bonus', 'No overprocessed foods', 'evening', true),
+    i('bselfless', 'bonus', '1 selfless act', 'day', true),
+    i('bmed30', 'bonus', '30 min meditation', 'day', true),
+    i('b3h', 'bonus', '3+ hours intentional exercise / recovery', 'day', true),
+  ],
+};
