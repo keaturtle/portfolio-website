@@ -41,6 +41,7 @@ export default function DashboardScreen() {
   const stats = itemStats(config, logs).sort((a, b) => b.pct - a.pct);
   const travelByDayIndex = new Set(logs.filter((l) => l.isTravel).map((l) => l.dayIndex));
   const closedDays = logs.filter((l) => l.closed).length;
+  const startLocalDate = logs[0]?.localDate ?? new Date().toISOString().slice(0, 10);
   const itemLabel = (id: string) => active.items.find((it) => it.id === id);
   const categoryName = (id: string) => active.categories.find((c) => c.id === id)?.name ?? '';
 
@@ -83,36 +84,21 @@ export default function DashboardScreen() {
         </View>
       )}
 
-      {/* Ring + headline stats */}
-      <View style={[card, styles.hero]}>
-        <ProgressRing pct={state.rollingPct} goalPct={config.challengeThresholdPct} palette={p} />
-        <View style={{ flex: 1, gap: 9 }}>
-          <Stat label="Success days" value={`${state.successDays} of ${closedDays}`} p={p} />
-          <Stat label="Days elapsed" value={`${state.daysElapsed} of ${config.durationDays}`} p={p} />
-          <Stat label="Still needed" value={`${state.successDaysNeeded} days`} p={p} />
-          <Stat label="Margin left" value={`${state.marginForError} days`} p={p} />
-        </View>
-      </View>
-
-      {/* Secondary stats */}
-      <View style={[card, styles.statsGrid]}>
-        <StatBlock label="Projected finish" value={state.projectedEndLocalDate ?? '—'} p={p} />
-        <StatBlock
-          label="Avg satisfaction"
-          value={state.avgSatisfaction ? state.avgSatisfaction.toFixed(1) : '—'}
-          p={p}
-        />
-        <StatBlock label="Avg mood" value={state.avgMood ? state.avgMood.toFixed(1) : '—'} p={p} />
-        <StatBlock label="Days remaining" value={`${state.daysRemaining}`} p={p} />
-      </View>
-
-      {/* 80-day heat grid */}
+      {/* Calendar hero */}
       <View style={[card, styles.section]}>
-        <Text style={[t.cardTitle, { color: p.ink, marginBottom: 10 }]}>Challenge calendar</Text>
+        <View style={styles.calHead}>
+          <ProgressRing pct={state.rollingPct} goalPct={config.challengeThresholdPct} palette={p} size={64} />
+          <View style={{ flex: 1, gap: 7 }}>
+            <Stat label="Success days" value={`${state.successDays} of ${closedDays}`} p={p} />
+            <Stat label="Margin left" value={`${state.marginForError} days`} p={p} />
+            <Stat label="Still needed" value={`${state.successDaysNeeded} days`} p={p} />
+          </View>
+        </View>
         <HeatGrid
           durationDays={config.durationDays}
           dayScores={state.dayScores}
           travelByDayIndex={travelByDayIndex}
+          startLocalDate={startLocalDate}
           palette={p}
           onDayPress={(dayIndex) =>
             router.push({ pathname: '/day/[dayIndex]', params: { dayIndex: String(dayIndex) } })
@@ -124,6 +110,18 @@ export default function DashboardScreen() {
           <LegendDot color={p.card2} border={p.mint} label="Open" p={p} />
           <LegendDot color={p.card2} border={p.line} label="Upcoming" p={p} />
         </View>
+      </View>
+
+      {/* Secondary stats */}
+      <View style={[card, styles.statsGrid]}>
+        <StatBlock label="Days elapsed" value={`${state.daysElapsed} / ${config.durationDays}`} p={p} />
+        <StatBlock label="Projected finish" value={state.projectedEndLocalDate ?? '—'} p={p} />
+        <StatBlock
+          label="Avg satisfaction"
+          value={state.avgSatisfaction ? state.avgSatisfaction.toFixed(1) : '—'}
+          p={p}
+        />
+        <StatBlock label="Avg mood" value={state.avgMood ? state.avgMood.toFixed(1) : '—'} p={p} />
       </View>
 
       {/* Habit leaderboard */}
@@ -217,7 +215,12 @@ const styles = StyleSheet.create({
     gap: 12,
     marginBottom: 14,
   },
-  hero: { padding: 20, flexDirection: 'row', gap: 18, alignItems: 'center', marginBottom: 14 },
+  calHead: {
+    flexDirection: 'row',
+    gap: 16,
+    alignItems: 'center',
+    marginBottom: 18,
+  },
   statsGrid: {
     padding: 16,
     marginBottom: 14,

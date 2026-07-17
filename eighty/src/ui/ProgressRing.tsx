@@ -16,6 +16,7 @@ interface Props {
 /** Day-progress ring with a sienna tick marking the daily-success threshold. */
 export function ProgressRing({ pct, goalPct, palette: p, size = 118 }: Props) {
   const shown = Math.min(pct, 100);
+  const compact = size < 90;
   return (
     <View style={{ width: size, height: size }}>
       <Svg width={size} height={size} viewBox="0 0 120 120">
@@ -43,8 +44,10 @@ export function ProgressRing({ pct, goalPct, palette: p, size = 118 }: Props) {
         />
       </Svg>
       <View style={[StyleSheet.absoluteFill, styles.center]}>
-        <Text style={[t.ringPct, { color: p.ink }]}>{Math.round(pct)}%</Text>
-        <Text style={{ fontSize: 10.5, fontWeight: '600', color: p.sub }}>goal {goalPct}%</Text>
+        <Text style={[t.ringPct, { color: p.ink, fontSize: compact ? size * 0.26 : t.ringPct.fontSize }]}>
+          {Math.round(pct)}%
+        </Text>
+        {!compact && <Text style={{ fontSize: 10.5, fontWeight: '600', color: p.sub }}>goal {goalPct}%</Text>}
       </View>
     </View>
   );
