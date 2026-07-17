@@ -55,4 +55,6 @@ export interface ChallengeRepository {
   setDayMeta(attemptId: number, dayIndex: number, meta: DayMeta): void;
   /** Closes the day and opens the next one (labelled with the current local date). */
   closeDay(attemptId: number, dayIndex: number, nextLabel: string): void;
+  getSetting(key: string): string | null;
+  setSetting(key: string, value: string): void;
 }

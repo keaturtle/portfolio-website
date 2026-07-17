@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, StyleSheet } from 'react-native';
+import { Pressable, ScrollView, Text, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { evaluateAttempt, itemStats } from '@engine';
@@ -24,6 +24,9 @@ export default function DashboardScreen() {
   if (!active) {
     return (
       <View style={[styles.empty, { backgroundColor: p.bg }]}>
+        <Pressable onPress={() => router.push('/settings')} style={styles.gearFloating}>
+          <Text style={{ fontSize: 20 }}>⚙</Text>
+        </Pressable>
         <Text style={[t.h1, { color: p.ink, textAlign: 'center' }]}>No active challenge</Text>
         <Text style={{ color: p.sub, marginTop: 8, textAlign: 'center' }}>
           Start one from the Today tab to see your dashboard here.
@@ -50,15 +53,20 @@ export default function DashboardScreen() {
       }}
     >
       {/* Header */}
-      <View style={{ paddingHorizontal: 6, paddingBottom: 16, paddingTop: 10 }}>
-        <Text style={{ fontSize: 12, fontWeight: '700', letterSpacing: 1, color: p.mint }}>
-          EIGHTY
-        </Text>
-        <Text style={[t.h1, { color: p.ink, marginTop: 2 }]}>Dashboard</Text>
-        <Text style={{ fontSize: 13, color: p.sub, marginTop: 2 }}>
-          {active.name} · {STATUS_LABEL[state.status]}
-          {state.restartReason ? ` (${state.restartReason})` : ''}
-        </Text>
+      <View style={styles.header}>
+        <View>
+          <Text style={{ fontSize: 12, fontWeight: '700', letterSpacing: 1, color: p.mint }}>
+            EIGHTY
+          </Text>
+          <Text style={[t.h1, { color: p.ink, marginTop: 2 }]}>Dashboard</Text>
+          <Text style={{ fontSize: 13, color: p.sub, marginTop: 2 }}>
+            {active.name} · {STATUS_LABEL[state.status]}
+            {state.restartReason ? ` (${state.restartReason})` : ''}
+          </Text>
+        </View>
+        <Pressable onPress={() => router.push('/settings')} style={styles.gear}>
+          <Text style={{ fontSize: 20 }}>⚙</Text>
+        </Pressable>
       </View>
 
       {state.mathematicallyImpossible && state.status !== 'succeeded' && (
@@ -187,6 +195,16 @@ function LegendDot({
 
 const styles = StyleSheet.create({
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingHorizontal: 6,
+    paddingBottom: 16,
+    paddingTop: 10,
+  },
+  gear: { padding: 6 },
+  gearFloating: { position: 'absolute', top: 16, right: 16, padding: 6 },
   banner: {
     borderRadius: radius.banner,
     padding: 14,

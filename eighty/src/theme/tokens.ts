@@ -1,4 +1,5 @@
 import { useColorScheme } from 'react-native';
+import { useThemeOverride } from './ThemeContext';
 
 /**
  * "Night Fir" design tokens — C palette on B card structure (Phase 1 approved).
@@ -36,7 +37,10 @@ export const palettes = {
 export type Palette = { [K in keyof (typeof palettes)['dark']]: string };
 
 export function usePalette(): Palette {
-  return useColorScheme() === 'light' ? palettes.light : palettes.dark;
+  const { override } = useThemeOverride();
+  const system = useColorScheme();
+  const scheme = override === 'auto' ? system : override;
+  return scheme === 'light' ? palettes.light : palettes.dark;
 }
 
 /** Shape scale: cards 20, banners 16, pills 99, notes 14, checks are circles. */

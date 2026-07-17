@@ -98,7 +98,23 @@ export class SqliteRepository implements ChallengeRepository {
         completed_at_utc TEXT NOT NULL,
         PRIMARY KEY (day_id, item_id)
       );
+      CREATE TABLE IF NOT EXISTS setting (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      );
     `);
+  }
+
+  getSetting(key: string): string | null {
+    const row = this.db.getFirstSync<{ value: string }>(`SELECT value FROM setting WHERE key = ?`, [key]);
+    return row ? row.value : null;
+  }
+
+  setSetting(key: string, value: string): void {
+    this.db.runSync(
+      `INSERT INTO setting (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+      [key, value],
+    );
   }
 
   getActive(): ActiveChallenge | null {

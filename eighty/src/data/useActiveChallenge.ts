@@ -1,24 +1,23 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { DayLog } from '@engine';
-import { SqliteRepository } from './sqlite';
-import { ActiveChallenge } from './repository';
+import { repo } from './db';
+import { ActiveChallenge, ChallengeRepository } from './repository';
 
 export interface ChallengeSnapshot {
   active: ActiveChallenge | null;
   logs: DayLog[];
 }
 
-function snapshot(repo: SqliteRepository): ChallengeSnapshot {
-  const active = repo.getActive();
-  return { active, logs: active ? repo.getLogs(active.attemptId) : [] };
+function snapshot(r: ChallengeRepository): ChallengeSnapshot {
+  const active = r.getActive();
+  return { active, logs: active ? r.getLogs(active.attemptId) : [] };
 }
 
 /** Shared active-challenge + logs state, reloaded on demand after any write. */
 export function useActiveChallenge() {
-  const repo = useMemo(() => new SqliteRepository(), []);
   const [snap, setSnap] = useState<ChallengeSnapshot>(() => snapshot(repo));
 
-  const refresh = useCallback(() => setSnap(snapshot(repo)), [repo]);
+  const refresh = useCallback(() => setSnap(snapshot(repo)), []);
 
   return { repo, active: snap.active, logs: snap.logs, refresh };
 }

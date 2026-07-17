@@ -1,12 +1,13 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { usePalette } from '@/theme/tokens';
+import { ThemeProvider } from '@/theme/ThemeContext';
 import { ErrorBoundary } from '@/ui/ErrorBoundary';
 
-export default function RootLayout() {
+function Root() {
   const p = usePalette();
   return (
-    <ErrorBoundary>
+    <>
       <StatusBar style="auto" />
       <Stack
         screenOptions={{
@@ -14,6 +15,16 @@ export default function RootLayout() {
           contentStyle: { backgroundColor: p.bg },
         }}
       />
+    </>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <ErrorBoundary>
+      <ThemeProvider>
+        <Root />
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }
