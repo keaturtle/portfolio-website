@@ -61,3 +61,31 @@ export const EIGHTY_PRESET: ChallengePreset = {
     i('b3h', 'bonus', '3+ hours intentional exercise / recovery', 'day', true),
   ],
 };
+
+/** 75 Hard — all-or-nothing: any missed item restarts the attempt (hardcore mode). */
+export const HARD_75_PRESET: ChallengePreset = {
+  name: '75 Hard',
+  durationDays: 75,
+  dailyThresholdPct: 100,
+  challengeThresholdPct: 100,
+  strictness: 'hardcore',
+  noRepeatMiss: false,
+  travelExemption: false,
+  categories: [
+    { id: 'diet', name: 'Diet' },
+    { id: 'workout', name: 'Workout' },
+    { id: 'hydration', name: 'Hydration' },
+    { id: 'growth', name: 'Growth' },
+    { id: 'tracking', name: 'Tracking' },
+  ],
+  items: [
+    i('diet', 'diet', 'Follow your diet — no cheat meals, no alcohol', 'day'),
+    i('workout1', 'workout', 'Workout 1 — 45 minutes', 'day'),
+    i('workout2', 'workout', 'Workout 2 — 45 minutes, outdoors', 'day'),
+    i('water', 'hydration', 'Drink 1 gallon of water', 'day'),
+    i('read', 'growth', 'Read 10 pages of a non-fiction book', 'evening'),
+    i('photo', 'tracking', 'Take a progress photo', 'morning'),
+  ],
+};
+
+export const PRESETS: ChallengePreset[] = [EIGHTY_PRESET, HARD_75_PRESET];

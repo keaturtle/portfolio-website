@@ -163,6 +163,9 @@ export class SqliteRepository implements ChallengeRepository {
   startChallenge(preset: ChallengePreset, todayLabel: string): ActiveChallenge {
     let result: ActiveChallenge | undefined;
     this.db.withTransactionSync(() => {
+      // v1 shows a single active challenge (PLAN.md #10) — starting a new one
+      // archives whatever was active rather than leaving two 'active' rows.
+      this.db.runSync(`UPDATE challenge SET status = 'archived' WHERE status = 'active'`);
       const ch = this.db.runSync(
         `INSERT INTO challenge (name, duration_days, daily_threshold_pct, challenge_threshold_pct,
           strictness, no_repeat_miss, travel_exempt, created_at_utc)

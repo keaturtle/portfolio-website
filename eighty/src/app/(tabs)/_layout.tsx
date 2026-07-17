@@ -31,6 +31,13 @@ export default function TabsLayout() {
           tabBarIcon: ({ focused }) => <TabIcon emoji="📊" focused={focused} />,
         }}
       />
+      <Tabs.Screen
+        name="challenges"
+        options={{
+          title: 'Challenges',
+          tabBarIcon: ({ focused }) => <TabIcon emoji="🗂" focused={focused} />,
+        }}
+      />
     </Tabs>
   );
 }
