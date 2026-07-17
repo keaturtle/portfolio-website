@@ -1,4 +1,3 @@
-import { useCallback, useMemo, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -13,7 +12,6 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import {
-  DayLog,
   TimeOfDay,
   atRiskItems,
   evaluateAttempt,
@@ -21,9 +19,8 @@ import {
   requiredItems,
   scoreDay,
 } from '@engine';
-import { SqliteRepository } from '@/data/sqlite';
 import { EIGHTY_PRESET } from '@/data/presets';
-import { ActiveChallenge } from '@/data/repository';
+import { useActiveChallenge } from '@/data/useActiveChallenge';
 import { usePalette, radius, type as t } from '@/theme/tokens';
 import { ProgressRing } from '@/ui/ProgressRing';
 import { CheckRow } from '@/ui/CheckRow';
@@ -40,26 +37,10 @@ function todayLabel(): string {
   return localDateLabel(Date.now(), Intl.DateTimeFormat().resolvedOptions().timeZone);
 }
 
-interface Snapshot {
-  active: ActiveChallenge | null;
-  logs: DayLog[];
-}
-
 export default function TodayScreen() {
   const p = usePalette();
   const insets = useSafeAreaInsets();
-  const repo = useMemo(() => new SqliteRepository(), []);
-  const [snap, setSnap] = useState<Snapshot>(() => {
-    const active = repo.getActive();
-    return { active, logs: active ? repo.getLogs(active.attemptId) : [] };
-  });
-
-  const refresh = useCallback(() => {
-    const active = repo.getActive();
-    setSnap({ active, logs: active ? repo.getLogs(active.attemptId) : [] });
-  }, [repo]);
-
-  const { active, logs } = snap;
+  const { repo, active, logs, refresh } = useActiveChallenge();
 
   if (!active) {
     return (
@@ -100,7 +81,7 @@ export default function TodayScreen() {
     return (
       <View style={[styles.startWrap, { backgroundColor: p.bg }]}>
         <Text style={[t.h1, { color: p.ink }]}>Challenge complete</Text>
-        <Text style={{ color: p.sub, marginTop: 8 }}>Dashboard arrives in Phase 4.</Text>
+        <Text style={{ color: p.sub, marginTop: 8 }}>Check the Dashboard tab for the full picture.</Text>
       </View>
     );
   }
