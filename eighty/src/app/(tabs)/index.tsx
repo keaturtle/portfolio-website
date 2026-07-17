@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import {
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -10,21 +12,24 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import {
-  TimeOfDay,
-  atRiskItems,
-  evaluateAttempt,
-  localDateLabel,
-  requiredItems,
-  scoreDay,
-} from '@engine';
-import { EIGHTY_PRESET } from '@/data/presets';
+import { TimeOfDay, atRiskItems, evaluateAttempt, requiredItems, scoreDay } from '@engine';
+import { EIGHTY_PRESET, HARD_75_PRESET } from '@/data/presets';
+import { confirmAndStart, todayLabel } from '@/data/startFlow';
 import { useActiveChallenge } from '@/data/useActiveChallenge';
 import { usePalette, radius, type as t } from '@/theme/tokens';
 import { ProgressRing } from '@/ui/ProgressRing';
 import { CheckRow } from '@/ui/CheckRow';
 import { RatingScale } from '@/ui/RatingScale';
+
+const HOW_IT_WORKS = [
+  ['Daily threshold', 'Hit a set % of your checklist each day (80% for 80/80/80, 100% for 75 Hard).'],
+  ['Challenge threshold', 'Succeed on enough days across the whole challenge, not every single one.'],
+  ['Bonus items', 'Extra credit — they help your percentage and never hurt it.'],
+  ['No-repeat-miss', "Miss the same item two days running and that second day fails, even if you hit the daily %."],
+  ['Strictness', 'Flexible keeps going after a bad day; strict/hardcore restart the attempt on certain misses.'],
+] as const;
 
 const SECTIONS: { key: TimeOfDay; title: string; hint?: string }[] = [
   { key: 'morning', title: '🌅 Morning', hint: 'within an hour of waking' },
@@ -33,14 +38,11 @@ const SECTIONS: { key: TimeOfDay; title: string; hint?: string }[] = [
   { key: 'bed', title: '🛏 Bed', hint: 'logged tonight or tomorrow morning' },
 ];
 
-function todayLabel(): string {
-  return localDateLabel(Date.now(), Intl.DateTimeFormat().resolvedOptions().timeZone);
-}
-
 export default function TodayScreen() {
   const p = usePalette();
   const insets = useSafeAreaInsets();
   const { repo, active, logs, refresh } = useActiveChallenge();
+  const [showInfo, setShowInfo] = useState(false);
 
   if (!active) {
     return (
@@ -49,27 +51,58 @@ export default function TodayScreen() {
           EIGHTY
         </Text>
         <Text style={[t.h1, { color: p.ink, marginTop: 6, textAlign: 'center' }]}>
-          The 80/80/80 Challenge
+          Pick your challenge
         </Text>
         <Text style={{ fontSize: 14, color: p.sub, textAlign: 'center', marginTop: 10, lineHeight: 21 }}>
-          Hit 80% of your checklist on 80% of days over 80 days.{'\n'}Miss days, not habits — never
-          the same item twice in a row.
+          Check off your checklist daily and hit a threshold to succeed — miss days, not habits.
         </Text>
+        <Pressable onPress={() => setShowInfo(true)} style={{ marginTop: 8 }}>
+          <Text style={{ fontSize: 12.5, color: p.mint, fontWeight: '700' }}>How scoring works ⓘ</Text>
+        </Pressable>
+
         <Pressable
-          onPress={() => {
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            repo.startChallenge(EIGHTY_PRESET, todayLabel());
-            refresh();
-          }}
+          onPress={() => confirmAndStart(repo, active, EIGHTY_PRESET, refresh)}
           style={({ pressed }) => [
             styles.startBtn,
             { backgroundColor: p.mint, opacity: pressed ? 0.8 : 1 },
           ]}
         >
-          <Text style={{ color: p.onAccent, fontWeight: '800', fontSize: 16 }}>
-            Start day 1 today
+          <Text style={{ color: p.onAccent, fontWeight: '800', fontSize: 16 }}>Start 80/80/80</Text>
+        </Pressable>
+        <Pressable
+          onPress={() => confirmAndStart(repo, active, HARD_75_PRESET, refresh)}
+          style={({ pressed }) => [
+            styles.secondaryBtn,
+            { borderColor: p.line, opacity: pressed ? 0.7 : 1 },
+          ]}
+        >
+          <Text style={{ color: p.ink, fontWeight: '700', fontSize: 15 }}>Start 75 Hard</Text>
+        </Pressable>
+        <Pressable onPress={() => router.push('/builder')} style={{ marginTop: 18 }}>
+          <Text style={{ fontSize: 13, color: p.sub, fontWeight: '600' }}>
+            Build your own, or import one someone shared →
           </Text>
         </Pressable>
+
+        <Modal visible={showInfo} animationType="slide" transparent onRequestClose={() => setShowInfo(false)}>
+          <View style={styles.modalBackdrop}>
+            <View style={[styles.modalCard, { backgroundColor: p.card }]}>
+              <Text style={[t.h1, { color: p.ink, fontSize: 20, marginBottom: 12 }]}>How scoring works</Text>
+              {HOW_IT_WORKS.map(([label, body]) => (
+                <View key={label} style={{ marginBottom: 12 }}>
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: p.mint }}>{label}</Text>
+                  <Text style={{ fontSize: 13, color: p.sub, marginTop: 2, lineHeight: 18 }}>{body}</Text>
+                </View>
+              ))}
+              <Pressable
+                onPress={() => setShowInfo(false)}
+                style={[styles.startBtn, { backgroundColor: p.mint, marginTop: 4 }]}
+              >
+                <Text style={{ color: p.onAccent, fontWeight: '800', fontSize: 15 }}>Got it</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
       </View>
     );
   }
@@ -334,6 +367,15 @@ function Stat({
 const styles = StyleSheet.create({
   startWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 },
   startBtn: { marginTop: 28, borderRadius: radius.pill, paddingHorizontal: 26, paddingVertical: 14 },
+  secondaryBtn: {
+    marginTop: 12,
+    borderRadius: radius.pill,
+    borderWidth: 1.5,
+    paddingHorizontal: 26,
+    paddingVertical: 13,
+  },
+  modalBackdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
+  modalCard: { borderTopLeftRadius: radius.card, borderTopRightRadius: radius.card, padding: 22, paddingBottom: 36 },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
