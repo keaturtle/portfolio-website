@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Stack } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
+import { Ionicons } from '@expo/vector-icons';
 import { Strictness, TimeOfDay, validateConfig } from '@engine';
 import { EIGHTY_PRESET, HARD_75_PRESET } from '@/data/presets';
 import { ChallengePreset, PresetItem } from '@/data/repository';
@@ -40,11 +41,23 @@ const BLANK: ChallengePreset = {
   items: [],
 };
 
+function initialDraft(presetJson: string | undefined): ChallengePreset {
+  if (!presetJson) return BLANK;
+  try {
+    const parsed = JSON.parse(presetJson);
+    if (typeof parsed?.name === 'string' && Array.isArray(parsed?.items)) return parsed as ChallengePreset;
+  } catch {
+    // fall through to BLANK
+  }
+  return BLANK;
+}
+
 export default function BuilderScreen() {
   const p = usePalette();
   const insets = useSafeAreaInsets();
+  const { presetJson } = useLocalSearchParams<{ presetJson?: string }>();
   const { repo, active, refresh } = useActiveChallenge();
-  const [draft, setDraft] = useState<ChallengePreset>(BLANK);
+  const [draft, setDraft] = useState<ChallengePreset>(() => initialDraft(presetJson));
   const [newCategory, setNewCategory] = useState('');
   const [newItem, setNewItem] = useState<Record<string, { label: string; isBonus: boolean; timeOfDay: TimeOfDay }>>({});
   const card = { backgroundColor: p.card, borderRadius: radius.card };
@@ -205,19 +218,19 @@ export default function BuilderScreen() {
           <View key={cat.id} style={[card, styles.section]}>
             <View style={styles.catHead}>
               <Text style={[t.cardTitle, { color: p.ink }]}>{cat.name}</Text>
-              <Pressable onPress={() => removeCategory(cat.id)}>
-                <Text style={{ color: p.sub, fontSize: 12 }}>Remove category ✕</Text>
+              <Pressable onPress={() => removeCategory(cat.id)} style={styles.removeLink}>
+                <Ionicons name="trash-outline" size={13} color={p.sub} />
+                <Text style={{ color: p.sub, fontSize: 12 }}>Remove category</Text>
               </Pressable>
             </View>
             {draft.items
               .filter((i) => i.categoryId === cat.id)
               .map((i) => (
                 <View key={i.id} style={styles.itemRow}>
-                  <Text style={{ flex: 1, fontSize: 13.5, color: p.ink }}>
-                    {i.label} {i.isBonus ? '✨' : ''}
-                  </Text>
+                  {i.isBonus && <Ionicons name="sparkles-outline" size={13} color={p.sienna} />}
+                  <Text style={{ flex: 1, fontSize: 13.5, color: p.ink }}>{i.label}</Text>
                   <Pressable onPress={() => removeItem(i.id)}>
-                    <Text style={{ color: p.sub, fontSize: 13 }}>✕</Text>
+                    <Ionicons name="close" size={16} color={p.sub} />
                   </Pressable>
                 </View>
               ))}
@@ -336,7 +349,8 @@ const styles = StyleSheet.create({
   tinyPill: { borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 5 },
   quickBtn: { flex: 1, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 10, alignItems: 'center' },
   catHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  itemRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 5 },
+  removeLink: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  itemRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 5 },
   toggleRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 9, marginTop: 4 },
   startBtn: { borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center', marginTop: 4 },
 });

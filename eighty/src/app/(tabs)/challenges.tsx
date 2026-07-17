@@ -1,24 +1,26 @@
 import { Alert, Pressable, ScrollView, Text, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { validateConfig } from '@engine';
 import { PRESETS } from '@/data/presets';
 import { ChallengePreset } from '@/data/repository';
-import { confirmAndStart } from '@/data/startFlow';
 import { parseTemplateJson, presetToConfig, serializeTemplate } from '@/data/templates';
 import { useActiveChallenge } from '@/data/useActiveChallenge';
 import { usePalette, radius, type as t } from '@/theme/tokens';
 
+function preview(preset: ChallengePreset) {
+  router.push({ pathname: '/preview', params: { presetJson: JSON.stringify(preset) } });
+}
+
 export default function ChallengesScreen() {
   const p = usePalette();
   const insets = useSafeAreaInsets();
-  const { repo, active, refresh } = useActiveChallenge();
+  const { active } = useActiveChallenge();
   const card = { backgroundColor: p.card, borderRadius: radius.card };
-
-  const start = (preset: ChallengePreset) => confirmAndStart(repo, active, preset, refresh);
 
   const importFromFile = async () => {
     const result = await DocumentPicker.getDocumentAsync({ type: 'application/json' });
@@ -35,7 +37,7 @@ export default function ChallengesScreen() {
         Alert.alert('Import failed', errors.map((e) => `• ${e.message}`).join('\n'));
         return;
       }
-      start(parsed.preset);
+      preview(parsed.preset);
     } catch {
       Alert.alert('Import failed', 'Could not read that file.');
     }
@@ -94,6 +96,7 @@ export default function ChallengesScreen() {
             {active.config.strictness}
           </Text>
           <Pressable onPress={exportActive} style={[styles.linkBtn, { backgroundColor: p.mintSoft }]}>
+            <Ionicons name="share-outline" size={14} color={p.mint} />
             <Text style={{ color: p.mint, fontSize: 12.5, fontWeight: '700' }}>Export as file</Text>
           </Pressable>
         </View>
@@ -109,29 +112,32 @@ export default function ChallengesScreen() {
             {preset.noRepeatMiss ? ' · no-repeat-miss' : ''}
           </Text>
           <Pressable
-            onPress={() => start(preset)}
+            onPress={() => preview(preset)}
             style={({ pressed }) => [styles.startBtn, { backgroundColor: p.mint, opacity: pressed ? 0.8 : 1 }]}
           >
-            <Text style={{ color: p.onAccent, fontWeight: '800', fontSize: 13.5 }}>Start</Text>
+            <Text style={{ color: p.onAccent, fontWeight: '800', fontSize: 13.5 }}>Preview & start</Text>
           </Pressable>
         </View>
       ))}
 
       <Text style={[styles.groupLabel, { color: p.sub }]}>Custom</Text>
-      <Pressable
-        onPress={() => router.push('/builder')}
-        style={[card, styles.section, styles.rowBtn]}
-      >
-        <Text style={{ fontSize: 14, fontWeight: '700', color: p.ink }}>Build a custom challenge</Text>
-        <Text style={{ fontSize: 12, color: p.sub, marginTop: 2 }}>
-          Pick your own duration, thresholds, and checklist.
-        </Text>
+      <Pressable onPress={() => router.push('/builder')} style={[card, styles.section, styles.rowBtn]}>
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontSize: 14, fontWeight: '700', color: p.ink }}>Build a custom challenge</Text>
+          <Text style={{ fontSize: 12, color: p.sub, marginTop: 2 }}>
+            Pick your own duration, thresholds, and checklist.
+          </Text>
+        </View>
+        <Ionicons name="chevron-forward" size={16} color={p.sub} />
       </Pressable>
       <Pressable onPress={importFromFile} style={[card, styles.section, styles.rowBtn]}>
-        <Text style={{ fontSize: 14, fontWeight: '700', color: p.ink }}>Import from file</Text>
-        <Text style={{ fontSize: 12, color: p.sub, marginTop: 2 }}>
-          Load a challenge someone shared with you as a JSON file.
-        </Text>
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontSize: 14, fontWeight: '700', color: p.ink }}>Import from file</Text>
+          <Text style={{ fontSize: 12, color: p.sub, marginTop: 2 }}>
+            Load a challenge someone shared with you as a JSON file.
+          </Text>
+        </View>
+        <Ionicons name="chevron-forward" size={16} color={p.sub} />
       </Pressable>
     </ScrollView>
   );
@@ -141,6 +147,14 @@ const styles = StyleSheet.create({
   section: { padding: 16, marginBottom: 12 },
   groupLabel: { fontSize: 11.5, fontWeight: '700', letterSpacing: 0.6, marginBottom: 8, marginTop: 4, paddingHorizontal: 6 },
   startBtn: { borderRadius: radius.pill, paddingVertical: 10, alignItems: 'center', marginTop: 12 },
-  linkBtn: { borderRadius: radius.pill, paddingVertical: 8, alignItems: 'center', marginTop: 12 },
-  rowBtn: {},
+  linkBtn: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 6,
+    borderRadius: radius.pill,
+    paddingVertical: 8,
+    marginTop: 12,
+  },
+  rowBtn: { flexDirection: 'row', alignItems: 'center', gap: 10 },
 });

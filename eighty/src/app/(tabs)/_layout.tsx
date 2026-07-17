@@ -1,9 +1,21 @@
 import { Tabs } from 'expo-router';
-import { Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { usePalette } from '@/theme/tokens';
 
-function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
-  return <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.5 }}>{emoji}</Text>;
+type IconName = keyof typeof Ionicons.glyphMap;
+
+function TabIcon({
+  active,
+  inactive,
+  focused,
+  color,
+}: {
+  active: IconName;
+  inactive: IconName;
+  focused: boolean;
+  color: string;
+}) {
+  return <Ionicons name={focused ? active : inactive} size={22} color={color} />;
 }
 
 export default function TabsLayout() {
@@ -21,28 +33,36 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: 'Today',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="✓" focused={focused} />,
+          tabBarIcon: ({ focused, color }) => (
+            <TabIcon active="checkmark-circle" inactive="checkmark-circle-outline" focused={focused} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="dashboard"
         options={{
           title: 'Dashboard',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="📊" focused={focused} />,
+          tabBarIcon: ({ focused, color }) => (
+            <TabIcon active="stats-chart" inactive="stats-chart-outline" focused={focused} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="trends"
         options={{
           title: 'Trends',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="📈" focused={focused} />,
+          tabBarIcon: ({ focused, color }) => (
+            <TabIcon active="trending-up" inactive="trending-up-outline" focused={focused} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="challenges"
         options={{
           title: 'Challenges',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="🗂" focused={focused} />,
+          tabBarIcon: ({ focused, color }) => (
+            <TabIcon active="layers" inactive="layers-outline" focused={focused} color={color} />
+          ),
         }}
       />
     </Tabs>

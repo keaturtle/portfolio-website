@@ -14,14 +14,17 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
+import { Ionicons } from '@expo/vector-icons';
 import { TimeOfDay, atRiskItems, evaluateAttempt, requiredItems, scoreDay } from '@engine';
 import { EIGHTY_PRESET, HARD_75_PRESET } from '@/data/presets';
-import { confirmAndStart, todayLabel } from '@/data/startFlow';
+import { todayLabel } from '@/data/startFlow';
 import { useActiveChallenge } from '@/data/useActiveChallenge';
 import { usePalette, radius, type as t } from '@/theme/tokens';
 import { ProgressRing } from '@/ui/ProgressRing';
 import { CheckRow } from '@/ui/CheckRow';
 import { RatingScale } from '@/ui/RatingScale';
+
+type IconName = keyof typeof Ionicons.glyphMap;
 
 const HOW_IT_WORKS = [
   ['Daily threshold', 'Hit a set % of your checklist each day (80% for 80/80/80, 100% for 75 Hard).'],
@@ -31,12 +34,16 @@ const HOW_IT_WORKS = [
   ['Strictness', 'Flexible keeps going after a bad day; strict/hardcore restart the attempt on certain misses.'],
 ] as const;
 
-const SECTIONS: { key: TimeOfDay; title: string; hint?: string }[] = [
-  { key: 'morning', title: '🌅 Morning', hint: 'within an hour of waking' },
-  { key: 'day', title: '☀️ During the day' },
-  { key: 'evening', title: '🌆 Evening', hint: 'before winding down' },
-  { key: 'bed', title: '🛏 Bed', hint: 'logged tonight or tomorrow morning' },
+const SECTIONS: { key: TimeOfDay; title: string; icon: IconName; hint?: string }[] = [
+  { key: 'morning', title: 'Morning', icon: 'sunny-outline', hint: 'within an hour of waking' },
+  { key: 'day', title: 'During the day', icon: 'partly-sunny-outline' },
+  { key: 'evening', title: 'Evening', icon: 'cloudy-night-outline', hint: 'before winding down' },
+  { key: 'bed', title: 'Bed', icon: 'bed-outline', hint: 'logged tonight or tomorrow morning' },
 ];
+
+function startPreset(preset: typeof EIGHTY_PRESET) {
+  router.push({ pathname: '/preview', params: { presetJson: JSON.stringify(preset) } });
+}
 
 export default function TodayScreen() {
   const p = usePalette();
@@ -56,12 +63,13 @@ export default function TodayScreen() {
         <Text style={{ fontSize: 14, color: p.sub, textAlign: 'center', marginTop: 10, lineHeight: 21 }}>
           Check off your checklist daily and hit a threshold to succeed — miss days, not habits.
         </Text>
-        <Pressable onPress={() => setShowInfo(true)} style={{ marginTop: 8 }}>
-          <Text style={{ fontSize: 12.5, color: p.mint, fontWeight: '700' }}>How scoring works ⓘ</Text>
+        <Pressable onPress={() => setShowInfo(true)} style={styles.infoLink}>
+          <Ionicons name="information-circle-outline" size={15} color={p.mint} />
+          <Text style={{ fontSize: 12.5, color: p.mint, fontWeight: '700' }}>How scoring works</Text>
         </Pressable>
 
         <Pressable
-          onPress={() => confirmAndStart(repo, active, EIGHTY_PRESET, refresh)}
+          onPress={() => startPreset(EIGHTY_PRESET)}
           style={({ pressed }) => [
             styles.startBtn,
             { backgroundColor: p.mint, opacity: pressed ? 0.8 : 1 },
@@ -70,7 +78,7 @@ export default function TodayScreen() {
           <Text style={{ color: p.onAccent, fontWeight: '800', fontSize: 16 }}>Start 80/80/80</Text>
         </Pressable>
         <Pressable
-          onPress={() => confirmAndStart(repo, active, HARD_75_PRESET, refresh)}
+          onPress={() => startPreset(HARD_75_PRESET)}
           style={({ pressed }) => [
             styles.secondaryBtn,
             { borderColor: p.line, opacity: pressed ? 0.7 : 1 },
@@ -78,10 +86,11 @@ export default function TodayScreen() {
         >
           <Text style={{ color: p.ink, fontWeight: '700', fontSize: 15 }}>Start 75 Hard</Text>
         </Pressable>
-        <Pressable onPress={() => router.push('/builder')} style={{ marginTop: 18 }}>
+        <Pressable onPress={() => router.push('/builder')} style={styles.buildLink}>
           <Text style={{ fontSize: 13, color: p.sub, fontWeight: '600' }}>
-            Build your own, or import one someone shared →
+            Build your own, or import one someone shared
           </Text>
+          <Ionicons name="arrow-forward" size={13} color={p.sub} />
         </Pressable>
 
         <Modal visible={showInfo} animationType="slide" transparent onRequestClose={() => setShowInfo(false)}>
@@ -171,7 +180,7 @@ export default function TodayScreen() {
         {/* Close-out banner */}
         {needsCloseout && (
           <View style={[styles.closeout, { backgroundColor: p.siennaSoft }]}>
-            <Text style={{ fontSize: 18 }}>🌙</Text>
+            <Ionicons name="moon" size={18} color={p.sienna} />
             <Text style={{ flex: 1, fontSize: 13.5, lineHeight: 18, color: p.ink }}>
               <Text style={{ fontWeight: '700', color: p.sienna }}>
                 {openDay.localDate} is still open.
@@ -215,7 +224,7 @@ export default function TodayScreen() {
                   </>
                 ) : (
                   <Text style={{ color: p.mint, fontWeight: '700' }}>
-                    Today is a success — keep stacking ✓
+                    Today is a success — keep stacking
                   </Text>
                 )}
               </Text>
@@ -224,17 +233,20 @@ export default function TodayScreen() {
         </View>
 
         {/* Checklist by time of day */}
-        {SECTIONS.map(({ key, title, hint }) => {
+        {SECTIONS.map(({ key, title, icon, hint }) => {
           const items = active.items.filter((it) => !it.isBonus && it.timeOfDay === key);
           if (items.length === 0) return null;
           const doneCount = items.filter((it) => done.has(it.id)).length;
           return (
             <View key={key} style={[card, styles.cat]}>
               <View style={styles.catHead}>
-                <Text style={[t.cardTitle, { color: p.ink }]}>
-                  {title}
-                  {hint ? <Text style={{ fontSize: 11, fontWeight: '500', color: p.sub }}>  {hint}</Text> : null}
-                </Text>
+                <View style={styles.catHeadLeft}>
+                  <Ionicons name={icon} size={15} color={p.sub} />
+                  <Text style={[t.cardTitle, { color: p.ink }]}>
+                    {title}
+                    {hint ? <Text style={{ fontSize: 11, fontWeight: '500', color: p.sub }}>  {hint}</Text> : null}
+                  </Text>
+                </View>
                 <View style={[styles.pill, { backgroundColor: p.mintSoft }]}>
                   <Text style={{ fontSize: 11.5, fontWeight: '700', color: p.mint }}>
                     {doneCount}/{items.length}
@@ -263,7 +275,10 @@ export default function TodayScreen() {
         {/* Bonus */}
         <View style={[styles.cat, styles.bonus, { borderColor: p.sienna }]}>
           <View style={styles.catHead}>
-            <Text style={[t.cardTitle, { color: p.sienna }]}>✨ Bonus · Extra credit</Text>
+            <View style={styles.catHeadLeft}>
+              <Ionicons name="sparkles-outline" size={15} color={p.sienna} />
+              <Text style={[t.cardTitle, { color: p.sienna }]}>Bonus · Extra credit</Text>
+            </View>
             <View style={[styles.pill, { backgroundColor: p.siennaSoft }]}>
               <Text style={{ fontSize: 11.5, fontWeight: '700', color: p.sienna }}>
                 +{score.completedBonus}
@@ -366,6 +381,8 @@ function Stat({
 
 const styles = StyleSheet.create({
   startWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 },
+  infoLink: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 8 },
+  buildLink: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 18 },
   startBtn: { marginTop: 28, borderRadius: radius.pill, paddingHorizontal: 26, paddingVertical: 14 },
   secondaryBtn: {
     marginTop: 12,
@@ -404,6 +421,7 @@ const styles = StyleSheet.create({
     paddingBottom: 7,
     paddingHorizontal: 2,
   },
+  catHeadLeft: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   pill: { borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 3 },
   bonus: { borderWidth: 1.5, borderStyle: 'dashed', borderRadius: radius.card },
   daylog: { padding: 16, marginBottom: 12 },

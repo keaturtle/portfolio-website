@@ -1,5 +1,6 @@
 import { Pressable, Text, View, StyleSheet } from 'react-native';
 import * as Haptics from 'expo-haptics';
+import { Ionicons } from '@expo/vector-icons';
 import { Palette } from '@/theme/tokens';
 
 interface Props {
@@ -45,7 +46,7 @@ export function CheckRow({
           isBonus && { borderRadius: 9 },
         ]}
       >
-        {done && <Text style={{ color: p.onAccent, fontSize: 13, fontWeight: '700' }}>✓</Text>}
+        {done && <Ionicons name="checkmark" size={15} color={p.onAccent} style={{ fontWeight: '700' }} />}
       </View>
       <View style={{ flex: 1 }}>
         <Text style={{ fontSize: 14, lineHeight: 19, color: done ? p.sub : p.ink }}>
@@ -57,8 +58,9 @@ export function CheckRow({
         </Text>
         {missedYesterday && !done && (
           <View style={[styles.flag, { backgroundColor: p.siennaSoft }]}>
+            <Ionicons name="alert-circle-outline" size={12} color={p.sienna} />
             <Text style={{ fontSize: 11.5, fontWeight: '600', color: p.sienna }}>
-              ⚠ missed yesterday — don’t miss twice
+              missed yesterday — don’t miss twice
             </Text>
           </View>
         )}
@@ -85,6 +87,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   flag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
     alignSelf: 'flex-start',
     borderRadius: 7,
     paddingHorizontal: 8,

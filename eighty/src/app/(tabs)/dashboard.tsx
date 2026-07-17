@@ -1,6 +1,7 @@
 import { Pressable, ScrollView, Text, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { evaluateAttempt, itemStats } from '@engine';
 import { useActiveChallenge } from '@/data/useActiveChallenge';
 import { usePalette, radius, type as t } from '@/theme/tokens';
@@ -10,7 +11,7 @@ import { ItemStatRow } from '@/ui/ItemStatRow';
 
 const STATUS_LABEL: Record<string, string> = {
   active: 'In progress',
-  succeeded: 'Succeeded 🎉',
+  succeeded: 'Succeeded',
   failed: 'Failed',
   'restart-required': 'Restart required',
 };
@@ -25,7 +26,7 @@ export default function DashboardScreen() {
     return (
       <View style={[styles.empty, { backgroundColor: p.bg }]}>
         <Pressable onPress={() => router.push('/settings')} style={styles.gearFloating}>
-          <Text style={{ fontSize: 20 }}>⚙</Text>
+          <Ionicons name="settings-outline" size={20} color={p.sub} />
         </Pressable>
         <Text style={[t.h1, { color: p.ink, textAlign: 'center' }]}>No active challenge</Text>
         <Text style={{ color: p.sub, marginTop: 8, textAlign: 'center' }}>
@@ -59,19 +60,22 @@ export default function DashboardScreen() {
             EIGHTY
           </Text>
           <Text style={[t.h1, { color: p.ink, marginTop: 2 }]}>Dashboard</Text>
-          <Text style={{ fontSize: 13, color: p.sub, marginTop: 2 }}>
-            {active.name} · {STATUS_LABEL[state.status]}
-            {state.restartReason ? ` (${state.restartReason})` : ''}
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 }}>
+            {state.status === 'succeeded' && <Ionicons name="trophy" size={13} color={p.mint} />}
+            <Text style={{ fontSize: 13, color: p.sub }}>
+              {active.name} · {STATUS_LABEL[state.status]}
+              {state.restartReason ? ` (${state.restartReason})` : ''}
+            </Text>
+          </View>
         </View>
         <Pressable onPress={() => router.push('/settings')} style={styles.gear}>
-          <Text style={{ fontSize: 20 }}>⚙</Text>
+          <Ionicons name="settings-outline" size={20} color={p.sub} />
         </Pressable>
       </View>
 
       {state.mathematicallyImpossible && state.status !== 'succeeded' && (
         <View style={[styles.banner, { backgroundColor: p.siennaSoft }]}>
-          <Text style={{ fontSize: 18 }}>⚠️</Text>
+          <Ionicons name="warning-outline" size={18} color={p.sienna} />
           <Text style={{ flex: 1, fontSize: 13.5, lineHeight: 18, color: p.ink }}>
             <Text style={{ fontWeight: '700', color: p.sienna }}>Success is out of reach</Text> at
             the current pace. You can restart or keep logging — stats keep computing either way.

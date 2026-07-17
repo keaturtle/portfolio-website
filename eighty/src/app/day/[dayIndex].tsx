@@ -2,6 +2,7 @@ import { Alert, ScrollView, Switch, Text, TextInput, View, StyleSheet } from 're
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
+import { Ionicons } from '@expo/vector-icons';
 import { AttemptState, DayLog, evaluateAttempt, scoreDay } from '@engine';
 import { useActiveChallenge } from '@/data/useActiveChallenge';
 import { usePalette, radius, type as t } from '@/theme/tokens';
@@ -133,10 +134,13 @@ export default function DayDetailScreen() {
             {score.completedBonus > 0 ? ` · +${score.completedBonus} bonus` : ''}
           </Text>
           {score.violations.length > 0 && (
-            <Text style={{ fontSize: 12.5, color: p.sienna, marginTop: 6 }}>
-              ⚠ Missed {score.violations.length} item{score.violations.length === 1 ? '' : 's'} two
-              days in a row
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 6 }}>
+              <Ionicons name="alert-circle-outline" size={13} color={p.sienna} />
+              <Text style={{ fontSize: 12.5, color: p.sienna }}>
+                Missed {score.violations.length} item{score.violations.length === 1 ? '' : 's'} two
+                days in a row
+              </Text>
+            </View>
           )}
         </View>
 
