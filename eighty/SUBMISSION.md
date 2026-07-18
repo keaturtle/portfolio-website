@@ -101,13 +101,14 @@ In App Store Connect → your app → App Store tab:
 - [ ] **Age rating:** answer the questionnaire honestly — all "None" → rated **4+**.
 - [ ] **Screenshots** — see step 8.
 
-## 7. Host the privacy policy — 🔑 YOU (small)
+## 7. Host the privacy policy — ✅ built, needs a merge to go live
 
-App Review requires a public Privacy Policy URL.
+App Review requires a public Privacy Policy URL. **The page is already built** on the
+portfolio site at `src/app/eighty/privacy/page.tsx` → **`https://keatentuttle.com/eighty/privacy`**.
 
-- [ ] Publish `eighty/PRIVACY.md` on the portfolio site (it's already Next.js on Vercel —
-      the obvious host). Suggested route: `keatentuttle.com/eighty/privacy`.
-- [ ] Paste that URL into App Store Connect (step 6) and into the app listing.
+- [ ] It deploys automatically **once this branch is merged to `main`** (Vercel builds
+      `main`, not this feature branch). So: merge, confirm the URL loads, then use it.
+- [ ] Paste `https://keatentuttle.com/eighty/privacy` into App Store Connect (step 6).
 
 ## 8. Screenshots — 🔑 YOU (capture on device/simulator)
 
@@ -188,7 +189,7 @@ data-type category, the answer is **not collected**. (`PRIVACY.md` backs this up
 
 **Support URL:** `https://keatentuttle.com`
 **Marketing URL:** `https://keatentuttle.com`
-**Privacy Policy URL:** _host PRIVACY.md, then paste that URL_
+**Privacy Policy URL:** `https://keatentuttle.com/eighty/privacy` _(live after this branch merges to main)_
 **Copyright:** `© 2026 Keaten Tuttle`
 
 ---
