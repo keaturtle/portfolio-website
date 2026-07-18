@@ -48,6 +48,48 @@ export interface ChallengeListItem {
   createdAtUtc: string;
 }
 
+export interface BackupDay {
+  dayIndex: number;
+  localDate: string;
+  isTravel: boolean;
+  satisfaction: number | null;
+  mood: number | null;
+  notes: string | null;
+  closedAtUtc: string | null;
+  completedItemIds: string[];
+}
+
+export interface BackupAttempt {
+  attemptNo: number;
+  startedLocalDate: string;
+  status: string;
+  endedReason: string | null;
+  days: BackupDay[];
+}
+
+export interface BackupChallenge {
+  name: string;
+  durationDays: number;
+  dailyThresholdPct: number;
+  challengeThresholdPct: number;
+  strictness: Strictness;
+  noRepeatMiss: boolean;
+  travelExemption: boolean;
+  status: string;
+  createdAtUtc: string;
+  categories: PresetCategory[];
+  items: PresetItem[];
+  attempts: BackupAttempt[];
+}
+
+/** Full-fidelity dump of every challenge/attempt/day — the backup/restore format (M9). */
+export interface BackupFile {
+  schemaVersion: 1;
+  exportedAtUtc: string;
+  challenges: BackupChallenge[];
+  settings: Record<string, string>;
+}
+
 /**
  * All persistence goes through this interface so a synced implementation can
  * replace SQLite later without touching the engine or the UI.
@@ -72,4 +114,8 @@ export interface ChallengeRepository {
   activateChallenge(challengeId: number): void;
   /** Deletes a challenge and everything under it. Irreversible. */
   deleteChallenge(challengeId: number): void;
+  /** Full-fidelity snapshot of every challenge/attempt/day/setting — the backup format. */
+  exportAllData(): BackupFile;
+  /** Replaces everything currently stored with the snapshot. Irreversible. */
+  importAllData(data: BackupFile): void;
 }

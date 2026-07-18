@@ -2,6 +2,7 @@ import * as SQLite from 'expo-sqlite';
 import { DayLog, Rating } from '@engine';
 import {
   ActiveChallenge,
+  BackupFile,
   ChallengeListItem,
   ChallengePreset,
   ChallengeRepository,
@@ -366,6 +367,154 @@ export class SqliteRepository implements ChallengeRepository {
       this.db.runSync(`DELETE FROM category WHERE challenge_id = ?`, [challengeId]);
       this.db.runSync(`DELETE FROM item WHERE challenge_id = ?`, [challengeId]);
       this.db.runSync(`DELETE FROM challenge WHERE id = ?`, [challengeId]);
+    });
+  }
+
+  exportAllData(): BackupFile {
+    const challenges = this.db.getAllSync<
+      ChallengeRow & { status: string; created_at_utc: string }
+    >(`SELECT * FROM challenge ORDER BY id`);
+
+    return {
+      schemaVersion: 1,
+      exportedAtUtc: new Date().toISOString(),
+      settings: Object.fromEntries(
+        this.db
+          .getAllSync<{ key: string; value: string }>(`SELECT key, value FROM setting`)
+          .map((r) => [r.key, r.value]),
+      ),
+      challenges: challenges.map((ch) => {
+        const categories = this.db.getAllSync<PresetCategory>(
+          `SELECT id, name FROM category WHERE challenge_id = ? ORDER BY sort_order`,
+          [ch.id],
+        );
+        const items = this.db
+          .getAllSync<{ id: string; category_id: string; label: string; is_bonus: number; time_of_day: string }>(
+            `SELECT * FROM item WHERE challenge_id = ? ORDER BY sort_order`,
+            [ch.id],
+          )
+          .map(
+            (r): PresetItem => ({
+              id: r.id,
+              categoryId: r.category_id,
+              label: r.label,
+              isBonus: r.is_bonus === 1,
+              timeOfDay: r.time_of_day as PresetItem['timeOfDay'],
+            }),
+          );
+        const attempts = this.db.getAllSync<{
+          id: number;
+          attempt_no: number;
+          started_local_date: string;
+          status: string;
+          ended_reason: string | null;
+        }>(`SELECT * FROM attempt WHERE challenge_id = ? ORDER BY attempt_no`, [ch.id]);
+
+        return {
+          name: ch.name,
+          durationDays: ch.duration_days,
+          dailyThresholdPct: ch.daily_threshold_pct,
+          challengeThresholdPct: ch.challenge_threshold_pct,
+          strictness: ch.strictness as ChallengePreset['strictness'],
+          noRepeatMiss: ch.no_repeat_miss === 1,
+          travelExemption: ch.travel_exempt === 1,
+          status: ch.status,
+          createdAtUtc: ch.created_at_utc,
+          categories,
+          items,
+          attempts: attempts.map((a) => {
+            const days = this.db.getAllSync<DayRow>(
+              `SELECT * FROM day WHERE attempt_id = ? ORDER BY day_index`,
+              [a.id],
+            );
+            return {
+              attemptNo: a.attempt_no,
+              startedLocalDate: a.started_local_date,
+              status: a.status,
+              endedReason: a.ended_reason,
+              days: days.map((d) => ({
+                dayIndex: d.day_index,
+                localDate: d.local_date,
+                isTravel: d.is_travel === 1,
+                satisfaction: d.satisfaction,
+                mood: d.mood,
+                notes: d.notes,
+                closedAtUtc: d.closed_at_utc,
+                completedItemIds: this.db
+                  .getAllSync<{ item_id: string }>(`SELECT item_id FROM day_item WHERE day_id = ?`, [d.id])
+                  .map((r) => r.item_id),
+              })),
+            };
+          }),
+        };
+      }),
+    };
+  }
+
+  importAllData(data: BackupFile): void {
+    this.db.withTransactionSync(() => {
+      this.db.execSync(
+        `DELETE FROM day_item; DELETE FROM day; DELETE FROM attempt; DELETE FROM category; DELETE FROM item; DELETE FROM challenge; DELETE FROM setting;`,
+      );
+      for (const ch of data.challenges) {
+        const chRes = this.db.runSync(
+          `INSERT INTO challenge (name, duration_days, daily_threshold_pct, challenge_threshold_pct,
+            strictness, no_repeat_miss, travel_exempt, status, created_at_utc)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            ch.name,
+            ch.durationDays,
+            ch.dailyThresholdPct,
+            ch.challengeThresholdPct,
+            ch.strictness,
+            ch.noRepeatMiss ? 1 : 0,
+            ch.travelExemption ? 1 : 0,
+            ch.status,
+            ch.createdAtUtc,
+          ],
+        );
+        const challengeId = Number(chRes.lastInsertRowId);
+        ch.categories.forEach((c, idx) =>
+          this.db.runSync(`INSERT INTO category (challenge_id, id, name, sort_order) VALUES (?, ?, ?, ?)`, [
+            challengeId,
+            c.id,
+            c.name,
+            idx,
+          ]),
+        );
+        ch.items.forEach((it, idx) =>
+          this.db.runSync(
+            `INSERT INTO item (challenge_id, id, category_id, label, is_bonus, time_of_day, sort_order)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [challengeId, it.id, it.categoryId, it.label, it.isBonus ? 1 : 0, it.timeOfDay, idx],
+          ),
+        );
+        for (const a of ch.attempts) {
+          const atRes = this.db.runSync(
+            `INSERT INTO attempt (challenge_id, attempt_no, started_local_date, status, ended_reason)
+             VALUES (?, ?, ?, ?, ?)`,
+            [challengeId, a.attemptNo, a.startedLocalDate, a.status, a.endedReason],
+          );
+          const attemptId = Number(atRes.lastInsertRowId);
+          for (const d of a.days) {
+            const dayRes = this.db.runSync(
+              `INSERT INTO day (attempt_id, day_index, local_date, is_travel, satisfaction, mood, notes, closed_at_utc)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+              [attemptId, d.dayIndex, d.localDate, d.isTravel ? 1 : 0, d.satisfaction, d.mood, d.notes, d.closedAtUtc],
+            );
+            const dayId = Number(dayRes.lastInsertRowId);
+            d.completedItemIds.forEach((itemId) =>
+              this.db.runSync(
+                `INSERT INTO day_item (day_id, item_id, completed_at_utc) VALUES (?, ?, ?)`,
+                [dayId, itemId, new Date().toISOString()],
+              ),
+            );
+          }
+        }
+      }
+      Object.entries(data.settings).forEach(([key, value]) =>
+        this.db.runSync(`INSERT INTO setting (key, value) VALUES (?, ?)`, [key, value]),
+      );
     });
   }
 }
