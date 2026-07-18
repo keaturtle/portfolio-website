@@ -25,7 +25,7 @@ Status legend: ✅ committed · 🔨 in progress · ⬜ not started.
 | M8 Accessibility & motion polish | ✅ | this session |
 | M12 Performance at 80-day scale | ✅ | this session |
 | M10 Visual identity (icon/splash) | ✅ | this session |
-| M14 App Store submission prep | ⬜ | — |
+| M14 App Store submission prep | 🔨 | this session (prep only) |
 | M13 iOS home-screen widget (dev build) | ⬜ | — |
 
 Earlier this file implied more was shipped than the commit history showed; the table
@@ -170,7 +170,14 @@ Today/Dashboard/Trends screens so unrelated re-renders don't re-walk 80 days.*
   for a quick look.
 - Flagging for your explicit go-ahead per the hard constraint — see questions below.
 
-## M14 — App Store submission checklist 🟡 ⬜
+## M14 — App Store submission checklist 🟡 🔨
+
+*Prep done this session (everything that doesn't need your Apple account): `eas.json`
+build/submit profiles, `ios.bundleIdentifier` + `ITSAppUsesNonExemptEncryption`, a written
+privacy policy (`PRIVACY.md`), paste-ready store copy + App Privacy answers, and a full
+step-by-step in [SUBMISSION.md](./SUBMISSION.md). Remaining steps are all 🔑 you — Apple
+Developer membership, `eas login`/`eas build`/`eas submit`, hosting the privacy policy,
+screenshots, and two small decisions (iPad support, final app name) noted in DECISIONS.md.*
 
 - EAS Build for iOS (`eas build --platform ios`) — produces the signed binary; this
   step alone doesn't change your day-to-day Expo Go workflow.

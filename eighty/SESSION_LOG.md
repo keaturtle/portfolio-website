@@ -44,6 +44,14 @@ roadmap-reconcile commit for details).
 - Wired Android `adaptiveIcon` in app.json; bumped splash `imageWidth` to 220.
 - NB: Expo Go shows *its own* icon — this is only visible on an EAS build / TestFlight.
 
+**M14 — Submission prep (done; the rest needs your Apple account).**
+- `eas.json` (development/preview/production + submit), `ios.bundleIdentifier`
+  (`com.keatentuttle.eighty`), `ITSAppUsesNonExemptEncryption: false`.
+- `PRIVACY.md` (host it on the portfolio site), paste-ready store copy, App Privacy =
+  "Data Not Collected", and a full step-by-step in `SUBMISSION.md`.
+- Two decisions left for you (in DECISIONS.md): iPad support (screenshots) and final App
+  Store name (may be taken).
+
 **M12 — Performance at 80-day scale (done).**
 - `getLogs`: was 1 + N queries (one per day for its items); now 2 total via a joined
   `day_item` fetch grouped in memory. Same fix applied to `exportAllData` (one DB-wide
