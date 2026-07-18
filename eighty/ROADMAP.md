@@ -8,9 +8,32 @@ client) or works in **plain Expo Go** (just `npx expo start`, scan, done).
 Legend: 🟢 Expo Go · 🟡 Expo Go now, dev-build only at submission time · 🔴 needs a
 custom dev build to test at all.
 
+Status legend: ✅ committed · 🔨 in progress · ⬜ not started.
+
 ---
 
-## M4 — Dashboard, calendar, leaderboard (original Phase 4) 🟢
+## Status at a glance (reconciled to git 2026-07-17)
+
+| Milestone | State | Landed in |
+|-----------|-------|-----------|
+| M4 Dashboard / calendar / leaderboard | ✅ | `05a7a9e`, refined `5fc0607` |
+| M5 Builder / 75 Hard / import-export | ✅ | `5e03401` |
+| M7 Onboarding & first-run | ✅ | `fe4bca5` (+ preview `4b78aa9`) |
+| M6 Trends / day-edit / notifications / Settings | ✅ | `7011ed2` |
+| M11 Multi-challenge switching & history | ✅ | `22995ff` |
+| M9 Backup / restore | ✅ | `47344a0` |
+| M8 Accessibility & motion polish | 🔨 | — |
+| M12 Performance at 80-day scale | ⬜ | — |
+| M10 Visual identity (icon/splash) | ⬜ | — |
+| M14 App Store submission prep | ⬜ | — |
+| M13 iOS home-screen widget (dev build) | ⬜ | — |
+
+Earlier this file implied more was shipped than the commit history showed; the table
+above is the source of truth and is kept in sync with what is actually committed.
+
+---
+
+## M4 — Dashboard, calendar, leaderboard (original Phase 4) 🟢 ✅
 
 The engine already computes everything here (`evaluateAttempt`, `itemStats`) — this
 milestone is pure UI.
@@ -25,7 +48,7 @@ milestone is pure UI.
 - Introduce `(tabs)` layout in expo-router (Today / Dashboard / Trends / Challenges)
   — currently everything lives at `app/index.tsx`.
 
-## M5 — Challenge builder, presets, import/export (original Phase 5) 🟢
+## M5 — Challenge builder, presets, import/export (original Phase 5) 🟢 ✅
 
 - Builder flow: name, duration, daily/challenge thresholds, strictness, no-repeat
   toggle, travel exemption, categories + items (regular/bonus, time-of-day).
@@ -39,7 +62,7 @@ milestone is pure UI.
 - Wire `getActive()`/`startChallenge()` to a real challenge list instead of assuming
   the 80/80/80 preset.
 
-## M6 — Trends, day editing, notifications, Settings (original Phase 6 + extensions)
+## M6 — Trends, day editing, notifications, Settings (original Phase 6 + extensions) 🟡 ✅
 
 - **Trends** 🟢: satisfaction/mood over time, category-level completion trends,
   weekday breakdown (which weekday you're weakest on) — all derived from
@@ -58,7 +81,7 @@ milestone is pure UI.
   supports both), notification toggles/times, data export/backup, about/version,
   switch active challenge (ties into M9).
 
-## M7 — Onboarding & first-run 🟢
+## M7 — Onboarding & first-run 🟢 ✅
 
 - Replace the single "Start day 1 today" button with a real first-run flow: pick a
   preset (80/80/80 or 75 Hard) or "customize" → into the M5 builder, confirm items,
@@ -68,7 +91,7 @@ milestone is pure UI.
   (dashboard with 0 days logged, trends with 1 data point, SQLite open failure,
   etc.) — currently only the Today screen's "no active challenge" case is handled.
 
-## M8 — Accessibility & motion polish 🟢
+## M8 — Accessibility & motion polish 🟢 🔨
 
 - VoiceOver labels on every interactive element (CheckRow and RatingScale already
   do this — audit ProgressRing, calendar cells, builder controls, tab bar).
@@ -83,7 +106,7 @@ milestone is pure UI.
   load, calendar cell stagger — `useReducedMotion` respected throughout (already the
   standard per CLAUDE.md-equivalent guidance in PLAN.md).
 
-## M9 — Data safety & sync groundwork 🟢
+## M9 — Data safety & sync groundwork 🟢 ✅
 
 - Manual backup/restore: export the whole SQLite DB (or a JSON dump of all
   challenges/attempts/days) to a file via `expo-file-system` + share sheet; restore
@@ -94,7 +117,7 @@ milestone is pure UI.
   changes to support a future `CloudSyncRepository` — v1 ships `SqliteRepository`
   only, cloud sync is explicitly a "later" swap-in, not built now.
 
-## M10 — Visual identity 🟢 (build-safe, but only checkable in a real build/TestFlight)
+## M10 — Visual identity 🟢 ⬜ (build-safe, but only checkable in a real build/TestFlight)
 
 - Real app icon + adaptive icon + splash screen assets (currently placeholder paths
   in `app.json` — `assets/images/icon.png` etc. need real art in "Night Fir" style).
@@ -102,14 +125,14 @@ milestone is pure UI.
   — you won't see the real icon until an EAS build/TestFlight install, so this
   needs a milestone-close check on-device via TestFlight, not Expo Go.
 
-## M11 — Multi-challenge support 🟢
+## M11 — Multi-challenge support 🟢 ✅
 
 - Schema and engine already support multiple challenges (PLAN.md #10); v1 UI only
   ever shows one active challenge. Build the "switch active challenge" UI (list of
   challenges, activate/pause/archive) and a History view for past attempts
   (including strict/hardcore restart chains — PLAN.md #6).
 
-## M12 — Performance pass at full 80-day scale 🟢
+## M12 — Performance pass at full 80-day scale 🟢 ⬜
 
 - `getLogs` currently does one query per day for `day_item` — fine at low volumes,
   worth batching into a single joined query before dashboard/calendar/trends all
@@ -119,7 +142,7 @@ milestone is pure UI.
 - Confirm SQLite indexes exist for the query patterns each new screen introduces
   (calendar/trends will scan the full `day`/`day_item` range).
 
-## M13 — iOS home-screen widget 🔴
+## M13 — iOS home-screen widget 🔴 ⬜
 
 - Today's ring on the home screen needs a native WidgetKit extension — there is no
   way to build this without a custom dev client / EAS build with a config plugin
@@ -128,7 +151,7 @@ milestone is pure UI.
   for a quick look.
 - Flagging for your explicit go-ahead per the hard constraint — see questions below.
 
-## M14 — App Store submission checklist 🟡
+## M14 — App Store submission checklist 🟡 ⬜
 
 - EAS Build for iOS (`eas build --platform ios`) — produces the signed binary; this
   step alone doesn't change your day-to-day Expo Go workflow.
