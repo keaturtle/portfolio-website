@@ -36,6 +36,16 @@ roadmap-reconcile commit for details).
   gated by a new `useReducedMotion()` hook.
 - Verified: tsc clean, 64 engine tests green, iOS bundle exports.
 
+**M12 — Performance at 80-day scale (done).**
+- `getLogs`: was 1 + N queries (one per day for its items); now 2 total via a joined
+  `day_item` fetch grouped in memory. Same fix applied to `exportAllData` (one DB-wide
+  `day_item` fetch instead of per-day). Order-independent, so the engine is unaffected.
+- Added `idx_attempt_challenge`; day/day_item hot paths were already covered by their
+  UNIQUE/PK autoindexes.
+- `useMemo`'d `evaluateAttempt`/`itemStats` on Today/Dashboard/Trends (logs snapshot is
+  stable between unrelated re-renders, so the memo actually saves the 80-day walk).
+- Verified: tsc clean, 64 engine tests green, iOS bundle exports.
+
 ### Verified this session
 - Engine: 64+ tests, 100% coverage (kept green after any engine change).
 - `tsc --noEmit`: clean.

@@ -104,6 +104,10 @@ export class SqliteRepository implements ChallengeRepository {
         key TEXT PRIMARY KEY,
         value TEXT NOT NULL
       );
+      -- day(attempt_id, …) and day_item(day_id, …) are already covered by the
+      -- UNIQUE/PRIMARY KEY autoindexes; this one speeds the per-challenge attempt
+      -- lookups the History and dashboard screens do at 80-day scale.
+      CREATE INDEX IF NOT EXISTS idx_attempt_challenge ON attempt(challenge_id);
     `);
   }
 
@@ -236,15 +240,26 @@ export class SqliteRepository implements ChallengeRepository {
       `SELECT * FROM day WHERE attempt_id = ? ORDER BY day_index`,
       [attemptId],
     );
+    // One joined query for every completed item across the attempt instead of a
+    // query per day (was 1 + N; now 2 total), then group in memory by day.
+    const doneRows = this.db.getAllSync<{ day_id: number; item_id: string }>(
+      `SELECT di.day_id, di.item_id
+         FROM day_item di
+         JOIN day d ON d.id = di.day_id
+        WHERE d.attempt_id = ?`,
+      [attemptId],
+    );
+    const byDay = new Map<number, string[]>();
+    for (const r of doneRows) {
+      const arr = byDay.get(r.day_id);
+      if (arr) arr.push(r.item_id);
+      else byDay.set(r.day_id, [r.item_id]);
+    }
     return days.map((d) => {
-      const done = this.db.getAllSync<{ item_id: string }>(
-        `SELECT item_id FROM day_item WHERE day_id = ?`,
-        [d.id],
-      );
       const log: DayLog = {
         dayIndex: d.day_index,
         localDate: d.local_date,
-        completedItemIds: done.map((r) => r.item_id),
+        completedItemIds: byDay.get(d.id) ?? [],
         isTravel: d.is_travel === 1,
         closed: d.closed_at_utc !== null,
       };
@@ -375,6 +390,17 @@ export class SqliteRepository implements ChallengeRepository {
       ChallengeRow & { status: string; created_at_utc: string }
     >(`SELECT * FROM challenge ORDER BY id`);
 
+    // Pull every completed item once and group by day, so the day loop below is a
+    // map lookup instead of a query per day (was O(days) queries across the DB).
+    const itemsByDay = new Map<number, string[]>();
+    for (const r of this.db.getAllSync<{ day_id: number; item_id: string }>(
+      `SELECT day_id, item_id FROM day_item`,
+    )) {
+      const arr = itemsByDay.get(r.day_id);
+      if (arr) arr.push(r.item_id);
+      else itemsByDay.set(r.day_id, [r.item_id]);
+    }
+
     return {
       schemaVersion: 1,
       exportedAtUtc: new Date().toISOString(),
@@ -440,9 +466,7 @@ export class SqliteRepository implements ChallengeRepository {
                 mood: d.mood,
                 notes: d.notes,
                 closedAtUtc: d.closed_at_utc,
-                completedItemIds: this.db
-                  .getAllSync<{ item_id: string }>(`SELECT item_id FROM day_item WHERE day_id = ?`, [d.id])
-                  .map((r) => r.item_id),
+                completedItemIds: itemsByDay.get(d.id) ?? [],
               })),
             };
           }),

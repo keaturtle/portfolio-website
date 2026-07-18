@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Dimensions, Pressable, ScrollView, Text, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -21,7 +22,14 @@ export default function TrendsScreen() {
   const { active, logs } = useActiveChallenge();
   const card = { backgroundColor: p.card, borderRadius: radius.card };
 
-  if (!active) {
+  // Memoized so the 80-day walk / per-item stats only recompute when logs change.
+  const state = useMemo(
+    () => (active ? evaluateAttempt(active.config, logs) : null),
+    [active, logs],
+  );
+  const stats = useMemo(() => (active ? itemStats(active.config, logs) : []), [active, logs]);
+
+  if (!active || !state) {
     return (
       <View style={[styles.empty, { backgroundColor: p.bg }]}>
         <Pressable
@@ -40,15 +48,13 @@ export default function TrendsScreen() {
     );
   }
 
-  const { config } = active;
-  const state = evaluateAttempt(config, logs);
   const closedLogs = logs.filter((l) => l.closed);
 
   const satisfactionValues = closedLogs.filter((l) => l.satisfaction !== undefined).map((l) => l.satisfaction as number);
   const moodValues = closedLogs.filter((l) => l.mood !== undefined).map((l) => l.mood as number);
 
   const categoryAgg = new Map<string, { sum: number; count: number }>();
-  for (const s of itemStats(config, logs)) {
+  for (const s of stats) {
     const item = active.items.find((it) => it.id === s.itemId);
     if (!item) continue;
     const agg = categoryAgg.get(item.categoryId) ?? { sum: 0, count: 0 };

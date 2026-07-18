@@ -23,7 +23,7 @@ Status legend: ✅ committed · 🔨 in progress · ⬜ not started.
 | M11 Multi-challenge switching & history | ✅ | `22995ff` |
 | M9 Backup / restore | ✅ | `47344a0` |
 | M8 Accessibility & motion polish | ✅ | this session |
-| M12 Performance at 80-day scale | ⬜ | — |
+| M12 Performance at 80-day scale | ✅ | this session |
 | M10 Visual identity (icon/splash) | ⬜ | — |
 | M14 App Store submission prep | ⬜ | — |
 | M13 iOS home-screen widget (dev build) | ⬜ | — |
@@ -138,7 +138,13 @@ Full write-up in [QA.md](./QA.md).*
   challenges, activate/pause/archive) and a History view for past attempts
   (including strict/hardcore restart chains — PLAN.md #6).
 
-## M12 — Performance pass at full 80-day scale 🟢 ⬜
+## M12 — Performance pass at full 80-day scale 🟢 ✅
+
+*Done this session. `getLogs` went from 1 + N (a query per day) to 2 queries via a
+single joined `day_item` fetch grouped in memory; `exportAllData` got the same
+treatment (one `day_item` fetch for the whole DB instead of per-day). Added
+`idx_attempt_challenge`. `evaluateAttempt`/`itemStats` are now `useMemo`'d on the
+Today/Dashboard/Trends screens so unrelated re-renders don't re-walk 80 days.*
 
 - `getLogs` currently does one query per day for `day_item` — fine at low volumes,
   worth batching into a single joined query before dashboard/calendar/trends all

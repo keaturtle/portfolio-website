@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Modal,
@@ -50,8 +50,14 @@ export default function TodayScreen() {
   const insets = useSafeAreaInsets();
   const { repo, active, logs, refresh } = useActiveChallenge();
   const [showInfo, setShowInfo] = useState(false);
+  // Memoized so the full-attempt walk doesn't re-run when only local UI state
+  // (the info modal, ring animation) changes.
+  const state = useMemo(
+    () => (active ? evaluateAttempt(active.config, logs) : null),
+    [active, logs],
+  );
 
-  if (!active) {
+  if (!active || !state) {
     return (
       <View style={[styles.startWrap, { backgroundColor: p.bg }]}>
         <Text style={{ fontSize: 12, fontWeight: '700', letterSpacing: 1, color: p.mint }}>
@@ -133,7 +139,6 @@ export default function TodayScreen() {
   const yesterday = logs.find((l) => l.dayIndex === openDay.dayIndex - 1);
   const atRisk = new Set(atRiskItems(config, yesterday, openDay.isTravel));
   const score = scoreDay(config, openDay, yesterday);
-  const state = evaluateAttempt(config, logs);
   const done = new Set(openDay.completedItemIds);
   const required = requiredItems(config);
   const credit = score.completedRegular + score.completedBonus;

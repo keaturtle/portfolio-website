@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Pressable, ScrollView, Text, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -16,7 +17,18 @@ export default function DashboardScreen() {
   const { active, logs } = useActiveChallenge();
   const card = { backgroundColor: p.card, borderRadius: radius.card };
 
-  if (!active) {
+  // Memoized so the 80-day walk only re-runs when the logs snapshot actually
+  // changes, not on unrelated re-renders (theme, navigation focus).
+  const state = useMemo(
+    () => (active ? evaluateAttempt(active.config, logs) : null),
+    [active, logs],
+  );
+  const stats = useMemo(
+    () => (active ? itemStats(active.config, logs).slice().sort((a, b) => b.pct - a.pct) : []),
+    [active, logs],
+  );
+
+  if (!active || !state) {
     return (
       <View style={[styles.empty, { backgroundColor: p.bg }]}>
         <Pressable
@@ -36,8 +48,6 @@ export default function DashboardScreen() {
   }
 
   const { config } = active;
-  const state = evaluateAttempt(config, logs);
-  const stats = itemStats(config, logs).sort((a, b) => b.pct - a.pct);
   const travelByDayIndex = new Set(logs.filter((l) => l.isTravel).map((l) => l.dayIndex));
   const closedDays = logs.filter((l) => l.closed).length;
   const startLocalDate = logs[0]?.localDate ?? new Date().toISOString().slice(0, 10);
