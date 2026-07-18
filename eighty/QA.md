@@ -9,23 +9,18 @@ from the original spec, each scenario mapped to how it's verified.
 
 ### Color contrast (WCAG)
 
-Both "Night Fir" palettes were checked with the standard WCAG relative-luminance
-formula (script kept in the session scratchpad; reproducible from `tokens.ts`).
-Targets: **4.5:1** for normal text, **3:1** for large text / UI components.
+Both "Midnight Indigo" palettes (Obsidian base · Electric-blue success · Persimmon miss)
+were checked with the standard WCAG relative-luminance formula (script reproducible from
+`tokens.ts`). Targets: **4.5:1** for normal text, **3:1** for large text / UI components.
+Note: token names `mint`/`sienna` are retained but now hold blue/persimmon values.
 
 **Dark palette (native scheme):** every text pairing passes AA comfortably —
-`ink` 15–16:1, `sub` 5.8–7:1, `mint`/`sienna` accents 5.3–11:1, button labels
-6.6–11:1.
+`ink` ~16:1, `sub` 5.5–6.5:1, `mint`(blue)/`sienna`(persimmon) accents 5.8–7.3:1,
+button/cell labels ~7:1.
 
-**Light palette:** three tokens were darkened slightly from the first draft so they
-clear AA on the lightest surfaces (cards and chips), where the original values landed
-just under 4.5:1:
-
-| Token | Was | Now | Tightest ratio now |
-|-------|-----|-----|--------------------|
-| `sub`    | `#5f7168` | `#586a60` | 4.77:1 on `card2` |
-| `mint`   | `#177651` | `#156c4a` | 5.13:1 on `mintSoft` |
-| `sienna` | `#b95c34` | `#a54c26` | 4.59:1 on `siennaSoft` |
+**Light palette:** the blue and persimmon are darkened for legibility on light surfaces;
+tightest ratios after tuning — `mint` 4.79:1 on `mintSoft`, `sienna` 4.50:1 on
+`siennaSoft`, `sub` 5.21:1 on `card2`. All pass AA.
 
 **Known, accepted sub-3:1 pairing:** the card **border** (`line`) sits ~1.2:1 against
 the card fill in both palettes. This is an intentional, low-contrast separator; the

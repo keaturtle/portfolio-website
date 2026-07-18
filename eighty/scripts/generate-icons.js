@@ -9,11 +9,12 @@ const path = require('path');
 
 const OUT = process.argv[2] || path.join(__dirname, '..', 'assets', 'images');
 
-const MINT = [127, 220, 178]; // #7fdcb2
-const SIENNA = [224, 128, 90]; // #e0805a
-const TRACK = [28, 51, 42]; // #1c332a — faint ring behind the arc
-const BG_CENTER = [22, 33, 27]; // #16211b
-const BG_EDGE = [11, 18, 15]; // #0b120f
+// "Midnight Indigo" identity — Electric-blue arc, Persimmon leading dot, Obsidian ground.
+const MINT = [91, 157, 255]; // #5b9dff — electric blue (success/accent)
+const SIENNA = [255, 107, 69]; // #ff6b45 — persimmon (the leading progress dot)
+const TRACK = [25, 29, 46]; // #191d2e — faint ring behind the arc (obsidian card2)
+const BG_CENTER = [18, 20, 31]; // #12141f
+const BG_EDGE = [6, 7, 12]; // #06070c
 
 const lerp = (a, b, t) => a + (b - a) * t;
 const rad = (d) => (d * Math.PI) / 180;

@@ -2,37 +2,41 @@ import { useColorScheme } from 'react-native';
 import { useThemeOverride } from './ThemeContext';
 
 /**
- * "Night Fir" design tokens — C palette on B card structure (Phase 1 approved).
- * Dark is the native scheme; light is the derived variant.
+ * "Midnight Indigo" design tokens — Obsidian navy base, Electric-blue accent
+ * (success), Persimmon warn (miss). Dark is the native scheme; light is the
+ * derived variant. Both are tuned to clear WCAG AA (see eighty/QA.md § contrast).
+ *
+ * NOTE: the token names `mint` (accent / success) and `sienna` (warn / fail) are
+ * kept for stability across the app — the *values* are blue / persimmon now, not
+ * green / terracotta. Rename is a future cleanup, not worth touching every screen.
  */
 export const palettes = {
   dark: {
-    bg: '#0d1411',
-    card: '#141d18',
-    card2: '#1a2620',
-    ink: '#edf3ee',
-    sub: '#8da399',
-    mint: '#7fdcb2',
-    mintSoft: '#1c332a',
-    sienna: '#e0805a',
-    siennaSoft: '#33231b',
-    line: '#22302a',
-    onAccent: '#0d1411',
+    bg: '#08090f',
+    card: '#10131f',
+    card2: '#191d2e',
+    ink: '#e8eaf2',
+    sub: '#8d93a6',
+    mint: '#5b9dff', // Electric blue — success / accent
+    mintSoft: '#14223d',
+    sienna: '#ff6b45', // Persimmon — fail / warn
+    siennaSoft: '#331711',
+    line: '#212636',
+    onAccent: '#08090f',
   },
   light: {
-    // Text/accent colors tuned to clear WCAG AA (4.5:1) on their backgrounds;
-    // see eighty/QA.md § contrast. sub/mint/sienna were darkened slightly from
-    // the original draft to pass on the lightest surfaces (card, chips).
-    bg: '#eef1ee',
-    card: '#f8faf8',
-    card2: '#e6ebe7',
-    ink: '#17241d',
-    sub: '#586a60',
-    mint: '#156c4a',
-    mintSoft: '#d9eae1',
-    sienna: '#a54c26',
-    siennaSoft: '#f3e3d9',
-    line: '#dde3de',
+    // Blue/persimmon light variant; sub/mint/sienna darkened to clear AA on the
+    // lightest surfaces (card, chips).
+    bg: '#eef1f6',
+    card: '#f9fbfd',
+    card2: '#e6eaf2',
+    ink: '#131a2b',
+    sub: '#586074',
+    mint: '#245ec9', // Electric blue, darkened for light backgrounds
+    mintSoft: '#dce7fb',
+    sienna: '#b0461f', // Persimmon, darkened for light backgrounds
+    siennaSoft: '#f7e2da',
+    line: '#dce2ec',
     onAccent: '#ffffff',
   },
 } as const;

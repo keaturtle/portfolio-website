@@ -5,6 +5,19 @@ override any of them on review. Newest on top. Nothing here is irreversible.
 
 ---
 
+## 2026-07-18
+
+### Theme switched to "Midnight Indigo" (Obsidian · Electric blue · Persimmon)
+You picked this in the colorway studio. Applied to both `tokens.ts` palettes (dark + a
+coordinated light variant), both verified ≥ WCAG AA. Regenerated the app icon/splash to
+match (blue ring + persimmon dot on obsidian). Kept the token names `mint`/`sienna` (now
+holding blue/persimmon) to avoid a churny rename across every screen. **Reversible:** the
+old Night Fir values are in git history (pre-`7295632`).
+
+### Version bumped to 1.0.0
+For the TestFlight/App Store build. `buildNumber` auto-increments via the EAS `production`
+profile.
+
 ## 2026-07-17
 
 ### M13 widget — you greenlit it; now BUILT (2026-07-18)
