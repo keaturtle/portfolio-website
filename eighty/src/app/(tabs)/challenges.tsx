@@ -5,9 +5,10 @@ import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-import { validateConfig } from '@engine';
+import { evaluateAttempt, validateConfig } from '@engine';
+import { ATTEMPT_STATUS_LABEL } from '@/data/attemptStatusLabel';
 import { PRESETS } from '@/data/presets';
-import { ChallengePreset } from '@/data/repository';
+import { ChallengeListItem, ChallengePreset } from '@/data/repository';
 import { parseTemplateJson, presetToConfig, serializeTemplate } from '@/data/templates';
 import { useActiveChallenge } from '@/data/useActiveChallenge';
 import { usePalette, radius, type as t } from '@/theme/tokens';
@@ -19,8 +20,81 @@ function preview(preset: ChallengePreset) {
 export default function ChallengesScreen() {
   const p = usePalette();
   const insets = useSafeAreaInsets();
-  const { active } = useActiveChallenge();
+  const { repo, active, refresh } = useActiveChallenge();
   const card = { backgroundColor: p.card, borderRadius: radius.card };
+
+  const history = repo
+    .listChallenges()
+    .map((c) => {
+      const detail = repo.getChallengeDetail(c.challengeId);
+      const logs = detail ? repo.getLogs(detail.attemptId) : [];
+      const state = detail ? evaluateAttempt(detail.config, logs) : null;
+      return { ...c, detail, state };
+    })
+    .sort((a, b) => (a.status === 'active' ? -1 : b.status === 'active' ? 1 : 0));
+
+  const switchTo = (item: ChallengeListItem) => {
+    Alert.alert(
+      'Switch challenge?',
+      `This archives your current challenge and resumes "${item.name}" right where you left it.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Switch',
+          onPress: () => {
+            repo.activateChallenge(item.challengeId);
+            refresh();
+            router.replace('/');
+          },
+        },
+      ],
+    );
+  };
+
+  const remove = (item: ChallengeListItem) => {
+    Alert.alert('Delete challenge?', `This permanently deletes "${item.name}" and every day logged under it. This can't be undone.`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => {
+          repo.deleteChallenge(item.challengeId);
+          refresh();
+        },
+      },
+    ]);
+  };
+
+  const exportChallenge = async (item: ChallengeListItem) => {
+    const detail = repo.getChallengeDetail(item.challengeId);
+    if (!detail) return;
+    try {
+      const preset: ChallengePreset = {
+        name: detail.name,
+        durationDays: detail.config.durationDays,
+        dailyThresholdPct: detail.config.dailyThresholdPct,
+        challengeThresholdPct: detail.config.challengeThresholdPct,
+        strictness: detail.config.strictness,
+        noRepeatMiss: detail.config.noRepeatMiss,
+        travelExemption: detail.config.travelExemption,
+        categories: detail.categories,
+        items: detail.items,
+      };
+      const json = JSON.stringify(serializeTemplate(preset), null, 2);
+      const filename = `${detail.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.json`;
+      const file = new File(Paths.cache, filename);
+      if (file.exists) file.delete();
+      file.create();
+      file.write(json);
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(file.uri, { mimeType: 'application/json', UTI: 'public.json' });
+      } else {
+        Alert.alert('Exported', `Saved to ${file.uri}`);
+      }
+    } catch {
+      Alert.alert('Export failed', 'Could not create the export file.');
+    }
+  };
 
   const importFromFile = async () => {
     const result = await DocumentPicker.getDocumentAsync({ type: 'application/json' });
@@ -43,36 +117,6 @@ export default function ChallengesScreen() {
     }
   };
 
-  const exportActive = async () => {
-    if (!active) return;
-    try {
-      const preset: ChallengePreset = {
-        name: active.name,
-        durationDays: active.config.durationDays,
-        dailyThresholdPct: active.config.dailyThresholdPct,
-        challengeThresholdPct: active.config.challengeThresholdPct,
-        strictness: active.config.strictness,
-        noRepeatMiss: active.config.noRepeatMiss,
-        travelExemption: active.config.travelExemption,
-        categories: active.categories,
-        items: active.items,
-      };
-      const json = JSON.stringify(serializeTemplate(preset), null, 2);
-      const filename = `${active.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.json`;
-      const file = new File(Paths.cache, filename);
-      if (file.exists) file.delete();
-      file.create();
-      file.write(json);
-      if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(file.uri, { mimeType: 'application/json', UTI: 'public.json' });
-      } else {
-        Alert.alert('Exported', `Saved to ${file.uri}`);
-      }
-    } catch {
-      Alert.alert('Export failed', 'Could not create the export file.');
-    }
-  };
-
   return (
     <ScrollView
       style={{ backgroundColor: p.bg }}
@@ -87,19 +131,50 @@ export default function ChallengesScreen() {
         <Text style={[t.h1, { color: p.ink, marginTop: 2 }]}>Challenges</Text>
       </View>
 
-      {active && (
-        <View style={[card, styles.section]}>
-          <Text style={[t.cardTitle, { color: p.ink }]}>Currently running</Text>
-          <Text style={{ fontSize: 14, color: p.ink, marginTop: 6, fontWeight: '700' }}>{active.name}</Text>
-          <Text style={{ fontSize: 12, color: p.sub, marginTop: 2 }}>
-            {active.config.durationDays} days · {active.config.dailyThresholdPct}% daily ·{' '}
-            {active.config.strictness}
-          </Text>
-          <Pressable onPress={exportActive} style={[styles.linkBtn, { backgroundColor: p.mintSoft }]}>
-            <Ionicons name="share-outline" size={14} color={p.mint} />
-            <Text style={{ color: p.mint, fontSize: 12.5, fontWeight: '700' }}>Export as file</Text>
-          </Pressable>
-        </View>
+      {history.length > 0 && (
+        <>
+          <Text style={[styles.groupLabel, { color: p.sub }]}>Your challenges</Text>
+          {history.map((item) => {
+            const isCurrent = item.status === 'active';
+            return (
+              <View key={item.challengeId} style={[card, styles.section]}>
+                <View style={styles.historyHead}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[t.cardTitle, { color: p.ink }]}>{item.name}</Text>
+                    <Text style={{ fontSize: 12, color: p.sub, marginTop: 3 }}>
+                      {item.state ? ATTEMPT_STATUS_LABEL[item.state.status] : 'Unknown'}
+                      {item.detail
+                        ? ` · day ${item.state?.daysElapsed ?? 0} of ${item.detail.config.durationDays}`
+                        : ''}
+                    </Text>
+                  </View>
+                  {isCurrent && (
+                    <View style={[styles.currentPill, { backgroundColor: p.mintSoft }]}>
+                      <Text style={{ fontSize: 10.5, fontWeight: '800', color: p.mint }}>CURRENT</Text>
+                    </View>
+                  )}
+                </View>
+                <View style={styles.historyActions}>
+                  {!isCurrent && (
+                    <Pressable
+                      onPress={() => switchTo(item)}
+                      style={[styles.linkBtn, { backgroundColor: p.mintSoft }]}
+                    >
+                      <Ionicons name="swap-horizontal-outline" size={14} color={p.mint} />
+                      <Text style={{ color: p.mint, fontSize: 12.5, fontWeight: '700' }}>Switch to this</Text>
+                    </Pressable>
+                  )}
+                  <Pressable onPress={() => exportChallenge(item)} style={styles.iconBtn}>
+                    <Ionicons name="share-outline" size={16} color={p.sub} />
+                  </Pressable>
+                  <Pressable onPress={() => remove(item)} style={styles.iconBtn}>
+                    <Ionicons name="trash-outline" size={16} color={p.sienna} />
+                  </Pressable>
+                </View>
+              </View>
+            );
+          })}
+        </>
       )}
 
       <Text style={[styles.groupLabel, { color: p.sub }]}>Presets</Text>
@@ -147,14 +222,18 @@ const styles = StyleSheet.create({
   section: { padding: 16, marginBottom: 12 },
   groupLabel: { fontSize: 11.5, fontWeight: '700', letterSpacing: 0.6, marginBottom: 8, marginTop: 4, paddingHorizontal: 6 },
   startBtn: { borderRadius: radius.pill, paddingVertical: 10, alignItems: 'center', marginTop: 12 },
+  historyHead: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 },
+  currentPill: { borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 4 },
+  historyActions: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 },
+  iconBtn: { padding: 6 },
   linkBtn: {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     gap: 6,
     borderRadius: radius.pill,
     paddingVertical: 8,
-    marginTop: 12,
   },
   rowBtn: { flexDirection: 'row', alignItems: 'center', gap: 10 },
 });

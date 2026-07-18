@@ -41,6 +41,13 @@ export interface DayMeta {
   isTravel?: boolean;
 }
 
+export interface ChallengeListItem {
+  challengeId: number;
+  name: string;
+  status: 'active' | 'archived';
+  createdAtUtc: string;
+}
+
 /**
  * All persistence goes through this interface so a synced implementation can
  * replace SQLite later without touching the engine or the UI.
@@ -57,4 +64,12 @@ export interface ChallengeRepository {
   closeDay(attemptId: number, dayIndex: number, nextLabel: string): void;
   getSetting(key: string): string | null;
   setSetting(key: string, value: string): void;
+  /** All challenges (active + archived), most recently created first. */
+  listChallenges(): ChallengeListItem[];
+  /** Full config/categories/items for any challenge, keyed to its most recent attempt. */
+  getChallengeDetail(challengeId: number): ActiveChallenge | null;
+  /** Archives whatever is active and reactivates this challenge's existing attempt in place. */
+  activateChallenge(challengeId: number): void;
+  /** Deletes a challenge and everything under it. Irreversible. */
+  deleteChallenge(challengeId: number): void;
 }

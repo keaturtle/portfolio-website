@@ -2,6 +2,7 @@ import * as SQLite from 'expo-sqlite';
 import { DayLog, Rating } from '@engine';
 import {
   ActiveChallenge,
+  ChallengeListItem,
   ChallengePreset,
   ChallengeRepository,
   DayMeta,
@@ -314,6 +315,57 @@ export class SqliteRepository implements ChallengeRepository {
           [attemptId, dayIndex + 1, nextLabel],
         );
       }
+    });
+  }
+
+  listChallenges(): ChallengeListItem[] {
+    return this.db
+      .getAllSync<{ id: number; name: string; status: string; created_at_utc: string }>(
+        `SELECT id, name, status, created_at_utc FROM challenge ORDER BY created_at_utc DESC`,
+      )
+      .map((r) => ({
+        challengeId: r.id,
+        name: r.name,
+        status: r.status as ChallengeListItem['status'],
+        createdAtUtc: r.created_at_utc,
+      }));
+  }
+
+  getChallengeDetail(challengeId: number): ActiveChallenge | null {
+    const ch = this.db.getFirstSync<ChallengeRow>(`SELECT * FROM challenge WHERE id = ?`, [challengeId]);
+    if (!ch) return null;
+    const attempt = this.db.getFirstSync<{ id: number }>(
+      `SELECT id FROM attempt WHERE challenge_id = ? ORDER BY attempt_no DESC LIMIT 1`,
+      [challengeId],
+    );
+    if (!attempt) return null;
+    return this.buildActive(ch, attempt.id);
+  }
+
+  activateChallenge(challengeId: number): void {
+    this.db.withTransactionSync(() => {
+      this.db.runSync(`UPDATE challenge SET status = 'archived' WHERE status = 'active'`);
+      this.db.runSync(`UPDATE challenge SET status = 'active' WHERE id = ?`, [challengeId]);
+    });
+  }
+
+  deleteChallenge(challengeId: number): void {
+    this.db.withTransactionSync(() => {
+      const attempts = this.db.getAllSync<{ id: number }>(
+        `SELECT id FROM attempt WHERE challenge_id = ?`,
+        [challengeId],
+      );
+      for (const a of attempts) {
+        const days = this.db.getAllSync<{ id: number }>(`SELECT id FROM day WHERE attempt_id = ?`, [a.id]);
+        for (const d of days) {
+          this.db.runSync(`DELETE FROM day_item WHERE day_id = ?`, [d.id]);
+        }
+        this.db.runSync(`DELETE FROM day WHERE attempt_id = ?`, [a.id]);
+      }
+      this.db.runSync(`DELETE FROM attempt WHERE challenge_id = ?`, [challengeId]);
+      this.db.runSync(`DELETE FROM category WHERE challenge_id = ?`, [challengeId]);
+      this.db.runSync(`DELETE FROM item WHERE challenge_id = ?`, [challengeId]);
+      this.db.runSync(`DELETE FROM challenge WHERE id = ?`, [challengeId]);
     });
   }
 }

@@ -3,18 +3,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { evaluateAttempt, itemStats } from '@engine';
+import { ATTEMPT_STATUS_LABEL } from '@/data/attemptStatusLabel';
 import { useActiveChallenge } from '@/data/useActiveChallenge';
 import { usePalette, radius, type as t } from '@/theme/tokens';
 import { ProgressRing } from '@/ui/ProgressRing';
 import { HeatGrid } from '@/ui/HeatGrid';
 import { ItemStatRow } from '@/ui/ItemStatRow';
-
-const STATUS_LABEL: Record<string, string> = {
-  active: 'In progress',
-  succeeded: 'Succeeded',
-  failed: 'Failed',
-  'restart-required': 'Restart required',
-};
 
 export default function DashboardScreen() {
   const p = usePalette();
@@ -64,7 +58,7 @@ export default function DashboardScreen() {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 }}>
             {state.status === 'succeeded' && <Ionicons name="trophy" size={13} color={p.mint} />}
             <Text style={{ fontSize: 13, color: p.sub }}>
-              {active.name} · {STATUS_LABEL[state.status]}
+              {active.name} · {ATTEMPT_STATUS_LABEL[state.status]}
               {state.restartReason ? ` (${state.restartReason})` : ''}
             </Text>
           </View>
