@@ -187,8 +187,14 @@ export default function BuilderScreen() {
               return (
                 <Pressable
                   key={opt.key}
-                  onPress={() => setDraft((d) => ({ ...d, strictness: opt.key }))}
+                  onPress={() => {
+                    Haptics.selectionAsync();
+                    setDraft((d) => ({ ...d, strictness: opt.key }));
+                  }}
                   style={[styles.pill, { backgroundColor: sel ? p.mint : p.card2 }]}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: sel }}
+                  accessibilityLabel={`${opt.label} strictness`}
                 >
                   <Text style={{ fontSize: 12.5, fontWeight: '700', color: sel ? p.onAccent : p.sub }}>
                     {opt.label}
@@ -229,7 +235,11 @@ export default function BuilderScreen() {
                 <View key={i.id} style={styles.itemRow}>
                   {i.isBonus && <Ionicons name="sparkles-outline" size={13} color={p.sienna} />}
                   <Text style={{ flex: 1, fontSize: 13.5, color: p.ink }}>{i.label}</Text>
-                  <Pressable onPress={() => removeItem(i.id)}>
+                  <Pressable
+                    onPress={() => removeItem(i.id)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Remove ${i.label}`}
+                  >
                     <Ionicons name="close" size={16} color={p.sub} />
                   </Pressable>
                 </View>
@@ -337,7 +347,16 @@ function ToggleRow({
         <Text style={{ fontSize: 13.5, color: p.ink }}>{label}</Text>
         <Text style={{ fontSize: 11, color: p.sub, marginTop: 1 }}>{hint}</Text>
       </View>
-      <Switch value={value} onValueChange={onChange} trackColor={{ true: p.mint, false: p.card2 }} thumbColor={p.card} />
+      <Switch
+        value={value}
+        onValueChange={(v) => {
+          Haptics.selectionAsync();
+          onChange(v);
+        }}
+        trackColor={{ true: p.mint, false: p.card2 }}
+        thumbColor={p.card}
+        accessibilityLabel={`${label}. ${hint}`}
+      />
     </View>
   );
 }

@@ -22,7 +22,7 @@ Status legend: ✅ committed · 🔨 in progress · ⬜ not started.
 | M6 Trends / day-edit / notifications / Settings | ✅ | `7011ed2` |
 | M11 Multi-challenge switching & history | ✅ | `22995ff` |
 | M9 Backup / restore | ✅ | `47344a0` |
-| M8 Accessibility & motion polish | 🔨 | — |
+| M8 Accessibility & motion polish | ✅ | this session |
 | M12 Performance at 80-day scale | ⬜ | — |
 | M10 Visual identity (icon/splash) | ⬜ | — |
 | M14 App Store submission prep | ⬜ | — |
@@ -91,7 +91,13 @@ milestone is pure UI.
   (dashboard with 0 days logged, trends with 1 data point, SQLite open failure,
   etc.) — currently only the Today screen's "no active challenge" case is handled.
 
-## M8 — Accessibility & motion polish 🟢 🔨
+## M8 — Accessibility & motion polish 🟢 ✅
+
+*Done this session. Contrast audited on both palettes (light `sub`/`mint`/`sienna`
+darkened to clear AA); VoiceOver labels added across icon-only buttons, switches,
+pills, ring, sparklines, and stat rows; haptic vocabulary extended to calendar taps
+and all toggles; signature ring-fill animation added with `useReducedMotion` support.
+Full write-up in [QA.md](./QA.md).*
 
 - VoiceOver labels on every interactive element (CheckRow and RatingScale already
   do this — audit ProgressRing, calendar cells, builder controls, tab bar).

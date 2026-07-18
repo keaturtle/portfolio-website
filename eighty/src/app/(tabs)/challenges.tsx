@@ -164,10 +164,20 @@ export default function ChallengesScreen() {
                       <Text style={{ color: p.mint, fontSize: 12.5, fontWeight: '700' }}>Switch to this</Text>
                     </Pressable>
                   )}
-                  <Pressable onPress={() => exportChallenge(item)} style={styles.iconBtn}>
+                  <Pressable
+                    onPress={() => exportChallenge(item)}
+                    style={styles.iconBtn}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Export ${item.name} as a file`}
+                  >
                     <Ionicons name="share-outline" size={16} color={p.sub} />
                   </Pressable>
-                  <Pressable onPress={() => remove(item)} style={styles.iconBtn}>
+                  <Pressable
+                    onPress={() => remove(item)}
+                    style={styles.iconBtn}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Delete ${item.name}`}
+                  >
                     <Ionicons name="trash-outline" size={16} color={p.sienna} />
                   </Pressable>
                 </View>

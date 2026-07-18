@@ -13,7 +13,14 @@ interface Props {
 export function ItemStatRow({ label, categoryName, pct, isBonus, palette: p }: Props) {
   const accent = isBonus ? p.sienna : p.mint;
   return (
-    <View style={styles.row}>
+    <View
+      style={styles.row}
+      accessible
+      accessibilityRole="text"
+      accessibilityLabel={`${label}${categoryName ? `, ${categoryName}` : ''}${
+        isBonus ? ', bonus' : ''
+      }: completed ${Math.round(pct)} percent of eligible days`}
+    >
       <View style={{ flex: 1 }}>
         <Text style={{ fontSize: 13, color: p.ink }} numberOfLines={1}>
           {label}

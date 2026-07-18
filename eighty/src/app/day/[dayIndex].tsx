@@ -187,6 +187,7 @@ export default function DayDetailScreen() {
               onValueChange={toggleTravel}
               trackColor={{ true: p.mint, false: p.card2 }}
               thumbColor={p.card}
+              accessibilityLabel="Travel day"
             />
           </View>
           <TextInput

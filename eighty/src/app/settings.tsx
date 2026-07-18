@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -126,8 +127,14 @@ export default function SettingsScreen() {
               return (
                 <Pressable
                   key={opt.key}
-                  onPress={() => setOverride(opt.key)}
+                  onPress={() => {
+                    Haptics.selectionAsync();
+                    setOverride(opt.key);
+                  }}
                   style={[styles.pill, { backgroundColor: sel ? p.mint : p.card2 }]}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: sel }}
+                  accessibilityLabel={`${opt.label} theme`}
                 >
                   <Text style={{ fontSize: 12.5, fontWeight: '700', color: sel ? p.onAccent : p.sub }}>
                     {opt.label}
@@ -213,7 +220,16 @@ function ToggleRow({
         <Text style={{ fontSize: 13.5, color: p.ink }}>{label}</Text>
         <Text style={{ fontSize: 11, color: p.sub, marginTop: 1 }}>{hint}</Text>
       </View>
-      <Switch value={value} onValueChange={onChange} trackColor={{ true: p.mint, false: p.card2 }} thumbColor={p.card} />
+      <Switch
+        value={value}
+        onValueChange={(v) => {
+          Haptics.selectionAsync();
+          onChange(v);
+        }}
+        trackColor={{ true: p.mint, false: p.card2 }}
+        thumbColor={p.card}
+        accessibilityLabel={`${label}. ${hint}`}
+      />
     </View>
   );
 }

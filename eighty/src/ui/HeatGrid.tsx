@@ -1,4 +1,5 @@
 import { Pressable, Text, View, StyleSheet } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { DayScore, addDays } from '@engine';
 import { Palette } from '@/theme/tokens';
 
@@ -67,7 +68,11 @@ export function HeatGrid({
             return (
               <Pressable
                 key={ci}
-                onPress={() => score && onDayPress(cell.dayIndex)}
+                onPress={() => {
+                  if (!score) return;
+                  Haptics.selectionAsync();
+                  onDayPress(cell.dayIndex);
+                }}
                 disabled={!score}
                 style={[styles.cell, styles.cellBox, { backgroundColor: bg, borderColor: border }]}
                 accessibilityRole={score ? 'button' : undefined}

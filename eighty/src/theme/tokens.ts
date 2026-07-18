@@ -20,14 +20,17 @@ export const palettes = {
     onAccent: '#0d1411',
   },
   light: {
+    // Text/accent colors tuned to clear WCAG AA (4.5:1) on their backgrounds;
+    // see eighty/QA.md § contrast. sub/mint/sienna were darkened slightly from
+    // the original draft to pass on the lightest surfaces (card, chips).
     bg: '#eef1ee',
     card: '#f8faf8',
     card2: '#e6ebe7',
     ink: '#17241d',
-    sub: '#5f7168',
-    mint: '#177651',
+    sub: '#586a60',
+    mint: '#156c4a',
     mintSoft: '#d9eae1',
-    sienna: '#b95c34',
+    sienna: '#a54c26',
     siennaSoft: '#f3e3d9',
     line: '#dde3de',
     onAccent: '#ffffff',

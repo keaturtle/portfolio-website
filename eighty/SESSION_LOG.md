@@ -23,6 +23,19 @@ landed it. Committed = M4, M5, M6, M7, M9, M11. Not started = M8, M10, M12, M13,
 **Then proceeded autonomously through the remaining milestones** (see commits after the
 roadmap-reconcile commit for details).
 
+**M8 — Accessibility & motion polish (done).**
+- WCAG contrast audit on both palettes. Dark passes AA everywhere. Light `sub`/`mint`/
+  `sienna` were ~0.01–0.5 under 4.5:1 on the lightest surfaces; darkened slightly to
+  clear AA. Accepted the low-contrast card border as an intentional separator (card is
+  identified by fill). Full table in QA.md.
+- VoiceOver: ProgressRing grouped label, RatingScale selected-state, ItemStatRow and
+  Sparkline read as one line, and roles/labels on every icon-only button + switch + pill.
+- Haptics: extended selection/impact/success vocabulary to calendar taps, theme pills,
+  strictness pills, and all toggle switches.
+- Motion: animated ring fill (core RN Animated on the SVG dash offset — Expo-Go-safe),
+  gated by a new `useReducedMotion()` hook.
+- Verified: tsc clean, 64 engine tests green, iOS bundle exports.
+
 ### Verified this session
 - Engine: 64+ tests, 100% coverage (kept green after any engine change).
 - `tsc --noEmit`: clean.

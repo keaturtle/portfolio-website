@@ -24,7 +24,12 @@ export default function TrendsScreen() {
   if (!active) {
     return (
       <View style={[styles.empty, { backgroundColor: p.bg }]}>
-        <Pressable onPress={() => router.push('/settings')} style={styles.gearFloating}>
+        <Pressable
+          onPress={() => router.push('/settings')}
+          style={styles.gearFloating}
+          accessibilityRole="button"
+          accessibilityLabel="Settings"
+        >
           <Ionicons name="settings-outline" size={20} color={p.sub} />
         </Pressable>
         <Text style={[t.h1, { color: p.ink, textAlign: 'center' }]}>No active challenge</Text>
@@ -86,7 +91,12 @@ export default function TrendsScreen() {
             Over {closedLogs.length} closed day{closedLogs.length === 1 ? '' : 's'}
           </Text>
         </View>
-        <Pressable onPress={() => router.push('/settings')} style={styles.gear}>
+        <Pressable
+          onPress={() => router.push('/settings')}
+          style={styles.gear}
+          accessibilityRole="button"
+          accessibilityLabel="Settings"
+        >
           <Ionicons name="settings-outline" size={20} color={p.sub} />
         </Pressable>
       </View>
@@ -98,7 +108,7 @@ export default function TrendsScreen() {
             {state.avgSatisfaction ? state.avgSatisfaction.toFixed(1) : '—'}
           </Text>
         </View>
-        <Sparkline values={satisfactionValues} min={1} max={5} color={p.mint} width={CHART_WIDTH} />
+        <Sparkline values={satisfactionValues} min={1} max={5} color={p.mint} width={CHART_WIDTH} label="Satisfaction" />
       </View>
 
       <View style={[card, styles.section]}>
@@ -108,7 +118,7 @@ export default function TrendsScreen() {
             {state.avgMood ? state.avgMood.toFixed(1) : '—'}
           </Text>
         </View>
-        <Sparkline values={moodValues} min={1} max={5} color={p.sienna} width={CHART_WIDTH} />
+        <Sparkline values={moodValues} min={1} max={5} color={p.sienna} width={CHART_WIDTH} label="Mood" />
       </View>
 
       <View style={[card, styles.section]}>

@@ -29,6 +29,7 @@ export function RatingScale({ label, value, palette: p, onChange }: Props) {
               style={[styles.dot, { backgroundColor: sel ? p.mint : p.card2 }]}
               accessibilityRole="button"
               accessibilityLabel={`${label} ${n} of 5`}
+              accessibilityState={{ selected: sel }}
             >
               <Text style={{ fontSize: 13.5, fontWeight: '700', color: sel ? p.onAccent : p.sub }}>
                 {n}

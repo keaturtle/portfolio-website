@@ -19,7 +19,12 @@ export default function DashboardScreen() {
   if (!active) {
     return (
       <View style={[styles.empty, { backgroundColor: p.bg }]}>
-        <Pressable onPress={() => router.push('/settings')} style={styles.gearFloating}>
+        <Pressable
+          onPress={() => router.push('/settings')}
+          style={styles.gearFloating}
+          accessibilityRole="button"
+          accessibilityLabel="Settings"
+        >
           <Ionicons name="settings-outline" size={20} color={p.sub} />
         </Pressable>
         <Text style={[t.h1, { color: p.ink, textAlign: 'center' }]}>No active challenge</Text>
@@ -63,7 +68,12 @@ export default function DashboardScreen() {
             </Text>
           </View>
         </View>
-        <Pressable onPress={() => router.push('/settings')} style={styles.gear}>
+        <Pressable
+          onPress={() => router.push('/settings')}
+          style={styles.gear}
+          accessibilityRole="button"
+          accessibilityLabel="Settings"
+        >
           <Ionicons name="settings-outline" size={20} color={p.sub} />
         </Pressable>
       </View>
