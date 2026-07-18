@@ -44,10 +44,16 @@ roadmap-reconcile commit for details).
 - Wired Android `adaptiveIcon` in app.json; bumped splash `imageWidth` to 220.
 - NB: Expo Go shows *its own* icon — this is only visible on an EAS build / TestFlight.
 
-**M13 — iOS widget (paused, plan ready).** The only Expo-Go-incompatible feature. Rather
-than risk breaking the Expo Go loop by wiring an uninstalled native plugin, I wrote a
-turnkey implementation plan (`WIDGET.md`) and left the go-ahead decision to you
-(DECISIONS.md). No native/app.json changes were made, so Expo Go is untouched.
+**M13 — iOS widget (BUILT after your go-ahead).** You said build it + you'll pay the $99.
+Implemented via `@bacons/apple-targets`:
+- `targets/widget/index.swift` — SwiftUI ring (small + medium) in Night Fir colors.
+- `src/data/widget.ts` — pure `buildWidgetSnapshot` + guarded `publishWidgetSnapshot`
+  (writes to App Group `group.com.keatentuttle.eighty`; no-op in Expo Go).
+- `useActiveChallenge` publishes after every mutation + on mount.
+- `app.json` — plugin + App Group entitlement.
+- Verified: tsc clean, engine green, **`expo export` still bundles → Expo Go intact.**
+- Could NOT verify on Windows: the Swift compile / on-device render (needs the EAS build).
+- Left for you: set `ios.appleTeamId`, `eas build`. Steps in `WIDGET.md`.
 
 **M14 — Submission prep (done; the rest needs your Apple account).**
 - `eas.json` (development/preview/production + submit), `ios.bundleIdentifier`
@@ -76,15 +82,16 @@ turnkey implementation plan (`WIDGET.md`) and left the go-ahead decision to you
 See `DECISIONS.md` — anything I chose without you is logged there with the reasoning.
 
 ### What's left when I stop
-Every development milestone is done: **M4–M12 committed, M8/M10/M12 completed this
-session.** The only remaining items are ones that genuinely need *you*:
+**Every milestone M4–M14 is now built and committed**, including the M13 widget. The only
+remaining work is the stuff that physically requires *your* Apple account + a Mac-based
+build (which I can't do from Windows/Expo Go):
 
-1. **M13 widget** — paused for your go-ahead on the dev-build tradeoff. Turnkey plan in
-   `WIDGET.md`. Not required to ship v1.
-2. **M14 owner-actions** — Apple Developer membership, `eas login`/`build`/`submit`,
-   hosting `PRIVACY.md`, screenshots, and two small decisions (iPad support, final app
-   name). All laid out step-by-step in `SUBMISSION.md`.
+1. **Build & ship (M13 + M14).** Set `ios.appleTeamId`, then `eas build` / `eas submit`.
+   This one flow both makes the **widget** go live and produces the App Store binary. Host
+   `PRIVACY.md`, add screenshots. Every step is in `SUBMISSION.md` and `WIDGET.md`.
+2. **Two small decisions** (DECISIONS.md): iPad support (affects required screenshots) and
+   the final App Store name (may be taken).
 
-Nothing is stranded — everything I did is committed and pushed on
+Nothing is stranded — everything is committed and pushed on
 `claude/eighty-challenge-tracker-sbj6q1`. Read `DECISIONS.md` for the calls I made and the
 few I left to you.

@@ -7,13 +7,16 @@ override any of them on review. Newest on top. Nothing here is irreversible.
 
 ## 2026-07-17
 
-### M13 widget — paused for your go-ahead (the one real fork)
-The home-screen widget needs a **custom dev build** (WidgetKit = native target), which
-breaks the Expo Go loop the hard constraint protects. Rather than guess and risk breaking
-`expo start`/`export` by wiring an uninstalled native plugin, I wrote a complete,
-turnkey plan (`WIDGET.md`) and stopped. **Your call:** greenlight the dev-build loop, or
-ship v1 without the widget (it's not required to submit). Nothing else was blocked by
-this — every other milestone is done.
+### M13 widget — you greenlit it; now BUILT (2026-07-18)
+You said "build the whole app with the widget, I'll pay the $99," so I implemented it via
+`@bacons/apple-targets`: SwiftUI ring in `targets/widget/`, an App Group data bridge in
+`src/data/widget.ts` published from `useActiveChallenge`, and the entitlement/plugin in
+`app.json`. Kept Expo Go working (the bridge no-ops without the native module; `expo export`
+verified). **What I could not do on Windows:** compile the Swift or render the widget — that
+happens in the EAS build. **What's left for you:** set `ios.appleTeamId` and run `eas build`
+(then register the App Group when prompted). Steps in `WIDGET.md`. Chosen App Group id:
+`group.com.keatentuttle.eighty`. **Reversible:** remove the plugin + `targets/` + the
+entitlement to drop the widget entirely.
 
 ### Open questions for you (M14 submission) — not blocking, flagged for review
 1. **iPad support.** `app.json` keeps `ios.supportsTablet: true`, which means Apple will

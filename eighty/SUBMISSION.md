@@ -24,6 +24,9 @@ the `eighty/` folder.
 - ✅ Privacy policy written (`PRIVACY.md`) — ready to host.
 - ✅ Store listing copy drafted (below).
 - ✅ App Privacy answers worked out (below): "Data Not Collected."
+- ✅ Home-screen **widget built** (`@bacons/apple-targets`, App Group). It ships inside the
+  normal production build — no separate step — but needs your **Apple Team ID** and the App
+  Group registered. See `WIDGET.md` for the last mile.
 
 ## 1. Accounts & prerequisites — 🔑 YOU
 
@@ -54,6 +57,9 @@ Store submission, set it to `1.0.0`:
 
 - [ ] Edit `app.json` → `"version": "1.0.0"`.
 - [ ] (`buildNumber` is auto-incremented by the `production` profile — you don't manage it.)
+- [ ] **For the widget:** add `"appleTeamId": "YOUR_TEAM_ID"` under `ios` in `app.json`
+      (10-char code from developer.apple.com → Membership). Without it the widget target
+      can't be signed. Details in `WIDGET.md`.
 
 ## 4. Build the iOS binary
 

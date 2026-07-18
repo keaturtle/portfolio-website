@@ -26,7 +26,7 @@ Status legend: ✅ committed · 🔨 in progress · ⬜ not started.
 | M12 Performance at 80-day scale | ✅ | this session |
 | M10 Visual identity (icon/splash) | ✅ | this session |
 | M14 App Store submission prep | 🔨 | this session (prep only) |
-| M13 iOS home-screen widget (dev build) | ⏸️ | plan ready — awaiting go-ahead |
+| M13 iOS home-screen widget (dev build) | 🔨 | built — needs Team ID + EAS build to go live |
 
 Earlier this file implied more was shipped than the commit history showed; the table
 above is the source of truth and is kept in sync with what is actually committed.
@@ -161,15 +161,14 @@ Today/Dashboard/Trends screens so unrelated re-renders don't re-walk 80 days.*
 - Confirm SQLite indexes exist for the query patterns each new screen introduces
   (calendar/trends will scan the full `day`/`day_item` range).
 
-## M13 — iOS home-screen widget 🔴 ⏸️ (plan ready — needs your go-ahead)
+## M13 — iOS home-screen widget 🔴 🔨 (built — needs Team ID + a build)
 
-*Not built — this is the only feature that can't run in Expo Go (a WidgetKit extension
-needs a custom dev build), and the constraint says not to break the Expo Go loop without
-your go-ahead. I wrote a complete, turnkey implementation plan instead:
-[WIDGET.md](./WIDGET.md) — `@bacons/apple-targets`, an App Group snapshot the app writes,
-the SwiftUI ring, and the exact build/verify steps. Deliberately added nothing to
-`app.json`/native config (an uninstalled plugin would break `expo start`/`export`). Say
-the word and it's ~half a day.*
+*Greenlit and **built** this session via `@bacons/apple-targets`: a SwiftUI ring widget
+(`targets/widget/index.swift`) that reads a snapshot the app writes to a shared App Group
+(`src/data/widget.ts`, published from `useActiveChallenge`). App Group entitlement + plugin
+are in `app.json`. Expo Go still loads (the bridge no-ops without the native module;
+`expo export` verified). It can't be compiled on Windows/Expo Go — it goes live when you
+set `ios.appleTeamId` and run `eas build`. Full last-mile steps in [WIDGET.md](./WIDGET.md).*
 
 - Today's ring on the home screen needs a native WidgetKit extension — there is no
   way to build this without a custom dev client / EAS build with a config plugin
