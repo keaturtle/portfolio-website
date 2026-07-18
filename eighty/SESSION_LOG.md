@@ -36,6 +36,14 @@ roadmap-reconcile commit for details).
   gated by a new `useReducedMotion()` hook.
 - Verified: tsc clean, 64 engine tests green, iOS bundle exports.
 
+**M10 — Visual identity (done).**
+- Replaced Expo-template art with a real Night Fir mark: the app's signature progress
+  ring at 80% (mint arc + faint track + sienna leading dot) on a subtle fir radial.
+- Generated `icon.png` (opaque 1024), `splash-icon.png` (transparent), `adaptive-icon.png`
+  (Android foreground), `favicon.png`; committed the generator at `scripts/generate-icons.js`.
+- Wired Android `adaptiveIcon` in app.json; bumped splash `imageWidth` to 220.
+- NB: Expo Go shows *its own* icon — this is only visible on an EAS build / TestFlight.
+
 **M12 — Performance at 80-day scale (done).**
 - `getLogs`: was 1 + N queries (one per day for its items); now 2 total via a joined
   `day_item` fetch grouped in memory. Same fix applied to `exportAllData` (one DB-wide

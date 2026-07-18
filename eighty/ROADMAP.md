@@ -24,7 +24,7 @@ Status legend: ✅ committed · 🔨 in progress · ⬜ not started.
 | M9 Backup / restore | ✅ | `47344a0` |
 | M8 Accessibility & motion polish | ✅ | this session |
 | M12 Performance at 80-day scale | ✅ | this session |
-| M10 Visual identity (icon/splash) | ⬜ | — |
+| M10 Visual identity (icon/splash) | ✅ | this session |
 | M14 App Store submission prep | ⬜ | — |
 | M13 iOS home-screen widget (dev build) | ⬜ | — |
 
@@ -123,7 +123,14 @@ Full write-up in [QA.md](./QA.md).*
   changes to support a future `CloudSyncRepository` — v1 ships `SqliteRepository`
   only, cloud sync is explicitly a "later" swap-in, not built now.
 
-## M10 — Visual identity 🟢 ⬜ (build-safe, but only checkable in a real build/TestFlight)
+## M10 — Visual identity 🟢 ✅ (build-safe, but only checkable in a real build/TestFlight)
+
+*Done this session. Replaced the Expo-template art with a real "Night Fir" mark: the
+app's signature progress ring at 80% (mint arc, faint track, sienna leading dot) on a
+subtle fir radial. Generated `icon.png` (1024, opaque), `splash-icon.png` (transparent),
+`adaptive-icon.png` (Android foreground), and `favicon.png`; wired the Android adaptive
+icon in `app.json`. **Reminder:** Expo Go shows its own icon — you won't see this until an
+EAS build / TestFlight install (see SUBMISSION.md).*
 
 - Real app icon + adaptive icon + splash screen assets (currently placeholder paths
   in `app.json` — `assets/images/icon.png` etc. need real art in "Night Fir" style).
