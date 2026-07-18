@@ -38,17 +38,9 @@ never runs the engine.
 
 Everything below needs the paid Apple Developer account. Run from `eighty/`:
 
-### 1. Add your Apple Team ID
-Find it in [developer.apple.com/account](https://developer.apple.com/account) (Membership
-details) — a 10-character string like `A1B2C3D4E5`. Add it to `app.json`:
-
-```jsonc
-"ios": {
-  "bundleIdentifier": "com.keatentuttle.eighty",
-  "appleTeamId": "YOUR_TEAM_ID",          // ← add this line
-  ...
-}
-```
+### 1. Add your Apple Team ID — ✅ done
+Set in `app.json` → `ios.appleTeamId: "3M7JS7T537"` (2026-07-18). The `[bacons/apple-targets]
+missing appleTeamId` warning is gone.
 
 ### 2. Register the App Group (or let EAS do it)
 In the Apple Developer portal → Identifiers → **App Groups**, add

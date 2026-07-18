@@ -12,6 +12,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.keatentuttle.eighty",
+      "appleTeamId": "3M7JS7T537",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },

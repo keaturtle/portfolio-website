@@ -57,9 +57,8 @@ Store submission, set it to `1.0.0`:
 
 - [ ] Edit `app.json` → `"version": "1.0.0"`.
 - [ ] (`buildNumber` is auto-incremented by the `production` profile — you don't manage it.)
-- [ ] **For the widget:** add `"appleTeamId": "YOUR_TEAM_ID"` under `ios` in `app.json`
-      (10-char code from developer.apple.com → Membership). Without it the widget target
-      can't be signed. Details in `WIDGET.md`.
+- [x] **For the widget:** `ios.appleTeamId` is set to `3M7JS7T537` in `app.json` (done
+      2026-07-18) — the widget target can now be signed.
 
 ## 4. Build the iOS binary
 
