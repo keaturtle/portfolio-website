@@ -7,6 +7,14 @@ override any of them on review. Newest on top. Nothing here is irreversible.
 
 ## 2026-07-17
 
+### M13 widget — paused for your go-ahead (the one real fork)
+The home-screen widget needs a **custom dev build** (WidgetKit = native target), which
+breaks the Expo Go loop the hard constraint protects. Rather than guess and risk breaking
+`expo start`/`export` by wiring an uninstalled native plugin, I wrote a complete,
+turnkey plan (`WIDGET.md`) and stopped. **Your call:** greenlight the dev-build loop, or
+ship v1 without the widget (it's not required to submit). Nothing else was blocked by
+this — every other milestone is done.
+
 ### Open questions for you (M14 submission) — not blocking, flagged for review
 1. **iPad support.** `app.json` keeps `ios.supportsTablet: true`, which means Apple will
    **require iPad screenshots**. The UI is phone-designed but runs fine scaled on iPad.

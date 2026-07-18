@@ -44,6 +44,11 @@ roadmap-reconcile commit for details).
 - Wired Android `adaptiveIcon` in app.json; bumped splash `imageWidth` to 220.
 - NB: Expo Go shows *its own* icon — this is only visible on an EAS build / TestFlight.
 
+**M13 — iOS widget (paused, plan ready).** The only Expo-Go-incompatible feature. Rather
+than risk breaking the Expo Go loop by wiring an uninstalled native plugin, I wrote a
+turnkey implementation plan (`WIDGET.md`) and left the go-ahead decision to you
+(DECISIONS.md). No native/app.json changes were made, so Expo Go is untouched.
+
 **M14 — Submission prep (done; the rest needs your Apple account).**
 - `eas.json` (development/preview/production + submit), `ios.bundleIdentifier`
   (`com.keatentuttle.eighty`), `ITSAppUsesNonExemptEncryption: false`.
@@ -71,5 +76,15 @@ roadmap-reconcile commit for details).
 See `DECISIONS.md` — anything I chose without you is logged there with the reasoning.
 
 ### What's left when I stop
-Whatever isn't checked in the ROADMAP "Status at a glance" table. M13 (widget) is the
-one item that needs a custom dev build and is deliberately last.
+Every development milestone is done: **M4–M12 committed, M8/M10/M12 completed this
+session.** The only remaining items are ones that genuinely need *you*:
+
+1. **M13 widget** — paused for your go-ahead on the dev-build tradeoff. Turnkey plan in
+   `WIDGET.md`. Not required to ship v1.
+2. **M14 owner-actions** — Apple Developer membership, `eas login`/`build`/`submit`,
+   hosting `PRIVACY.md`, screenshots, and two small decisions (iPad support, final app
+   name). All laid out step-by-step in `SUBMISSION.md`.
+
+Nothing is stranded — everything I did is committed and pushed on
+`claude/eighty-challenge-tracker-sbj6q1`. Read `DECISIONS.md` for the calls I made and the
+few I left to you.
