@@ -74,6 +74,13 @@ eas build --platform ios --profile production
 > This build step does **not** change your day-to-day Expo Go workflow. Expo Go still
 > works from `npx expo start` as always; EAS builds are separate.
 
+> ### Using it solo for a week (no laptop tethered)
+> This is the key point: once the build is on your phone via **TestFlight**, it runs
+> **standalone** — no `expo start`, no laptop, no Metro server. Expo Go (QR scanning) needs
+> the laptop; a TestFlight build does not. A TestFlight build stays installable for **90
+> days**, so a week of daily solo use is exactly what it's for, and the same build is your
+> launch candidate. You only need the laptop for the ~20-minute build/submit below.
+
 ## 5. Send to TestFlight
 
 ```powershell
