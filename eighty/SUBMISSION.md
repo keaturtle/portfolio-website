@@ -117,21 +117,17 @@ provide, the better it looks.
 
 - **6.7" iPhone** (iPhone 15/16 Pro Max): **1290 × 2796** — required.
 - **6.5" iPhone** (older Pro Max): 1242 × 2688 — recommended.
-- **iPad 12.9"**: 2048 × 2732 — **required only because `supportsTablet: true`** (see the
-  open decision below).
+- **iPad**: **not required** — the app is now iPhone-only (`supportsTablet: false`).
 
 Capture the five screens that sell the app: **Today** (ring + checklist mid-progress),
 **Dashboard** (calendar heat grid), **Trends**, the **preset picker / builder**, and a
 **closed day** detail. Take them in an iOS Simulator (`⌘S` saves at the exact required
 resolution) or on device.
 
-### ⚠️ Open decision — iPad support
-`app.json` has `ios.supportsTablet: true`, which means Apple will **require iPad
-screenshots**. The UI works on iPad but is phone-designed. Two options:
-- **Keep iPad** → you must supply iPad screenshots.
-- **Drop iPad** → set `"supportsTablet": false` in `app.json` and you skip iPad
-  screenshots entirely for a phone-only v1.
-I left it as `true` (no data loss either way). Pick one before you submit.
+### iPad support — decided: iPhone-only
+`app.json` is set to `ios.supportsTablet: false`, so **no iPad screenshots are required**.
+iPad owners can still install and run Eighty (at iPhone size) — it's just not "optimized
+for iPad" in the listing. Flip back to `true` later if you ever want a native iPad layout.
 
 ## 9. App Privacy questionnaire — answers ready
 

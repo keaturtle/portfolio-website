@@ -19,10 +19,9 @@ happens in the EAS build. **What's left for you:** set `ios.appleTeamId` and run
 entitlement to drop the widget entirely.
 
 ### Open questions for you (M14 submission) — not blocking, flagged for review
-1. **iPad support.** `app.json` keeps `ios.supportsTablet: true`, which means Apple will
-   **require iPad screenshots**. The UI is phone-designed but runs fine scaled on iPad.
-   Set it to `false` for a phone-only v1 if you'd rather skip iPad screenshots. Left as-is
-   (no data loss either way). Details in SUBMISSION.md § 8.
+1. **iPad support — DECIDED 2026-07-18: iPhone-only.** Set `ios.supportsTablet: false`
+   (you have no iPad/Mac to capture iPad screenshots, and Apple only requires them if the
+   app supports iPad). iPad users can still install it at iPhone size. Reversible.
 2. **App name.** "Eighty" is global-unique on the App Store and may be taken. Fallbacks
    drafted: "Eighty — 80/80/80" or "Fourscore" (from PLAN.md §7). The *on-device* name
    stays "Eighty" regardless. Confirm availability when you create the App Store Connect
