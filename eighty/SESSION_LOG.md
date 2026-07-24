@@ -31,9 +31,14 @@ Then a **flagship preset overhaul + onboarding** task:
   Protocol** = the old 25-item list. Added an `isAvoidance` item flag (+ `is_avoidance`
   column with an additive migration for existing beta DBs) — metadata only, engine untouched.
   Engine test for the fast's wake-to-wake attribution. 68 tests @ 100%, tsc clean, exports.
-- **Task 2 (mockups delivered, impl gated on approval):** static onboarding mockups (4
-  screens + CTA) published as an artifact with a **palette toggle** (Midnight Indigo vs the
-  PNW Forest the brief described — flagged that decision). Nothing wired into nav yet.
+- **Task 2 (approved + BUILT):** you picked Midnight Indigo + gave positive item copy.
+  Implemented in two commits: (1) new labels + avoidance behavior (complete-by-default,
+  seeded on day open; distinct CheckRow rendering; slip = tap), (2) the `/onboarding` flow
+  (4 swipeable screens + CTA), shown once via an `onboarding_completed` flag, a Replay-intro
+  row, and a one-tap Send-feedback row in Settings. tsc clean, 68 tests, exports.
+- **Left to do → a fresh EAS build/submit** so all of this (plus the widget) reaches
+  TestFlight. See DECISIONS.md for two open questions (a "Lite" preset? strict at-close
+  avoidance semantics?).
 
 ---
 
