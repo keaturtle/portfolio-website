@@ -10,16 +10,12 @@ override any of them on review. Newest on top. Nothing here is irreversible.
 - **Palette:** you picked **Midnight Indigo** (the app's shipped palette) for onboarding —
   no token change needed. New positive item labels applied (Drink clean / Eat clean / Park
   the phone / Lights out, etc.).
-- **Avoidance auto-confirm timing:** the brief said "auto-confirm at day *close*." I
-  implemented **auto-complete at day *open*** (optimistic) instead — it's the only model that
-  keeps the live daily % correct AND needs no engine/scoring change AND no new slip table.
-  A tap logs a slip (un-checks). With wake-to-wake, the prior day only closes next morning,
-  so the fast is effectively finalized then — matching the spirit. Flag if you want strict
-  at-close semantics (would need a slips store).
-- **"Lite" preset:** your CTA note mentioned "Lite and Founder's Protocol as alternatives,"
-  but there's no Lite preset defined. "Start my 80" routes to the flagship preview
-  (customize/alternatives reachable from there + the Challenges tab). **Do you want a Lite
-  tier?** If so, tell me the ruleset.
+- **Avoidance auto-confirm timing: CONFIRMED day-open** (you approved 2026-07-23).
+  Avoidance items are complete-by-default, seeded on each freshly opened day; a tap logs a
+  slip. Keeps the live daily % correct with no engine/scoring change. With wake-to-wake, the
+  prior day only closes next morning, so the fast is effectively finalized then.
+- **"Lite" preset: not needed** (you confirmed 2026-07-23). "Start my 80" routes to the
+  flagship preview; other tiers live on the Challenges tab.
 - **Category-label redundancy** on Today for the flagship (time-group categories duplicate
   the section header) is still present — cheap to hide; say the word.
 
