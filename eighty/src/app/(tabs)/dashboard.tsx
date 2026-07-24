@@ -78,14 +78,24 @@ export default function DashboardScreen() {
             </Text>
           </View>
         </View>
-        <Pressable
-          onPress={() => router.push('/settings')}
-          style={styles.gear}
-          accessibilityRole="button"
-          accessibilityLabel="Settings"
-        >
-          <Ionicons name="settings-outline" size={20} color={p.sub} />
-        </Pressable>
+        <View style={styles.headerBtns}>
+          <Pressable
+            onPress={() => router.push('/edit-challenge')}
+            style={styles.gear}
+            accessibilityRole="button"
+            accessibilityLabel="Edit challenge"
+          >
+            <Ionicons name="create-outline" size={20} color={p.sub} />
+          </Pressable>
+          <Pressable
+            onPress={() => router.push('/settings')}
+            style={styles.gear}
+            accessibilityRole="button"
+            accessibilityLabel="Settings"
+          >
+            <Ionicons name="settings-outline" size={20} color={p.sub} />
+          </Pressable>
+        </View>
       </View>
 
       {state.mathematicallyImpossible && state.status !== 'succeeded' && (
@@ -220,6 +230,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   gear: { padding: 6 },
+  headerBtns: { flexDirection: 'row', gap: 2 },
   gearFloating: { position: 'absolute', top: 16, right: 16, padding: 6 },
   banner: {
     borderRadius: radius.banner,

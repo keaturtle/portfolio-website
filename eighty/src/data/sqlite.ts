@@ -3,6 +3,7 @@ import { DayLog, Rating } from '@engine';
 import {
   ActiveChallenge,
   BackupFile,
+  ChallengeConfigUpdate,
   ChallengeListItem,
   ChallengePreset,
   ChallengeRepository,
@@ -356,6 +357,29 @@ export class SqliteRepository implements ChallengeRepository {
     );
     if (!attempt) return null;
     return this.buildActive(ch, attempt.id);
+  }
+
+  updateChallengeConfig(challengeId: number, update: ChallengeConfigUpdate): void {
+    const cols: Record<keyof ChallengeConfigUpdate, string> = {
+      name: 'name',
+      durationDays: 'duration_days',
+      dailyThresholdPct: 'daily_threshold_pct',
+      challengeThresholdPct: 'challenge_threshold_pct',
+      strictness: 'strictness',
+      noRepeatMiss: 'no_repeat_miss',
+      travelExemption: 'travel_exempt',
+    };
+    const sets: string[] = [];
+    const args: SQLite.SQLiteBindValue[] = [];
+    (Object.keys(cols) as (keyof ChallengeConfigUpdate)[]).forEach((key) => {
+      const value = update[key];
+      if (value === undefined) return;
+      sets.push(`${cols[key]} = ?`);
+      if (typeof value === 'boolean') args.push(value ? 1 : 0);
+      else args.push(value);
+    });
+    if (sets.length === 0) return;
+    this.db.runSync(`UPDATE challenge SET ${sets.join(', ')} WHERE id = ?`, [...args, challengeId]);
   }
 
   activateChallenge(challengeId: number): void {

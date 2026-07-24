@@ -166,6 +166,15 @@ export default function SettingsScreen() {
           />
         </View>
 
+        {repo.getActive() && (
+          <Pressable onPress={() => router.push('/edit-challenge')} style={[card, styles.section]}>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: p.ink }}>Edit current challenge</Text>
+            <Text style={{ fontSize: 12, color: p.sub, marginTop: 2 }}>
+              Change duration, thresholds, strictness, or rules — your past days recalculate.
+            </Text>
+          </Pressable>
+        )}
+
         <Pressable onPress={() => router.push('/challenges')} style={[card, styles.section]}>
           <Text style={{ fontSize: 14, fontWeight: '700', color: p.ink }}>Manage challenges</Text>
           <Text style={{ fontSize: 12, color: p.sub, marginTop: 2 }}>

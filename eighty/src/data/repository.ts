@@ -91,6 +91,21 @@ export interface BackupFile {
 }
 
 /**
+ * Editable challenge config fields (scalars only — the checklist/items are edited
+ * elsewhere). Every field is optional; only the provided ones are updated. Because
+ * all stats recompute from raw logs, changing any of these re-scores every past day.
+ */
+export interface ChallengeConfigUpdate {
+  name?: string;
+  durationDays?: number;
+  dailyThresholdPct?: number;
+  challengeThresholdPct?: number;
+  strictness?: Strictness;
+  noRepeatMiss?: boolean;
+  travelExemption?: boolean;
+}
+
+/**
  * All persistence goes through this interface so a synced implementation can
  * replace SQLite later without touching the engine or the UI.
  */
@@ -110,6 +125,8 @@ export interface ChallengeRepository {
   listChallenges(): ChallengeListItem[];
   /** Full config/categories/items for any challenge, keyed to its most recent attempt. */
   getChallengeDetail(challengeId: number): ActiveChallenge | null;
+  /** Updates scalar config fields in place. Stats re-score from raw logs on next read. */
+  updateChallengeConfig(challengeId: number, update: ChallengeConfigUpdate): void;
   /** Archives whatever is active and reactivates this challenge's existing attempt in place. */
   activateChallenge(challengeId: number): void;
   /** Deletes a challenge and everything under it. Irreversible. */
