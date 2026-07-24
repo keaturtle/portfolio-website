@@ -17,8 +17,11 @@
         "ITSAppUsesNonExemptEncryption": false
       },
       "entitlements": {
-        "com.apple.security.application-groups": ["group.com.keatentuttle.eighty"]
-      }
+        "com.apple.security.application-groups": [
+          "group.com.keatentuttle.eighty"
+        ]
+      },
+      "buildNumber": "2"
     },
     "android": {
       "adaptiveIcon": {
@@ -49,6 +52,30 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "bundleIdentifier": "com.keatentuttle.eighty.widget",
+                  "targetName": "EightyWidget",
+                  "entitlements": {
+                    "com.apple.security.application-groups": [
+                      "group.com.keatentuttle.eighty"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "projectId": "9c673584-ae98-4adc-8302-352ad058f0eb"
+      }
+    },
+    "owner": "keaturtles-team"
   }
 }
