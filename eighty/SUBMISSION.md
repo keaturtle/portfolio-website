@@ -24,9 +24,12 @@ the `eighty/` folder.
 - ✅ Privacy policy written (`PRIVACY.md`) — ready to host.
 - ✅ Store listing copy drafted (below).
 - ✅ App Privacy answers worked out (below): "Data Not Collected."
-- ✅ Home-screen **widget built** (`@bacons/apple-targets`, App Group). It ships inside the
-  normal production build — no separate step — but needs your **Apple Team ID** and the App
-  Group registered. See `WIDGET.md` for the last mile.
+- ✅ **Widget built** (`@bacons/apple-targets`) — home-screen ring + **lock-screen gauge**
+  (`accessoryCircular`). Shares App Group **`group.com.keatentuttle.eighty`** (already
+  registered during your first EAS build — no new Apple config needed; accessory/lock-screen
+  widgets require no extra entitlement). Ships inside the normal production build.
+  **⚠️ The lock-screen face is new native code — run a fresh `eas build` + `eas submit` to get
+  it onto TestFlight.** See `WIDGET.md`.
 
 ## 1. Accounts & prerequisites — 🔑 YOU
 

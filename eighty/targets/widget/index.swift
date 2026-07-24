@@ -1,8 +1,9 @@
 import WidgetKit
 import SwiftUI
 
-// Eighty home-screen widget — renders "today's ring" from a snapshot the app writes to
-// the shared App Group. See eighty/src/data/widget.ts for the writer and WIDGET.md.
+// Eighty widget — renders today's completion from a snapshot the app writes to the
+// shared App Group. Home screen: systemSmall/Medium ring. Lock screen: accessoryCircular
+// gauge (iOS 16+). See eighty/src/data/widget.ts for the writer and WIDGET.md.
 
 private let appGroup = "group.com.keatentuttle.eighty"
 
@@ -55,7 +56,7 @@ struct Provider: TimelineProvider {
   }
 }
 
-// MARK: - Night Fir colors
+// MARK: - Midnight Indigo colors (match src/theme/tokens.ts dark palette)
 
 private extension Color {
   init(hex: UInt32) {
@@ -66,15 +67,15 @@ private extension Color {
       blue: Double(hex & 0xff) / 255,
       opacity: 1)
   }
-  static let nfBg = Color(hex: 0x0d1411)
-  static let nfCard2 = Color(hex: 0x1a2620)
-  static let nfMint = Color(hex: 0x7fdcb2)
-  static let nfSienna = Color(hex: 0xe0805a)
-  static let nfInk = Color(hex: 0xedf3ee)
-  static let nfSub = Color(hex: 0x8da399)
+  static let nfBg = Color(hex: 0x08090f)     // obsidian
+  static let nfCard2 = Color(hex: 0x191d2e)  // ring track
+  static let nfMint = Color(hex: 0x5b9dff)   // electric blue — success/accent
+  static let nfSienna = Color(hex: 0xff6b45) // persimmon — warn
+  static let nfInk = Color(hex: 0xe8eaf2)
+  static let nfSub = Color(hex: 0x8d93a6)
 }
 
-// MARK: - Ring
+// MARK: - Home-screen ring
 
 struct RingView: View {
   let pct: Double  // 0...100
@@ -95,6 +96,23 @@ struct RingView: View {
   }
 }
 
+// MARK: - Family-aware container background
+
+struct WidgetContainerBackground: ViewModifier {
+  let family: WidgetFamily
+  func body(content: Content) -> some View {
+    if #available(iOS 17.0, *) {
+      if family == .accessoryCircular {
+        content.containerBackground(for: .widget) { AccessoryWidgetBackground() }
+      } else {
+        content.containerBackground(Color.nfBg, for: .widget)
+      }
+    } else {
+      content.background(family == .accessoryCircular ? Color.clear : Color.nfBg)
+    }
+  }
+}
+
 // MARK: - Entry view
 
 struct EightyWidgetEntryView: View {
@@ -102,48 +120,93 @@ struct EightyWidgetEntryView: View {
   var entry: Provider.Entry
 
   var body: some View {
-    if let s = entry.snapshot {
-      switch family {
-      case .systemSmall:
-        RingView(pct: s.pct, lineWidth: 11).padding(14)
-      default:
-        HStack(spacing: 16) {
-          RingView(pct: s.pct).frame(width: 92, height: 92)
-          VStack(alignment: .leading, spacing: 4) {
-            Text(s.challengeName)
-              .font(.system(size: 15, weight: .bold))
-              .foregroundColor(.nfInk)
-              .lineLimit(1)
-            Text("Day \(s.dayNumber) of \(s.totalDays)")
-              .font(.system(size: 12))
-              .foregroundColor(.nfSub)
-            Text("\(s.successDays) success days")
-              .font(.system(size: 12))
-              .foregroundColor(.nfSub)
-            Text(
-              s.marginForError > 0
-                ? "Miss \(s.marginForError) more and you're still in"
-                : "No margin left — every day counts"
-            )
-            .font(.system(size: 12, weight: .semibold))
-            .foregroundColor(s.marginForError > 0 ? .nfMint : .nfSienna)
-            .lineLimit(2)
-          }
-          Spacer(minLength: 0)
-        }
-        .padding(16)
-      }
-    } else {
-      VStack(spacing: 6) {
-        Text("EIGHTY")
-          .font(.system(size: 11, weight: .bold))
-          .foregroundColor(.nfMint)
-        Text("Open the app to start")
-          .font(.system(size: 12))
-          .foregroundColor(.nfSub)
-      }
-      .padding()
+    content.modifier(WidgetContainerBackground(family: family))
+  }
+
+  @ViewBuilder
+  private var content: some View {
+    switch family {
+    case .accessoryCircular:
+      accessoryCircular
+    case .systemSmall:
+      systemSmall
+    default:
+      systemMedium
     }
+  }
+
+  // Lock screen: a circular gauge that fills to today's completion %.
+  @ViewBuilder
+  private var accessoryCircular: some View {
+    if let s = entry.snapshot {
+      Gauge(value: min(max(s.pct / 100, 0), 1)) {
+        EmptyView()
+      } currentValueLabel: {
+        Text("\(Int(s.pct))")
+      }
+      .gaugeStyle(.accessoryCircularCapacity)
+    } else {
+      Gauge(value: 0) {
+        EmptyView()
+      } currentValueLabel: {
+        Image(systemName: "circle.dashed")
+      }
+      .gaugeStyle(.accessoryCircularCapacity)
+    }
+  }
+
+  @ViewBuilder
+  private var systemSmall: some View {
+    if let s = entry.snapshot {
+      RingView(pct: s.pct, lineWidth: 11).padding(14)
+    } else {
+      emptyState
+    }
+  }
+
+  @ViewBuilder
+  private var systemMedium: some View {
+    if let s = entry.snapshot {
+      HStack(spacing: 16) {
+        RingView(pct: s.pct).frame(width: 92, height: 92)
+        VStack(alignment: .leading, spacing: 4) {
+          Text(s.challengeName)
+            .font(.system(size: 15, weight: .bold))
+            .foregroundColor(.nfInk)
+            .lineLimit(1)
+          Text("Day \(s.dayNumber) of \(s.totalDays)")
+            .font(.system(size: 12))
+            .foregroundColor(.nfSub)
+          Text("\(s.successDays) success days")
+            .font(.system(size: 12))
+            .foregroundColor(.nfSub)
+          Text(
+            s.marginForError > 0
+              ? "Miss \(s.marginForError) more and you're still in"
+              : "No margin left — every day counts"
+          )
+          .font(.system(size: 12, weight: .semibold))
+          .foregroundColor(s.marginForError > 0 ? .nfMint : .nfSienna)
+          .lineLimit(2)
+        }
+        Spacer(minLength: 0)
+      }
+      .padding(16)
+    } else {
+      emptyState
+    }
+  }
+
+  private var emptyState: some View {
+    VStack(spacing: 6) {
+      Text("EIGHTY")
+        .font(.system(size: 11, weight: .bold))
+        .foregroundColor(.nfMint)
+      Text("Open the app to start")
+        .font(.system(size: 12))
+        .foregroundColor(.nfSub)
+    }
+    .padding()
   }
 }
 
@@ -155,16 +218,10 @@ struct EightyWidget: Widget {
 
   var body: some WidgetConfiguration {
     StaticConfiguration(kind: kind, provider: Provider()) { entry in
-      if #available(iOS 17.0, *) {
-        EightyWidgetEntryView(entry: entry)
-          .containerBackground(Color.nfBg, for: .widget)
-      } else {
-        EightyWidgetEntryView(entry: entry)
-          .background(Color.nfBg)
-      }
+      EightyWidgetEntryView(entry: entry)
     }
     .configurationDisplayName("Today's Ring")
     .description("Your 80/80/80 progress at a glance.")
-    .supportedFamilies([.systemSmall, .systemMedium])
+    .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular])
   }
 }

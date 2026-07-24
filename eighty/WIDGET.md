@@ -1,6 +1,12 @@
 # Eighty — iOS Home-Screen Widget (M13)
 
-**Status: BUILT in the repo. Goes live after you set your Apple Team ID and run a build.**
+**Status: BUILT + LIVE on TestFlight. Home + lock screen. Re-build to get the lock-screen face.**
+
+> **Update 2026-07-23 (item 4):** added a **lock-screen** face (`accessoryCircular`, iOS 16+ —
+> a circular gauge that fills to today's %) alongside the home-screen ring, and recolored the
+> widget to the Midnight Indigo palette (electric blue / persimmon) to match the app. The App
+> Group and config are unchanged. **⚠️ This is native code: your current TestFlight build does
+> NOT include the lock-screen face — you must run a fresh `eas build` + `eas submit` to get it.**
 
 You greenlit the widget (and paying the $99). It's implemented and wired up. Because a
 WidgetKit extension is native Swift, it can't run in Expo Go and I can't compile it on your
@@ -14,7 +20,7 @@ data bridge no-ops when the native module is absent).
 
 | File | What it is |
 |------|-----------|
-| `targets/widget/index.swift` | The WidgetKit extension — SwiftUI ring in Night Fir colors, small + medium families, reads the shared snapshot. |
+| `targets/widget/index.swift` | The WidgetKit extension — home-screen ring (systemSmall/Medium) + lock-screen gauge (accessoryCircular), Midnight Indigo colors, reads the shared snapshot. |
 | `targets/widget/expo-target.config.js` | Tells `@bacons/apple-targets` this is a `widget` target and shares the App Group. |
 | `src/data/widget.ts` | App-side bridge: `buildWidgetSnapshot()` (pure) + `publishWidgetSnapshot()` (writes to the App Group, no-op in Expo Go). |
 | `src/data/useActiveChallenge.ts` | Publishes a fresh snapshot after every mutation and on app open. |
