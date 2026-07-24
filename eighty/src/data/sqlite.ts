@@ -79,6 +79,7 @@ export class SqliteRepository implements ChallengeRepository {
         category_id TEXT NOT NULL,
         label TEXT NOT NULL,
         is_bonus INTEGER NOT NULL,
+        is_avoidance INTEGER NOT NULL DEFAULT 0,
         time_of_day TEXT NOT NULL,
         sort_order INTEGER NOT NULL,
         PRIMARY KEY (challenge_id, id)
@@ -110,6 +111,16 @@ export class SqliteRepository implements ChallengeRepository {
       -- lookups the History and dashboard screens do at 80-day scale.
       CREATE INDEX IF NOT EXISTS idx_attempt_challenge ON attempt(challenge_id);
     `);
+    // Additive migrations for DBs created before a column existed (beta installs).
+    this.ensureColumn('item', 'is_avoidance', 'INTEGER NOT NULL DEFAULT 0');
+  }
+
+  /** Adds a column to an existing table if it isn't already present. */
+  private ensureColumn(table: string, column: string, definition: string): void {
+    const cols = this.db.getAllSync<{ name: string }>(`PRAGMA table_info(${table})`);
+    if (!cols.some((c) => c.name === column)) {
+      this.db.execSync(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+    }
   }
 
   getSetting(key: string): string | null {
@@ -148,6 +159,7 @@ export class SqliteRepository implements ChallengeRepository {
         category_id: string;
         label: string;
         is_bonus: number;
+        is_avoidance: number;
         time_of_day: string;
       }>(`SELECT * FROM item WHERE challenge_id = ? ORDER BY sort_order`, [ch.id])
       .map(
@@ -156,6 +168,7 @@ export class SqliteRepository implements ChallengeRepository {
           categoryId: r.category_id,
           label: r.label,
           isBonus: r.is_bonus === 1,
+          isAvoidance: r.is_avoidance === 1,
           timeOfDay: r.time_of_day as PresetItem['timeOfDay'],
         }),
       );
@@ -216,9 +229,9 @@ export class SqliteRepository implements ChallengeRepository {
       );
       preset.items.forEach((it, idx) =>
         this.db.runSync(
-          `INSERT INTO item (challenge_id, id, category_id, label, is_bonus, time_of_day, sort_order)
-           VALUES (?, ?, ?, ?, ?, ?, ?)`,
-          [challengeId, it.id, it.categoryId, it.label, it.isBonus ? 1 : 0, it.timeOfDay, idx],
+          `INSERT INTO item (challenge_id, id, category_id, label, is_bonus, is_avoidance, time_of_day, sort_order)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [challengeId, it.id, it.categoryId, it.label, it.isBonus ? 1 : 0, it.isAvoidance ? 1 : 0, it.timeOfDay, idx],
         ),
       );
       const at = this.db.runSync(
@@ -447,16 +460,21 @@ export class SqliteRepository implements ChallengeRepository {
           [ch.id],
         );
         const items = this.db
-          .getAllSync<{ id: string; category_id: string; label: string; is_bonus: number; time_of_day: string }>(
-            `SELECT * FROM item WHERE challenge_id = ? ORDER BY sort_order`,
-            [ch.id],
-          )
+          .getAllSync<{
+            id: string;
+            category_id: string;
+            label: string;
+            is_bonus: number;
+            is_avoidance: number;
+            time_of_day: string;
+          }>(`SELECT * FROM item WHERE challenge_id = ? ORDER BY sort_order`, [ch.id])
           .map(
             (r): PresetItem => ({
               id: r.id,
               categoryId: r.category_id,
               label: r.label,
               isBonus: r.is_bonus === 1,
+              isAvoidance: r.is_avoidance === 1,
               timeOfDay: r.time_of_day as PresetItem['timeOfDay'],
             }),
           );
@@ -540,9 +558,9 @@ export class SqliteRepository implements ChallengeRepository {
         );
         ch.items.forEach((it, idx) =>
           this.db.runSync(
-            `INSERT INTO item (challenge_id, id, category_id, label, is_bonus, time_of_day, sort_order)
-             VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [challengeId, it.id, it.categoryId, it.label, it.isBonus ? 1 : 0, it.timeOfDay, idx],
+            `INSERT INTO item (challenge_id, id, category_id, label, is_bonus, is_avoidance, time_of_day, sort_order)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [challengeId, it.id, it.categoryId, it.label, it.isBonus ? 1 : 0, it.isAvoidance ? 1 : 0, it.timeOfDay, idx],
           ),
         );
         for (const a of ch.attempts) {

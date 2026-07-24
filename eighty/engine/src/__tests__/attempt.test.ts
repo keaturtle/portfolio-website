@@ -43,6 +43,45 @@ describe('config changes re-score prior days (edit-challenge safety)', () => {
   });
 });
 
+describe('two-boundary items (the fast) attribute to the still-open prior day', () => {
+  const items = Array.from({ length: 10 }, (_, k) => ({
+    id: `i${k}`,
+    categoryId: 'c',
+    label: `Item ${k}`,
+    isBonus: false,
+  }));
+  const cfg: ChallengeConfig = {
+    durationDays: 80,
+    dailyThresholdPct: 80,
+    challengeThresholdPct: 80,
+    strictness: 'flexible',
+    noRepeatMiss: false,
+    travelExemption: false,
+    items,
+  };
+  const FAST = 'i9';
+  const doneWithFast = ['i0', 'i1', 'i2', 'i3', 'i4', 'i5', 'i6', FAST]; // 8 of 10 → success
+
+  test('the fast, confirmed the next morning, counts for the day it belongs to', () => {
+    // Day 0 spans 2026-07-01. The user hasn't moved on, so it's still the open day when
+    // they confirm the fast at 10am on 2026-07-02 (the wake-to-wake boundary).
+    const stillOpen: DayLog = {
+      dayIndex: 0,
+      localDate: '2026-07-01',
+      completedItemIds: doneWithFast,
+      isTravel: false,
+      closed: false,
+    };
+    expect(evaluateAttempt(cfg, [stillOpen]).dayScores[0]?.outcome).toBe('pending');
+
+    // Moving on closes day 0 — the fast is credited to 2026-07-01 (day 0), not a new day.
+    const moved = evaluateAttempt(cfg, [{ ...stillOpen, closed: true }]);
+    expect(moved.dayScores[0]?.dayIndex).toBe(0);
+    expect(moved.dayScores[0]?.outcome).toBe('success');
+    expect(moved.daysElapsed).toBe(1); // no phantom extra day for the next calendar date
+  });
+});
+
 describe('fillGaps', () => {
   test('synthesizes closed, empty, correctly-dated days for unlogged gaps', () => {
     const filled = fillGaps([day(0, []), day(3, [])]);

@@ -5,6 +5,27 @@ override any of them on review. Newest on top. Nothing here is irreversible.
 
 ---
 
+## 2026-07-23 (later) — Flagship preset overhaul (Task 1)
+
+- Replaced the 80/80/80 seed list with the new **10 regular items** (grouped by time of
+  day: Morning / Through the day / Evening) + **7 bonus**. Daily success = 8 of 10.
+- Kept **75 Hard** unchanged; added **Founder's Protocol** = the previous 25-item list,
+  renamed (20 of 25 daily). All three are in `PRESETS`.
+- **Avoidance flag:** added `isAvoidance` as item metadata (`PresetItem` + a new
+  `item.is_avoidance` column, with an additive `ALTER TABLE` migration so existing beta
+  DBs don't break). **This is metadata only — the engine and its scoring are untouched.**
+  The actual avoidance *rendering* + auto-confirm-at-close + slip-marking is Task 2 (its QA
+  lives there), so until Task 2 ships, avoidance items render like normal action items.
+- **Interpretation flagged:** the brief said "seed data only," but marking items as
+  avoidance genuinely requires a metadata field + column. I treated it as additive item
+  metadata (like `is_bonus`/`time_of_day`), not an architecture change. Say the word if
+  you'd rather model it differently.
+- Categories for the flagship are the time-of-day groups themselves (per "replacing domain
+  categories"). Minor consequence: the per-row category chip on Today duplicates the
+  section header — cheap to hide; I'll address it in the Task 2 Today-preview if you want.
+- Engine test added for the fast's wake-to-wake attribution (counts for the still-open
+  prior day). 68 tests, 100% coverage.
+
 ## 2026-07-18
 
 ### Theme switched to "Midnight Indigo" (Obsidian · Electric blue · Persimmon)

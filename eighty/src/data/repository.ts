@@ -11,6 +11,13 @@ export interface PresetItem {
   label: string;
   isBonus: boolean;
   timeOfDay: TimeOfDay;
+  /**
+   * "Avoidance" habit (e.g. no alcohol, fasting): complete-by-default, the user marks a
+   * slip to fail it. Engine scoring is unchanged — this only drives app-side rendering
+   * and auto-confirm-at-close (built in the onboarding/avoidance task). Optional; absent
+   * = a normal action item.
+   */
+  isAvoidance?: boolean;
 }
 
 export interface ChallengePreset {
