@@ -10,6 +10,39 @@ const hardcore: ChallengeConfig = { ...eighty, strictness: 'hardcore' };
 const successDay = (i: number) => day(i, REGULAR_IDS);
 const failDay = (i: number) => day(i, firstRegular(10));
 
+describe('config changes re-score prior days (edit-challenge safety)', () => {
+  // The same regular item missed two days running; both days are otherwise well
+  // above threshold, so the only thing that can fail day 1 is the no-repeat rule.
+  const violationLogs = [day(0, allBut('w1')), day(1, allBut('w1'))];
+
+  test('turning noRepeatMiss off clears the violation and un-fails the day', () => {
+    const on = evaluateAttempt(eighty, violationLogs); // noRepeatMiss: true
+    expect(on.dayScores[1]?.outcome).toBe('fail');
+    expect(on.dayScores[1]?.failReason).toBe('no-repeat-miss');
+    expect(on.successDays).toBe(1);
+
+    const off = evaluateAttempt({ ...eighty, noRepeatMiss: false }, violationLogs);
+    expect(off.dayScores[1]?.outcome).toBe('success');
+    expect(off.dayScores[1]?.violations).toEqual([]);
+    expect(off.successDays).toBe(2);
+  });
+
+  test('flexible → strict retroactively requires a restart on the same logs', () => {
+    expect(evaluateAttempt(eighty, violationLogs).status).toBe('active');
+    const s = evaluateAttempt(strict, violationLogs);
+    expect(s.status).toBe('restart-required');
+    expect(s.restartReason).toBe('no-repeat-miss');
+  });
+
+  test('lowering the daily threshold un-fails a previously below-threshold day', () => {
+    const logs = [day(0, firstRegular(15))]; // 15/25 = 60%
+    expect(evaluateAttempt(eighty, logs).dayScores[0]?.outcome).toBe('fail'); // vs 80%
+    expect(
+      evaluateAttempt({ ...eighty, dailyThresholdPct: 60 }, logs).dayScores[0]?.outcome,
+    ).toBe('success');
+  });
+});
+
 describe('fillGaps', () => {
   test('synthesizes closed, empty, correctly-dated days for unlogged gaps', () => {
     const filled = fillGaps([day(0, []), day(3, [])]);
