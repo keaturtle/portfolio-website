@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { TimeOfDay, atRiskItems, evaluateAttempt, requiredItems, scoreDay } from '@engine';
@@ -50,12 +50,16 @@ export default function TodayScreen() {
   const insets = useSafeAreaInsets();
   const { repo, active, logs, refresh } = useActiveChallenge();
   const [showInfo, setShowInfo] = useState(false);
+  const [onboarded] = useState(() => repo.getSetting('onboarding_completed') === '1');
   // Memoized so the full-attempt walk doesn't re-run when only local UI state
   // (the info modal, ring animation) changes.
   const state = useMemo(
     () => (active ? evaluateAttempt(active.config, logs) : null),
     [active, logs],
   );
+
+  // First launch: show the intro once (it sets the flag on finish/skip).
+  if (!onboarded) return <Redirect href="/onboarding" />;
 
   if (!active || !state) {
     return (

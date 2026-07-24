@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, Stack } from 'expo-router';
@@ -55,6 +55,17 @@ export default function SettingsScreen() {
     }
     await setEveningReminder(v);
     setEvening(v);
+  };
+
+  const sendFeedback = () => {
+    const subject = 'Eighty beta feedback';
+    const body =
+      "\n\nWhat's working, what's not, anything missing — all welcome.\n\n—\nSent from Eighty (iOS beta)";
+    Linking.openURL(
+      `mailto:keatentuttle@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
+    ).catch(() =>
+      Alert.alert('No mail app', 'Email keatentuttle@gmail.com with your feedback — thank you.'),
+    );
   };
 
   const backupAll = async () => {
@@ -166,6 +177,16 @@ export default function SettingsScreen() {
           />
         </View>
 
+        <Pressable onPress={sendFeedback} style={[card, styles.section]}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Ionicons name="chatbubble-ellipses-outline" size={16} color={p.mint} />
+            <Text style={{ fontSize: 14, fontWeight: '700', color: p.ink }}>Send feedback</Text>
+          </View>
+          <Text style={{ fontSize: 12, color: p.sub, marginTop: 4 }}>
+            One tap to email me — what's off, confusing, or missing. I read every one.
+          </Text>
+        </Pressable>
+
         {repo.getActive() && (
           <Pressable onPress={() => router.push('/edit-challenge')} style={[card, styles.section]}>
             <Text style={{ fontSize: 14, fontWeight: '700', color: p.ink }}>Edit current challenge</Text>
@@ -198,9 +219,14 @@ export default function SettingsScreen() {
           </Pressable>
         </View>
 
+        <Pressable onPress={() => router.push('/onboarding')} style={[card, styles.section]}>
+          <Text style={{ fontSize: 14, fontWeight: '700', color: p.ink }}>Replay intro</Text>
+          <Text style={{ fontSize: 12, color: p.sub, marginTop: 2 }}>See the welcome walkthrough again.</Text>
+        </Pressable>
+
         <View style={[card, styles.section]}>
           <Text style={[t.cardTitle, { color: p.ink }]}>About</Text>
-          <Text style={{ fontSize: 12.5, color: p.sub, marginTop: 6 }}>Eighty · v0.1.0</Text>
+          <Text style={{ fontSize: 12.5, color: p.sub, marginTop: 6 }}>Eighty · v1.0.0</Text>
           <Text style={{ fontSize: 12, color: p.sub, marginTop: 4, lineHeight: 17 }}>
             All data stays on this device. No account, no cloud, no tracking.
           </Text>
