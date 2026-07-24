@@ -136,6 +136,9 @@ export default function TodayScreen() {
 
   const today = todayLabel();
   const needsCloseout = openDay.localDate < today;
+  const dayNum = openDay.dayIndex + 1;
+  const nextDayNum = dayNum + 1;
+  const isLastDay = dayNum >= config.durationDays;
   const yesterday = logs.find((l) => l.dayIndex === openDay.dayIndex - 1);
   const atRisk = new Set(atRiskItems(config, yesterday, openDay.isTravel));
   const score = scoreDay(config, openDay, yesterday);
@@ -161,37 +164,36 @@ export default function TodayScreen() {
           paddingHorizontal: 16,
         }}
       >
-        {/* Header */}
+        {/* Header — lead with the day number */}
         <View style={styles.header}>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 12, fontWeight: '700', letterSpacing: 1, color: p.mint }}>
               EIGHTY
             </Text>
-            <Text style={[t.h1, { color: p.ink, marginTop: 2 }]}>Today</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 2 }}>
+              <Text style={[t.h1, { color: p.ink }]}>Day {dayNum}</Text>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: p.sub, marginLeft: 6 }}>
+                of {config.durationDays}
+              </Text>
+            </View>
             <Text style={{ fontSize: 13, color: p.sub, marginTop: 2 }}>
-              {openDay.localDate} · {active.name}
-            </Text>
-          </View>
-          <View style={[styles.dayChip, { backgroundColor: p.mint }]}>
-            <Text style={{ fontSize: 20, fontWeight: '800', color: p.onAccent }}>
-              {openDay.dayIndex + 1}
-            </Text>
-            <Text style={{ fontSize: 10, fontWeight: '600', color: p.onAccent, opacity: 0.75 }}>
-              of {config.durationDays}
+              {active.name} · {openDay.localDate}
             </Text>
           </View>
         </View>
 
-        {/* Close-out banner */}
+        {/* Forward CTA — you stay on this day until you choose to move on */}
         {needsCloseout && (
-          <View style={[styles.closeout, { backgroundColor: p.siennaSoft }]}>
-            <Ionicons name="moon" size={18} color={p.sienna} />
-            <Text style={{ flex: 1, fontSize: 13.5, lineHeight: 18, color: p.ink }}>
-              <Text style={{ fontWeight: '700', color: p.sienna }}>
-                {openDay.localDate} is still open.
-              </Text>{' '}
-              Log sleep &amp; bedtime items, then close it out.
-            </Text>
+          <View style={[styles.forward, { backgroundColor: p.mintSoft }]}>
+            <View style={styles.forwardHead}>
+              <Ionicons name="checkmark-done-circle" size={20} color={p.mint} />
+              <Text style={{ flex: 1, fontSize: 13.5, lineHeight: 18, color: p.ink }}>
+                <Text style={{ fontWeight: '800', color: p.mint }}>You finished Day {dayNum}.</Text>{' '}
+                {isLastDay
+                  ? 'Log any last sleep & bedtime items first.'
+                  : "Still logging last night's sleep? Do that first — you're not on the next day until you tap below."}
+              </Text>
+            </View>
             <Pressable
               onPress={() => {
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -199,13 +201,16 @@ export default function TodayScreen() {
                 refresh();
               }}
               style={({ pressed }) => [
-                styles.closeBtn,
-                { backgroundColor: p.sienna, opacity: pressed ? 0.8 : 1 },
+                styles.forwardBtn,
+                { backgroundColor: p.mint, opacity: pressed ? 0.85 : 1 },
               ]}
+              accessibilityRole="button"
+              accessibilityLabel={isLastDay ? `Finish Day ${dayNum}` : `Move on to Day ${nextDayNum}`}
             >
-              <Text style={{ color: p.onAccent, fontSize: 12.5, fontWeight: '700' }}>
-                Close out
+              <Text style={{ color: p.onAccent, fontWeight: '800', fontSize: 14.5 }}>
+                {isLastDay ? `Finish Day ${dayNum}` : `Move on to Day ${nextDayNum}`}
               </Text>
+              <Ionicons name="arrow-forward" size={16} color={p.onAccent} />
             </Pressable>
           </View>
         )}
@@ -407,16 +412,20 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     paddingTop: 10,
   },
-  dayChip: { borderRadius: 14, paddingHorizontal: 13, paddingVertical: 8, alignItems: 'center' },
-  closeout: {
+  forward: {
     borderRadius: radius.banner,
     padding: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
     marginBottom: 14,
   },
-  closeBtn: { borderRadius: radius.pill, paddingHorizontal: 13, paddingVertical: 7 },
+  forwardHead: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 11 },
+  forwardBtn: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 7,
+    borderRadius: radius.pill,
+    paddingVertical: 11,
+  },
   hero: { padding: 20, flexDirection: 'row', gap: 18, alignItems: 'center', marginBottom: 14 },
   cat: { paddingVertical: 6, paddingHorizontal: 16, marginBottom: 12 },
   catHead: {
