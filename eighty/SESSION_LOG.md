@@ -24,7 +24,16 @@ one commit each, all verified (67 engine tests @ 100%, tsc clean, `expo export` 
    the widget to Midnight Indigo. **⚠️ Requires a fresh `eas build` + `eas submit`** — the
    current TestFlight build doesn't have the lock-screen face. Details in WIDGET.md/SUBMISSION.md.
 
-Left EIGHTY_PRESET's item list untouched (you're editing presets.ts separately).
+Then a **flagship preset overhaul + onboarding** task:
+
+- **Task 1 (done, committed `91775b3`):** replaced the 80/80/80 seed list with the new 10
+  items grouped by time of day + 7 bonus (daily = 8/10). Kept 75 Hard; added **Founder's
+  Protocol** = the old 25-item list. Added an `isAvoidance` item flag (+ `is_avoidance`
+  column with an additive migration for existing beta DBs) — metadata only, engine untouched.
+  Engine test for the fast's wake-to-wake attribution. 68 tests @ 100%, tsc clean, exports.
+- **Task 2 (mockups delivered, impl gated on approval):** static onboarding mockups (4
+  screens + CTA) published as an artifact with a **palette toggle** (Midnight Indigo vs the
+  PNW Forest the brief described — flagged that decision). Nothing wired into nav yet.
 
 ---
 
