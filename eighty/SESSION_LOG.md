@@ -4,6 +4,30 @@ A running, human-readable log so you can catch up in two minutes. Newest entry o
 
 ---
 
+## 2026-07-23 — Week-1 refinements (from real TestFlight use)
+
+Committed the stranded EAS `app.json` (projectId + widget config) first, then four items,
+one commit each, all verified (67 engine tests @ 100%, tsc clean, `expo export` bundles):
+
+1. **Edit challenge after starting.** `updateChallengeConfig` on the repo + an Edit-challenge
+   screen (Settings row + Dashboard pencil). Toggles apply immediately; duration/thresholds/
+   strictness confirm ("recalculates your past days") since stats re-score from raw logs.
+   Added engine tests proving the re-score (noRepeat off un-fails a day, flexible→strict
+   restarts, lower threshold un-fails).
+2. **Backdate start + edit any prior day.** `startChallenge(preset, today, startLabel?)`
+   pre-creates back-dated day rows (closed-but-empty, last one open). Preview has a "Start
+   date" stepper. Past days are editable via the existing Dashboard calendar → day/[dayIndex].
+3. **Forward "Move on to Day N" UX.** Today leads with "Day 7 of 80"; the close-out banner is
+   now a positive "You finished Day 7 → Move on to Day 8" CTA. UI/copy only — day model
+   unchanged.
+4. **Lock-screen widget** (native, needs a rebuild). Added `accessoryCircular` gauge + recolored
+   the widget to Midnight Indigo. **⚠️ Requires a fresh `eas build` + `eas submit`** — the
+   current TestFlight build doesn't have the lock-screen face. Details in WIDGET.md/SUBMISSION.md.
+
+Left EIGHTY_PRESET's item list untouched (you're editing presets.ts separately).
+
+---
+
 ## 2026-07-17 — Takeover session (autonomous)
 
 **Caught up & verified the baseline.**
