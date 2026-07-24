@@ -1,11 +1,24 @@
+import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
+import { addDays } from '@engine';
 import { useActiveChallenge } from '@/data/useActiveChallenge';
 import { ChallengePreset } from '@/data/repository';
-import { confirmAndStart } from '@/data/startFlow';
+import { confirmAndStart, todayLabel } from '@/data/startFlow';
 import { usePalette, radius, type as t } from '@/theme/tokens';
+
+function formatStart(label: string, daysAgo: number): string {
+  if (daysAgo === 0) return 'Today';
+  if (daysAgo === 1) return 'Yesterday';
+  return new Date(`${label}T00:00:00Z`).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });
+}
 
 function parsePreset(json: string | undefined): ChallengePreset | null {
   if (!json) return null;
@@ -23,6 +36,7 @@ export default function PreviewScreen() {
   const insets = useSafeAreaInsets();
   const { presetJson } = useLocalSearchParams<{ presetJson: string }>();
   const { repo, active, refresh } = useActiveChallenge();
+  const [daysAgo, setDaysAgo] = useState(0);
   const preset = parsePreset(presetJson);
   const card = { backgroundColor: p.card, borderRadius: radius.card };
 
@@ -48,10 +62,18 @@ export default function PreviewScreen() {
   const bonusCount = preset.items.length - regularCount;
   const isFlagship = preset.name === '80/80/80';
 
+  const today = todayLabel();
+  const maxBack = Math.min(preset.durationDays - 1, 60);
+  const startLabel = addDays(today, -daysAgo);
+  const step = (delta: number) => {
+    Haptics.selectionAsync();
+    setDaysAgo((d) => Math.max(0, Math.min(maxBack, d + delta)));
+  };
+
   const customize = () =>
     router.push({ pathname: '/builder', params: { presetJson: JSON.stringify(preset) } });
 
-  const startAsIs = () => confirmAndStart(repo, active, preset, refresh);
+  const startAsIs = () => confirmAndStart(repo, active, preset, refresh, startLabel);
 
   return (
     <>
@@ -116,11 +138,33 @@ export default function PreviewScreen() {
           })}
         </View>
 
+        <View style={[card, styles.section]}>
+          <Text style={[t.cardTitle, { color: p.ink }]}>Start date</Text>
+          <Text style={{ fontSize: 11.5, color: p.sub, marginTop: 2, marginBottom: 12 }}>
+            Already a few days in? Back-date it — those days count, and you can fill them in from the
+            calendar.
+          </Text>
+          <View style={styles.stepper}>
+            <StepBtn icon="chevron-back" label="Earlier" disabled={daysAgo >= maxBack} onPress={() => step(1)} p={p} />
+            <View style={{ flex: 1, alignItems: 'center' }}>
+              <Text style={{ fontSize: 17, fontWeight: '800', color: p.ink }}>
+                {formatStart(startLabel, daysAgo)}
+              </Text>
+              <Text style={{ fontSize: 11.5, color: p.sub, marginTop: 2 }}>
+                Day {daysAgo + 1} of {preset.durationDays} today
+              </Text>
+            </View>
+            <StepBtn icon="chevron-forward" label="Later" disabled={daysAgo <= 0} onPress={() => step(-1)} p={p} />
+          </View>
+        </View>
+
         <Pressable
           onPress={startAsIs}
           style={({ pressed }) => [styles.startBtn, { backgroundColor: p.mint, opacity: pressed ? 0.8 : 1 }]}
         >
-          <Text style={{ color: p.onAccent, fontWeight: '800', fontSize: 15 }}>Start as-is</Text>
+          <Text style={{ color: p.onAccent, fontWeight: '800', fontSize: 15 }}>
+            {daysAgo === 0 ? 'Start as-is' : `Start from ${formatStart(startLabel, daysAgo)}`}
+          </Text>
         </Pressable>
         <Pressable
           onPress={customize}
@@ -151,6 +195,33 @@ function Chip({
   );
 }
 
+function StepBtn({
+  icon,
+  label,
+  disabled,
+  onPress,
+  p,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  disabled: boolean;
+  onPress: () => void;
+  p: ReturnType<typeof usePalette>;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ disabled }}
+      style={[styles.stepBtn, { backgroundColor: p.card2, opacity: disabled ? 0.35 : 1 }]}
+    >
+      <Ionicons name={icon} size={20} color={p.ink} />
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   section: { padding: 16, marginBottom: 14 },
@@ -173,6 +244,8 @@ const styles = StyleSheet.create({
   },
   checklistHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
   itemRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
+  stepper: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  stepBtn: { width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center' },
   startBtn: { borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center' },
   customizeBtn: {
     flexDirection: 'row',

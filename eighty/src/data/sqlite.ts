@@ -1,5 +1,5 @@
 import * as SQLite from 'expo-sqlite';
-import { DayLog, Rating } from '@engine';
+import { DayLog, Rating, addDays, diffDays } from '@engine';
 import {
   ActiveChallenge,
   BackupFile,
@@ -183,7 +183,10 @@ export class SqliteRepository implements ChallengeRepository {
     };
   }
 
-  startChallenge(preset: ChallengePreset, todayLabel: string): ActiveChallenge {
+  startChallenge(preset: ChallengePreset, todayLabel: string, startLabel = todayLabel): ActiveChallenge {
+    // Never start in the future; never pre-create more days than the challenge length.
+    const start = startLabel < todayLabel ? startLabel : todayLabel;
+    const lastIndex = Math.min(Math.max(0, diffDays(start, todayLabel)), preset.durationDays - 1);
     let result: ActiveChallenge | undefined;
     this.db.withTransactionSync(() => {
       // v1 shows a single active challenge (PLAN.md #10) — starting a new one
@@ -220,13 +223,18 @@ export class SqliteRepository implements ChallengeRepository {
       );
       const at = this.db.runSync(
         `INSERT INTO attempt (challenge_id, attempt_no, started_local_date) VALUES (?, 1, ?)`,
-        [challengeId, todayLabel],
+        [challengeId, start],
       );
       const attemptId = Number(at.lastInsertRowId);
-      this.db.runSync(`INSERT INTO day (attempt_id, day_index, local_date) VALUES (?, 0, ?)`, [
-        attemptId,
-        todayLabel,
-      ]);
+      // Pre-create days 0…lastIndex. Back-dated days (0…lastIndex-1) are closed but
+      // empty (they count as missed until filled in); the last day is today's open day.
+      const closedAt = new Date().toISOString();
+      for (let i = 0; i <= lastIndex; i++) {
+        this.db.runSync(
+          `INSERT INTO day (attempt_id, day_index, local_date, closed_at_utc) VALUES (?, ?, ?, ?)`,
+          [attemptId, i, addDays(start, i), i < lastIndex ? closedAt : null],
+        );
+      }
       const row = this.db.getFirstSync<ChallengeRow>(`SELECT * FROM challenge WHERE id = ?`, [
         challengeId,
       ]);

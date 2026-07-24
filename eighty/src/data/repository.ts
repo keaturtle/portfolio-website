@@ -111,8 +111,12 @@ export interface ChallengeConfigUpdate {
  */
 export interface ChallengeRepository {
   getActive(): ActiveChallenge | null;
-  /** Creates challenge + attempt and opens day 0 with today's label. */
-  startChallenge(preset: ChallengePreset, todayLabel: string): ActiveChallenge;
+  /**
+   * Creates challenge + attempt. Day 0 is labelled `startLabel` (defaults to today).
+   * If `startLabel` is before today, days 0…(today−start) are pre-created — earlier
+   * ones closed-but-empty so they count and can be filled in, the last one open.
+   */
+  startChallenge(preset: ChallengePreset, todayLabel: string, startLabel?: string): ActiveChallenge;
   /** Raw logs for the engine, ordered by dayIndex. Exactly one may be open. */
   getLogs(attemptId: number): DayLog[];
   setItemDone(attemptId: number, dayIndex: number, itemId: string, done: boolean): void;
