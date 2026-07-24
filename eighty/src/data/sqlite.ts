@@ -123,6 +123,24 @@ export class SqliteRepository implements ChallengeRepository {
     }
   }
 
+  /**
+   * Avoidance items are complete-by-default: on a freshly opened day, mark them done so
+   * they count unless the user taps to log a slip. Engine sees ordinary completed items.
+   */
+  private seedAvoidanceCompletions(dayId: number, challengeId: number): void {
+    const avoidance = this.db.getAllSync<{ id: string }>(
+      `SELECT id FROM item WHERE challenge_id = ? AND is_avoidance = 1`,
+      [challengeId],
+    );
+    const now = new Date().toISOString();
+    for (const it of avoidance) {
+      this.db.runSync(
+        `INSERT OR IGNORE INTO day_item (day_id, item_id, completed_at_utc) VALUES (?, ?, ?)`,
+        [dayId, it.id, now],
+      );
+    }
+  }
+
   getSetting(key: string): string | null {
     const row = this.db.getFirstSync<{ value: string }>(`SELECT value FROM setting WHERE key = ?`, [key]);
     return row ? row.value : null;
@@ -242,12 +260,15 @@ export class SqliteRepository implements ChallengeRepository {
       // Pre-create days 0…lastIndex. Back-dated days (0…lastIndex-1) are closed but
       // empty (they count as missed until filled in); the last day is today's open day.
       const closedAt = new Date().toISOString();
+      let openDayId = 0;
       for (let i = 0; i <= lastIndex; i++) {
-        this.db.runSync(
+        const res = this.db.runSync(
           `INSERT INTO day (attempt_id, day_index, local_date, closed_at_utc) VALUES (?, ?, ?, ?)`,
           [attemptId, i, addDays(start, i), i < lastIndex ? closedAt : null],
         );
+        if (i === lastIndex) openDayId = Number(res.lastInsertRowId);
       }
+      this.seedAvoidanceCompletions(openDayId, challengeId);
       const row = this.db.getFirstSync<ChallengeRow>(`SELECT * FROM challenge WHERE id = ?`, [
         challengeId,
       ]);
@@ -343,15 +364,20 @@ export class SqliteRepository implements ChallengeRepository {
         `UPDATE day SET closed_at_utc = ? WHERE attempt_id = ? AND day_index = ? AND closed_at_utc IS NULL`,
         [new Date().toISOString(), attemptId, dayIndex],
       );
-      const duration = this.db.getFirstSync<{ duration_days: number }>(
-        `SELECT c.duration_days FROM challenge c JOIN attempt a ON a.challenge_id = c.id WHERE a.id = ?`,
+      const info = this.db.getFirstSync<{ duration_days: number; challenge_id: number }>(
+        `SELECT c.duration_days, c.id AS challenge_id FROM challenge c JOIN attempt a ON a.challenge_id = c.id WHERE a.id = ?`,
         [attemptId],
       );
-      if (duration && dayIndex + 1 < duration.duration_days) {
+      if (info && dayIndex + 1 < info.duration_days) {
         this.db.runSync(
           `INSERT OR IGNORE INTO day (attempt_id, day_index, local_date) VALUES (?, ?, ?)`,
           [attemptId, dayIndex + 1, nextLabel],
         );
+        const newDay = this.db.getFirstSync<{ id: number }>(
+          `SELECT id FROM day WHERE attempt_id = ? AND day_index = ?`,
+          [attemptId, dayIndex + 1],
+        );
+        if (newDay) this.seedAvoidanceCompletions(newDay.id, info.challenge_id);
       }
     });
   }

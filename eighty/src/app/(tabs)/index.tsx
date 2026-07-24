@@ -270,6 +270,7 @@ export default function TodayScreen() {
                   categoryName={categoryName(it.categoryId)}
                   done={done.has(it.id)}
                   isBonus={false}
+                  isAvoidance={it.isAvoidance}
                   missedYesterday={atRisk.has(it.id)}
                   palette={p}
                   onToggle={() => {

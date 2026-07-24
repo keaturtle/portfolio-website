@@ -153,6 +153,7 @@ export default function DayDetailScreen() {
               categoryName={categoryName(it.categoryId)}
               done={done.has(it.id)}
               isBonus={it.isBonus}
+              isAvoidance={it.isAvoidance}
               missedYesterday={false}
               palette={p}
               onToggle={() => toggleItem(it.id)}

@@ -33,18 +33,18 @@ export const EIGHTY_PRESET: ChallengePreset = {
   ],
   items: [
     // Morning
-    i('hydrate', 'morning', 'Hydrate — 3L+ of water', 'morning'),
-    i('move', 'morning', 'Move — 30+ min intentional exercise', 'morning'),
+    i('hydrate', 'morning', 'Hydrate — drink 3L+ of water today', 'morning'),
+    i('move', 'morning', 'Move — 30+ min of intentional exercise, any kind', 'morning'),
     // Through the day
     i('protein', 'day', 'Protein — hit your protein target', 'day'),
-    av('noalcohol', 'day', 'No alcohol', 'day'),
-    av('nosweets', 'day', 'No sweets — no added-sugar desserts or candy', 'day'),
-    av('fast', 'day', 'Fast 8pm–10am — 14-hour intermittent fast', 'day'),
-    i('read', 'day', 'Read — 10+ min', 'day'),
-    i('meditate', 'day', 'Meditate — 10+ min', 'day'),
+    av('noalcohol', 'day', 'Drink clean — water, coffee, tea, and zero-proof only today', 'day'),
+    av('nosweets', 'day', 'Eat clean — zero added-sugar desserts today', 'day'),
+    av('fast', 'day', 'Fast — complete your 8pm–10am fast (14 hours)', 'day'),
+    i('read', 'day', 'Read — 10+ minutes', 'day'),
+    i('meditate', 'day', 'Meditate — 10+ minutes', 'day'),
     // Evening
-    av('nophonebed', 'evening', 'No phone in bed — night or morning', 'evening'),
-    i('bed11', 'evening', 'In bed by 11pm', 'evening'),
+    av('nophonebed', 'evening', "Park the phone — charge it out of arm's reach overnight, wake without it", 'evening'),
+    i('bed11', 'evening', 'Lights out — in bed by 11pm', 'evening'),
     // Bonus — count toward the numerator only, never against you
     i('bsun', 'morning', 'Morning sunlight — 10 min within an hour of waking', 'morning', true),
     i('bcold', 'morning', 'Cold exposure', 'morning', true),
