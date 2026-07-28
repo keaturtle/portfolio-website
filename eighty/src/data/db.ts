@@ -15,9 +15,21 @@ import { SqliteRepository } from './sqlite';
  * Wraps the SQLite repository so every mutation announces itself (events.ts).
  * Screens subscribe through useActiveChallenge and update automatically — the
  * fix for stale lists/tabs after create/delete/edit from another screen.
+ *
+ * The SQLite connection opens lazily on first use, not at module import: if the
+ * database can't open (corruption, disk full), the throw happens inside React's
+ * render/effect tree where the ErrorBoundary can show a recoverable screen —
+ * an import-time throw would crash before React even mounts.
  */
 class NotifyingRepository implements ChallengeRepository {
-  constructor(private readonly inner: ChallengeRepository) {}
+  private connection: ChallengeRepository | null = null;
+
+  constructor(private readonly open: () => ChallengeRepository) {}
+
+  private get inner(): ChallengeRepository {
+    if (!this.connection) this.connection = this.open();
+    return this.connection;
+  }
 
   private mutate<T>(fn: () => T): T {
     const result = fn();
@@ -74,4 +86,4 @@ class NotifyingRepository implements ChallengeRepository {
 }
 
 /** One shared connection for the whole app — screens no longer each open their own. */
-export const repo: ChallengeRepository = new NotifyingRepository(new SqliteRepository());
+export const repo: ChallengeRepository = new NotifyingRepository(() => new SqliteRepository());

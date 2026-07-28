@@ -102,9 +102,9 @@ export default function ChallengesScreen() {
   };
 
   const importFromFile = async () => {
-    const result = await DocumentPicker.getDocumentAsync({ type: 'application/json' });
-    if (result.canceled || !result.assets?.[0]) return;
     try {
+      const result = await DocumentPicker.getDocumentAsync({ type: 'application/json' });
+      if (result.canceled || !result.assets?.[0]) return;
       const text = await new File(result.assets[0].uri).text();
       const parsed = parseTemplateJson(text);
       if (!parsed.ok) {

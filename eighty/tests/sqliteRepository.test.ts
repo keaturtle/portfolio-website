@@ -221,6 +221,19 @@ describe('closeDay', () => {
     const second = repo.getLogs(active.attemptId);
     expect(second).toEqual(first);
   });
+
+  it('gap-created missed days can be back-filled like any other past day', () => {
+    const { repo } = fresh();
+    const active = repo.startChallenge(PRESET, TODAY);
+    repo.closeDay(active.attemptId, 0, '2026-07-30'); // days 1–2 created as missed
+    repo.setItemDone(active.attemptId, 1, 'a', true);
+    repo.setItemDone(active.attemptId, 1, 'avoid', true);
+    repo.setDayMeta(active.attemptId, 1, { notes: 'was actually on it' });
+    const day1 = repo.getLogs(active.attemptId)[1]!;
+    expect(day1.closed).toBe(true);
+    expect(day1.completedItemIds.sort()).toEqual(['a', 'avoid']);
+    expect(day1.notes).toBe('was actually on it');
+  });
 });
 
 describe('config, activation, settings', () => {

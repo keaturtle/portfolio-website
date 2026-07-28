@@ -122,6 +122,8 @@ export interface ChallengeRepository {
    * Creates challenge + attempt. Day 0 is labelled `startLabel` (defaults to today).
    * If `startLabel` is before today, days 0…(today−start) are pre-created — earlier
    * ones closed-but-empty so they count and can be filled in, the last one open.
+   * A start so far back that the whole window already elapsed closes every day
+   * and opens none (the challenge arrives finished).
    */
   startChallenge(preset: ChallengePreset, todayLabel: string, startLabel?: string): ActiveChallenge;
   /** Raw logs for the engine, ordered by dayIndex. Exactly one may be open. */
