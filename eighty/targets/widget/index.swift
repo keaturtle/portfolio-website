@@ -198,13 +198,22 @@ struct EightyWidgetEntryView: View {
   }
 
   private var emptyState: some View {
-    VStack(spacing: 6) {
+    // Heartbeat is written by the app on every launch/foreground. If the widget can see it,
+    // the app→App Group→widget bridge works and we're just waiting on a challenge/snapshot.
+    // If not, the bridge itself is broken (entitlement) — the tiny status line tells us which.
+    let synced = UserDefaults(suiteName: appGroup)?.string(forKey: "heartbeat") != nil
+    return VStack(spacing: 5) {
       Text("EIGHTY")
         .font(.system(size: 11, weight: .bold))
         .foregroundColor(.nfMint)
-      Text("Open the app to start")
+      Text(synced ? "Start a challenge in Eighty" : "Open Eighty to start")
         .font(.system(size: 12))
         .foregroundColor(.nfSub)
+        .multilineTextAlignment(.center)
+      Text(synced ? "synced" : "not synced")
+        .font(.system(size: 8.5, weight: .medium))
+        .foregroundColor(.nfSub)
+        .opacity(0.55)
     }
     .padding()
   }

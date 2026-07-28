@@ -1,5 +1,6 @@
 import { ExtensionStorage } from '@bacons/apple-targets';
 import { ChallengeConfig, DayLog, evaluateAttempt, scoreDay } from '@engine';
+import { repo } from './db';
 
 /**
  * Home-screen widget data bridge (M13).
@@ -14,6 +15,7 @@ import { ChallengeConfig, DayLog, evaluateAttempt, scoreDay } from '@engine';
 
 export const WIDGET_APP_GROUP = 'group.com.keatentuttle.eighty';
 const TODAY_KEY = 'today';
+const HEARTBEAT_KEY = 'heartbeat';
 
 export interface WidgetSnapshot {
   /** Today's day-progress %, clamped 0–100. */
@@ -63,9 +65,30 @@ const storage = new ExtensionStorage(WIDGET_APP_GROUP);
 export function publishWidgetSnapshot(snap: WidgetSnapshot | null): void {
   try {
     storage.set(TODAY_KEY, snap ? JSON.stringify(snap) : undefined);
+    // Heartbeat proves the app→App Group→widget bridge works even when there's no snapshot;
+    // the widget's empty state reads it to distinguish "no data" from "bridge broken".
+    storage.set(HEARTBEAT_KEY, new Date().toISOString());
     ExtensionStorage.reloadWidget();
   } catch {
     // No native module (Expo Go) or App Group not provisioned yet — ignore.
+  }
+}
+
+/**
+ * Reads the active challenge straight from the repo and publishes its snapshot. Safe to
+ * call anytime (app launch, foreground) — doesn't depend on any screen being mounted.
+ */
+export function publishActiveWidget(): void {
+  try {
+    const active = repo.getActive();
+    if (!active) {
+      publishWidgetSnapshot(null);
+      return;
+    }
+    const logs = repo.getLogs(active.attemptId);
+    publishWidgetSnapshot(buildWidgetSnapshot(active.config, logs, active.name));
+  } catch {
+    // ignore
   }
 }
 
