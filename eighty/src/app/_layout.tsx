@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
-import { AppState } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { publishActiveWidget } from '@/data/widget';
+import { initDataStore } from '@/data/store';
 import { usePalette } from '@/theme/tokens';
 import { ThemeProvider } from '@/theme/ThemeContext';
 import { ErrorBoundary } from '@/ui/ErrorBoundary';
@@ -23,15 +22,10 @@ function Root() {
 }
 
 export default function RootLayout() {
-  // Keep the home/lock-screen widget fresh on launch and every time the app returns to
-  // the foreground, straight from the repo (independent of which screen is mounted).
-  useEffect(() => {
-    publishActiveWidget();
-    const sub = AppState.addEventListener('change', (s) => {
-      if (s === 'active') publishActiveWidget();
-    });
-    return () => sub.remove();
-  }, []);
+  // Wire the data store's lifecycle triggers: widget publishing (launch + every
+  // write), and the foreground/midnight version bumps that keep date-dependent UI
+  // (the "move on" banner) honest without any screen doing its own bookkeeping.
+  useEffect(() => initDataStore(), []);
 
   return (
     <ErrorBoundary>

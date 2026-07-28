@@ -1,35 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
-import { DayLog } from '@engine';
+import { useSyncExternalStore } from 'react';
 import { repo } from './db';
-import { ActiveChallenge, ChallengeRepository } from './repository';
-import { refreshWidget } from './widget';
+import { subscribeData } from './events';
+import { getChallengeSnapshot } from './store';
 
-export interface ChallengeSnapshot {
-  active: ActiveChallenge | null;
-  logs: DayLog[];
-}
-
-function snapshot(r: ChallengeRepository): ChallengeSnapshot {
-  const active = r.getActive();
-  return { active, logs: active ? r.getLogs(active.attemptId) : [] };
-}
-
-/** Shared active-challenge + logs state, reloaded on demand after any write. */
+/**
+ * Live active-challenge + logs. Re-renders automatically after any repository
+ * write (from any screen), on foreground, and at midnight — see events.ts/store.ts.
+ * `version` identifies the snapshot; use it as a useMemo key for derived data.
+ */
 export function useActiveChallenge() {
-  const [snap, setSnap] = useState<ChallengeSnapshot>(() => snapshot(repo));
-
-  const refresh = useCallback(() => {
-    const next = snapshot(repo);
-    setSnap(next);
-    // Keep the home-screen widget in sync after every mutation (no-op in Expo Go).
-    refreshWidget(next.active?.config, next.logs, next.active?.name);
-  }, []);
-
-  // Publish once on mount so the widget reflects the latest state on app open.
-  useEffect(() => {
-    refreshWidget(snap.active?.config, snap.logs, snap.active?.name);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return { repo, active: snap.active, logs: snap.logs, refresh };
+  const snap = useSyncExternalStore(subscribeData, getChallengeSnapshot);
+  return { repo, active: snap.active, logs: snap.logs, version: snap.version };
 }

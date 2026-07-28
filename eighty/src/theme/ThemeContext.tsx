@@ -1,5 +1,6 @@
-import { createContext, ReactNode, useContext, useState } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { repo } from '@/data/db';
+import { subscribeData } from '@/data/events';
 
 export type ThemeOverride = 'auto' | 'light' | 'dark';
 const SETTING_KEY = 'themeOverride';
@@ -20,6 +21,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const stored = repo.getSetting(SETTING_KEY);
     return isThemeOverride(stored) ? stored : 'auto';
   });
+
+  // Restoring a backup replaces settings wholesale — re-read so the restored
+  // theme applies without an app restart.
+  useEffect(
+    () =>
+      subscribeData(() => {
+        const stored = repo.getSetting(SETTING_KEY);
+        setOverrideState(isThemeOverride(stored) ? stored : 'auto');
+      }),
+    [],
+  );
 
   const setOverride = (v: ThemeOverride) => {
     repo.setSetting(SETTING_KEY, v);

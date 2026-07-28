@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Alert, Pressable, ScrollView, Text, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -20,18 +21,25 @@ function preview(preset: ChallengePreset) {
 export default function ChallengesScreen() {
   const p = usePalette();
   const insets = useSafeAreaInsets();
-  const { repo, active, refresh } = useActiveChallenge();
+  const { repo, active, version } = useActiveChallenge();
   const card = { backgroundColor: p.card, borderRadius: radius.card };
 
-  const history = repo
-    .listChallenges()
-    .map((c) => {
-      const detail = repo.getChallengeDetail(c.challengeId);
-      const logs = detail ? repo.getLogs(detail.attemptId) : [];
-      const state = detail ? evaluateAttempt(detail.config, logs) : null;
-      return { ...c, detail, state };
-    })
-    .sort((a, b) => (a.status === 'active' ? -1 : b.status === 'active' ? 1 : 0));
+  // Recomputed only when the data version changes — evaluateAttempt walks every
+  // challenge's full history, which is too much to redo on unrelated re-renders.
+  const history = useMemo(
+    () =>
+      repo
+        .listChallenges()
+        .map((c) => {
+          const detail = repo.getChallengeDetail(c.challengeId);
+          const logs = detail ? repo.getLogs(detail.attemptId) : [];
+          const state = detail ? evaluateAttempt(detail.config, logs) : null;
+          return { ...c, detail, state };
+        })
+        .sort((a, b) => (a.status === 'active' ? -1 : b.status === 'active' ? 1 : 0)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [version],
+  );
 
   const switchTo = (item: ChallengeListItem) => {
     Alert.alert(
@@ -43,7 +51,6 @@ export default function ChallengesScreen() {
           text: 'Switch',
           onPress: () => {
             repo.activateChallenge(item.challengeId);
-            refresh();
             router.replace('/');
           },
         },
@@ -57,10 +64,7 @@ export default function ChallengesScreen() {
       {
         text: 'Delete',
         style: 'destructive',
-        onPress: () => {
-          repo.deleteChallenge(item.challengeId);
-          refresh();
-        },
+        onPress: () => repo.deleteChallenge(item.challengeId),
       },
     ]);
   };

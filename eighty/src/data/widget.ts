@@ -1,6 +1,5 @@
 import { ExtensionStorage } from '@bacons/apple-targets';
 import { ChallengeConfig, DayLog, evaluateAttempt, scoreDay } from '@engine';
-import { repo } from './db';
 
 /**
  * Home-screen widget data bridge (M13).
@@ -75,24 +74,10 @@ export function publishWidgetSnapshot(snap: WidgetSnapshot | null): void {
 }
 
 /**
- * Reads the active challenge straight from the repo and publishes its snapshot. Safe to
- * call anytime (app launch, foreground) — doesn't depend on any screen being mounted.
+ * Build from the active challenge and publish in one call; publishes the empty state
+ * when inactive. The data store calls this on launch, after every write, and on
+ * foreground (see store.ts) — no screen involvement.
  */
-export function publishActiveWidget(): void {
-  try {
-    const active = repo.getActive();
-    if (!active) {
-      publishWidgetSnapshot(null);
-      return;
-    }
-    const logs = repo.getLogs(active.attemptId);
-    publishWidgetSnapshot(buildWidgetSnapshot(active.config, logs, active.name));
-  } catch {
-    // ignore
-  }
-}
-
-/** Build from the active challenge and publish in one call; publishes the empty state when inactive. */
 export function refreshWidget(
   config: ChallengeConfig | null | undefined,
   logs: DayLog[],

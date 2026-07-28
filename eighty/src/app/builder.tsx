@@ -56,7 +56,7 @@ export default function BuilderScreen() {
   const p = usePalette();
   const insets = useSafeAreaInsets();
   const { presetJson } = useLocalSearchParams<{ presetJson?: string }>();
-  const { repo, active, refresh } = useActiveChallenge();
+  const { repo, active } = useActiveChallenge();
   const [draft, setDraft] = useState<ChallengePreset>(() => initialDraft(presetJson));
   const [newCategory, setNewCategory] = useState('');
   const [newItem, setNewItem] = useState<Record<string, { label: string; isBonus: boolean; timeOfDay: TimeOfDay }>>({});
@@ -105,7 +105,7 @@ export default function BuilderScreen() {
       return;
     }
     const finalPreset = { ...draft, name: draft.name.trim() || 'Custom challenge' };
-    confirmAndStart(repo, active, finalPreset, refresh);
+    confirmAndStart(repo, active, finalPreset);
   };
 
   return (

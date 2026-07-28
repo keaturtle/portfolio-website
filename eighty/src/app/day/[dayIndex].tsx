@@ -38,7 +38,7 @@ export default function DayDetailScreen() {
   const insets = useSafeAreaInsets();
   const { dayIndex: dayIndexParam } = useLocalSearchParams<{ dayIndex: string }>();
   const dayIndex = Number(dayIndexParam);
-  const { repo, active, logs, refresh } = useActiveChallenge();
+  const { repo, active, logs } = useActiveChallenge();
   const card = { backgroundColor: p.card, borderRadius: radius.card };
 
   const log = logs.find((l) => l.dayIndex === dayIndex);
@@ -89,7 +89,6 @@ export default function DayDetailScreen() {
       () => {
         Haptics.impactAsync(willBeDone ? Haptics.ImpactFeedbackStyle.Medium : Haptics.ImpactFeedbackStyle.Light);
         repo.setItemDone(active.attemptId, dayIndex, itemId, willBeDone);
-        refresh();
       },
     );
   };
@@ -100,7 +99,6 @@ export default function DayDetailScreen() {
       () => {
         Haptics.selectionAsync();
         repo.setDayMeta(active.attemptId, dayIndex, { isTravel });
-        refresh();
       },
     );
   };
@@ -167,19 +165,13 @@ export default function DayDetailScreen() {
             label="Satisfaction"
             value={log.satisfaction}
             palette={p}
-            onChange={(v) => {
-              repo.setDayMeta(active.attemptId, dayIndex, { satisfaction: v });
-              refresh();
-            }}
+            onChange={(v) => repo.setDayMeta(active.attemptId, dayIndex, { satisfaction: v })}
           />
           <RatingScale
             label="Mood"
             value={log.mood}
             palette={p}
-            onChange={(v) => {
-              repo.setDayMeta(active.attemptId, dayIndex, { mood: v });
-              refresh();
-            }}
+            onChange={(v) => repo.setDayMeta(active.attemptId, dayIndex, { mood: v })}
           />
           <View style={[styles.travel, { borderTopColor: p.line }]}>
             <Text style={{ fontSize: 13.5, color: p.sub }}>Travel day</Text>
@@ -197,10 +189,7 @@ export default function DayDetailScreen() {
             placeholderTextColor={p.sub}
             multiline
             defaultValue={log.notes ?? ''}
-            onEndEditing={(e) => {
-              repo.setDayMeta(active.attemptId, dayIndex, { notes: e.nativeEvent.text });
-              refresh();
-            }}
+            onEndEditing={(e) => repo.setDayMeta(active.attemptId, dayIndex, { notes: e.nativeEvent.text })}
           />
         </View>
       </ScrollView>

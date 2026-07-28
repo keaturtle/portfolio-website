@@ -35,7 +35,7 @@ export default function PreviewScreen() {
   const p = usePalette();
   const insets = useSafeAreaInsets();
   const { presetJson } = useLocalSearchParams<{ presetJson: string }>();
-  const { repo, active, refresh } = useActiveChallenge();
+  const { repo, active } = useActiveChallenge();
   const [daysAgo, setDaysAgo] = useState(0);
   const preset = parsePreset(presetJson);
   const card = { backgroundColor: p.card, borderRadius: radius.card };
@@ -73,7 +73,7 @@ export default function PreviewScreen() {
   const customize = () =>
     router.push({ pathname: '/builder', params: { presetJson: JSON.stringify(preset) } });
 
-  const startAsIs = () => confirmAndStart(repo, active, preset, refresh, startLabel);
+  const startAsIs = () => confirmAndStart(repo, active, preset, startLabel);
 
   return (
     <>

@@ -22,7 +22,7 @@ const STRICTNESS_OPTIONS: { key: Strictness; label: string }[] = [
 export default function EditChallengeScreen() {
   const p = usePalette();
   const insets = useSafeAreaInsets();
-  const { repo, active, refresh } = useActiveChallenge();
+  const { repo, active } = useActiveChallenge();
   const card = { backgroundColor: p.card, borderRadius: radius.card };
 
   const cfg = active?.config;
@@ -58,7 +58,6 @@ export default function EditChallengeScreen() {
   const setToggle = (field: 'noRepeatMiss' | 'travelExemption', value: boolean) => {
     Haptics.selectionAsync();
     repo.updateChallengeConfig(active.challengeId, { [field]: value });
-    refresh();
   };
 
   const save = () => {
@@ -92,7 +91,6 @@ export default function EditChallengeScreen() {
         challengeThresholdPct: nextChallenge,
         strictness,
       });
-      refresh();
       router.back();
     };
 

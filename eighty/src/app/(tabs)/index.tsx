@@ -48,7 +48,7 @@ function startPreset(preset: typeof EIGHTY_PRESET) {
 export default function TodayScreen() {
   const p = usePalette();
   const insets = useSafeAreaInsets();
-  const { repo, active, logs, refresh } = useActiveChallenge();
+  const { repo, active, logs } = useActiveChallenge();
   const [showInfo, setShowInfo] = useState(false);
   const [onboarded] = useState(() => repo.getSetting('onboarding_completed') === '1');
   // Memoized so the full-attempt walk doesn't re-run when only local UI state
@@ -202,7 +202,6 @@ export default function TodayScreen() {
               onPress={() => {
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                 repo.closeDay(active.attemptId, openDay.dayIndex, today);
-                refresh();
               }}
               style={({ pressed }) => [
                 styles.forwardBtn,
@@ -277,10 +276,9 @@ export default function TodayScreen() {
                   isAvoidance={it.isAvoidance}
                   missedYesterday={atRisk.has(it.id)}
                   palette={p}
-                  onToggle={() => {
-                    repo.setItemDone(active.attemptId, openDay.dayIndex, it.id, !done.has(it.id));
-                    refresh();
-                  }}
+                  onToggle={() =>
+                    repo.setItemDone(active.attemptId, openDay.dayIndex, it.id, !done.has(it.id))
+                  }
                 />
               ))}
             </View>
@@ -314,10 +312,9 @@ export default function TodayScreen() {
                 isBonus
                 missedYesterday={false}
                 palette={p}
-                onToggle={() => {
-                  repo.setItemDone(active.attemptId, openDay.dayIndex, it.id, !done.has(it.id));
-                  refresh();
-                }}
+                onToggle={() =>
+                  repo.setItemDone(active.attemptId, openDay.dayIndex, it.id, !done.has(it.id))
+                }
               />
             ))}
         </View>
@@ -329,19 +326,13 @@ export default function TodayScreen() {
             label="Satisfaction"
             value={openDay.satisfaction}
             palette={p}
-            onChange={(v) => {
-              repo.setDayMeta(active.attemptId, openDay.dayIndex, { satisfaction: v });
-              refresh();
-            }}
+            onChange={(v) => repo.setDayMeta(active.attemptId, openDay.dayIndex, { satisfaction: v })}
           />
           <RatingScale
             label="Mood"
             value={openDay.mood}
             palette={p}
-            onChange={(v) => {
-              repo.setDayMeta(active.attemptId, openDay.dayIndex, { mood: v });
-              refresh();
-            }}
+            onChange={(v) => repo.setDayMeta(active.attemptId, openDay.dayIndex, { mood: v })}
           />
           <View style={[styles.travel, { borderTopColor: p.line }]}>
             <Text style={{ fontSize: 13.5, color: p.sub }}>Travel day</Text>
@@ -350,7 +341,6 @@ export default function TodayScreen() {
               onValueChange={(v) => {
                 Haptics.selectionAsync();
                 repo.setDayMeta(active.attemptId, openDay.dayIndex, { isTravel: v });
-                refresh();
               }}
               trackColor={{ true: p.mint, false: p.card2 }}
               thumbColor={p.card}
@@ -363,12 +353,9 @@ export default function TodayScreen() {
             placeholderTextColor={p.sub}
             multiline
             defaultValue={openDay.notes ?? ''}
-            onEndEditing={(e) => {
-              repo.setDayMeta(active.attemptId, openDay.dayIndex, {
-                notes: e.nativeEvent.text,
-              });
-              refresh();
-            }}
+            onEndEditing={(e) =>
+              repo.setDayMeta(active.attemptId, openDay.dayIndex, { notes: e.nativeEvent.text })
+            }
           />
         </View>
       </ScrollView>
