@@ -1,13 +1,12 @@
 import { useMemo } from 'react';
-import { Dimensions, Pressable, ScrollView, Text, View, StyleSheet } from 'react-native';
+import { Dimensions, ScrollView, Text, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { evaluateAttempt, itemStats } from '@engine';
 import { useActiveChallenge } from '@/data/useActiveChallenge';
 import { usePalette, radius, type as t } from '@/theme/tokens';
 import { Sparkline } from '@/ui/Sparkline';
 import { ItemStatRow } from '@/ui/ItemStatRow';
+import { SettingsGear } from '@/ui/SettingsGear';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const CHART_WIDTH = Dimensions.get('window').width - 64;
@@ -32,17 +31,10 @@ export default function TrendsScreen() {
   if (!active || !state) {
     return (
       <View style={[styles.empty, { backgroundColor: p.bg }]}>
-        <Pressable
-          onPress={() => router.push('/settings')}
-          style={styles.gearFloating}
-          accessibilityRole="button"
-          accessibilityLabel="Settings"
-        >
-          <Ionicons name="settings-outline" size={20} color={p.sub} />
-        </Pressable>
-        <Text style={[t.h1, { color: p.ink, textAlign: 'center' }]}>No active challenge</Text>
+        <SettingsGear palette={p} floating top={insets.top + 8} />
+        <Text style={[t.h1, { color: p.ink, textAlign: 'center' }]}>No trends yet</Text>
         <Text style={{ color: p.sub, marginTop: 8, textAlign: 'center' }}>
-          Trends show up once you're logging days.
+          Start a challenge and log a few days — patterns show up here.
         </Text>
       </View>
     );
@@ -97,14 +89,7 @@ export default function TrendsScreen() {
             Over {closedLogs.length} closed day{closedLogs.length === 1 ? '' : 's'}
           </Text>
         </View>
-        <Pressable
-          onPress={() => router.push('/settings')}
-          style={styles.gear}
-          accessibilityRole="button"
-          accessibilityLabel="Settings"
-        >
-          <Ionicons name="settings-outline" size={20} color={p.sub} />
-        </Pressable>
+        <SettingsGear palette={p} />
       </View>
 
       <View style={[card, styles.section]}>
@@ -158,8 +143,6 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     paddingTop: 10,
   },
-  gear: { padding: 6 },
-  gearFloating: { position: 'absolute', top: 16, right: 16, padding: 6 },
   section: { padding: 16, marginBottom: 14 },
   chartHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
 });

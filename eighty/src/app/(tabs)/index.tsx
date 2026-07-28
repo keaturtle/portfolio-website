@@ -23,6 +23,7 @@ import { usePalette, radius, type as t } from '@/theme/tokens';
 import { ProgressRing } from '@/ui/ProgressRing';
 import { CheckRow } from '@/ui/CheckRow';
 import { RatingScale } from '@/ui/RatingScale';
+import { SettingsGear } from '@/ui/SettingsGear';
 
 type IconName = keyof typeof Ionicons.glyphMap;
 
@@ -64,6 +65,7 @@ export default function TodayScreen() {
   if (!active || !state) {
     return (
       <View style={[styles.startWrap, { backgroundColor: p.bg }]}>
+        <SettingsGear palette={p} floating top={insets.top + 8} />
         <Text style={{ fontSize: 12, fontWeight: '700', letterSpacing: 1, color: p.mint }}>
           EIGHTY
         </Text>
@@ -187,6 +189,7 @@ export default function TodayScreen() {
               {active.name} · {openDay.localDate}
             </Text>
           </View>
+          <SettingsGear palette={p} />
         </View>
 
         {/* Forward CTA — you stay on this day until you choose to move on */}
@@ -408,7 +411,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-end',
+    alignItems: 'flex-start',
     paddingHorizontal: 6,
     paddingBottom: 16,
     paddingTop: 10,

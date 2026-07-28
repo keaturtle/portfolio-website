@@ -40,20 +40,28 @@ export default function SettingsScreen() {
     });
   }, []);
 
-  const toggleMorning = async (v: boolean) => {
-    if (v && !(await ensureNotificationPermission())) {
-      Alert.alert('Notifications disabled', 'Enable notifications for Eighty in iOS Settings to use reminders.');
-      return;
+  // 'blocked' means iOS won't show the prompt again — offer the direct path to
+  // Settings instead of a dead end. A fresh 'denied' is respected silently.
+  const requestPermission = async (): Promise<boolean> => {
+    const result = await ensureNotificationPermission();
+    if (result === 'granted') return true;
+    if (result === 'blocked') {
+      Alert.alert('Notifications are off for Eighty', 'Turn them on in iOS Settings to get reminders.', [
+        { text: 'Not now', style: 'cancel' },
+        { text: 'Open Settings', onPress: () => Linking.openSettings() },
+      ]);
     }
+    return false;
+  };
+
+  const toggleMorning = async (v: boolean) => {
+    if (v && !(await requestPermission())) return;
     await setMorningReminder(v);
     setMorning(v);
   };
 
   const toggleEvening = async (v: boolean) => {
-    if (v && !(await ensureNotificationPermission())) {
-      Alert.alert('Notifications disabled', 'Enable notifications for Eighty in iOS Settings to use reminders.');
-      return;
-    }
+    if (v && !(await requestPermission())) return;
     await setEveningReminder(v);
     setEvening(v);
   };

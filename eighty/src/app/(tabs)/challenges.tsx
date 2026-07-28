@@ -13,6 +13,7 @@ import { ChallengeListItem, ChallengePreset } from '@/data/repository';
 import { parseTemplateJson, presetToConfig, serializeTemplate } from '@/data/templates';
 import { useActiveChallenge } from '@/data/useActiveChallenge';
 import { usePalette, radius, type as t } from '@/theme/tokens';
+import { SettingsGear } from '@/ui/SettingsGear';
 
 function preview(preset: ChallengePreset) {
   router.push({ pathname: '/preview', params: { presetJson: JSON.stringify(preset) } });
@@ -130,9 +131,12 @@ export default function ChallengesScreen() {
         paddingHorizontal: 16,
       }}
     >
-      <View style={{ paddingHorizontal: 6, paddingBottom: 16, paddingTop: 10 }}>
-        <Text style={{ fontSize: 12, fontWeight: '700', letterSpacing: 1, color: p.mint }}>EIGHTY</Text>
-        <Text style={[t.h1, { color: p.ink, marginTop: 2 }]}>Challenges</Text>
+      <View style={styles.header}>
+        <View>
+          <Text style={{ fontSize: 12, fontWeight: '700', letterSpacing: 1, color: p.mint }}>EIGHTY</Text>
+          <Text style={[t.h1, { color: p.ink, marginTop: 2 }]}>Challenges</Text>
+        </View>
+        <SettingsGear palette={p} />
       </View>
 
       {history.length > 0 && (
@@ -233,6 +237,14 @@ export default function ChallengesScreen() {
 }
 
 const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingHorizontal: 6,
+    paddingBottom: 16,
+    paddingTop: 10,
+  },
   section: { padding: 16, marginBottom: 12 },
   groupLabel: { fontSize: 11.5, fontWeight: '700', letterSpacing: 0.6, marginBottom: 8, marginTop: 4, paddingHorizontal: 6 },
   startBtn: { borderRadius: radius.pill, paddingVertical: 10, alignItems: 'center', marginTop: 12 },

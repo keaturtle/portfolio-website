@@ -10,6 +10,7 @@ import { usePalette, radius, type as t } from '@/theme/tokens';
 import { ProgressRing } from '@/ui/ProgressRing';
 import { HeatGrid } from '@/ui/HeatGrid';
 import { ItemStatRow } from '@/ui/ItemStatRow';
+import { SettingsGear } from '@/ui/SettingsGear';
 
 export default function DashboardScreen() {
   const p = usePalette();
@@ -31,17 +32,10 @@ export default function DashboardScreen() {
   if (!active || !state) {
     return (
       <View style={[styles.empty, { backgroundColor: p.bg }]}>
-        <Pressable
-          onPress={() => router.push('/settings')}
-          style={styles.gearFloating}
-          accessibilityRole="button"
-          accessibilityLabel="Settings"
-        >
-          <Ionicons name="settings-outline" size={20} color={p.sub} />
-        </Pressable>
-        <Text style={[t.h1, { color: p.ink, textAlign: 'center' }]}>No active challenge</Text>
+        <SettingsGear palette={p} floating top={insets.top + 8} />
+        <Text style={[t.h1, { color: p.ink, textAlign: 'center' }]}>No challenge yet</Text>
         <Text style={{ color: p.sub, marginTop: 8, textAlign: 'center' }}>
-          Start one from the Today tab to see your dashboard here.
+          Start one from the Today tab and your dashboard builds itself here.
         </Text>
       </View>
     );
@@ -82,19 +76,13 @@ export default function DashboardScreen() {
           <Pressable
             onPress={() => router.push('/edit-challenge')}
             style={styles.gear}
+            hitSlop={4}
             accessibilityRole="button"
             accessibilityLabel="Edit challenge"
           >
-            <Ionicons name="create-outline" size={20} color={p.sub} />
+            <Ionicons name="create-outline" size={22} color={p.sub} />
           </Pressable>
-          <Pressable
-            onPress={() => router.push('/settings')}
-            style={styles.gear}
-            accessibilityRole="button"
-            accessibilityLabel="Settings"
-          >
-            <Ionicons name="settings-outline" size={20} color={p.sub} />
-          </Pressable>
+          <SettingsGear palette={p} />
         </View>
       </View>
 
@@ -229,9 +217,8 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     paddingTop: 10,
   },
-  gear: { padding: 6 },
-  headerBtns: { flexDirection: 'row', gap: 2 },
-  gearFloating: { position: 'absolute', top: 16, right: 16, padding: 6 },
+  gear: { padding: 11 },
+  headerBtns: { flexDirection: 'row' },
   banner: {
     borderRadius: radius.banner,
     padding: 14,
