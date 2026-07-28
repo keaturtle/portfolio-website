@@ -1,0 +1,81 @@
+{
+  "expo": {
+    "name": "Eighty",
+    "slug": "eighty",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "eighty",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#0d1411",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.keatentuttle.eighty",
+      "appleTeamId": "3M7JS7T537",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "entitlements": {
+        "com.apple.security.application-groups": [
+          "group.com.keatentuttle.eighty"
+        ]
+      },
+      "buildNumber": "2"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#0d1411"
+      }
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "@bacons/apple-targets",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 220,
+          "resizeMode": "contain",
+          "backgroundColor": "#0d1411",
+          "dark": {
+            "backgroundColor": "#0d1411"
+          }
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "bundleIdentifier": "com.keatentuttle.eighty.widget",
+                  "targetName": "EightyWidget",
+                  "entitlements": {
+                    "com.apple.security.application-groups": [
+                      "group.com.keatentuttle.eighty"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "projectId": "9c673584-ae98-4adc-8302-352ad058f0eb"
+      }
+    },
+    "owner": "keaturtles-team"
+  }
+}
