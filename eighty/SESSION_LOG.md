@@ -4,6 +4,32 @@ A running, human-readable log so you can catch up in two minutes. Newest entry o
 
 ---
 
+## 2026-07-27 — Full MVP polish review (branch `mvp-polish`)
+
+Senior review-board pass over the whole app; baseline tagged
+`mvp-snapshot-pre-fable-review`. Ten commits, each verified (68 engine tests @
+100%, 27 new app-level data tests, tsc, iOS export). **Full write-up in
+[REVIEW_NOTES.md](./REVIEW_NOTES.md)** — headlines:
+
+- **Root cause of the delete/create/edit staleness bugs:** screens each held an
+  isolated `useActiveChallenge` snapshot. Replaced with a versioned reactive
+  store — every repo write updates every screen (and the widget). Delete was
+  proven correct at the SQL level by a new test harness (`eighty/tests/`,
+  `SqliteRepository` on Node's built-in SQLite).
+- **Day advancement is honest now:** the "Move on" banner re-renders on
+  foreground/midnight, and skipped calendar days become real missed days
+  (disclosed before the tap, back-fillable from the calendar) per PLAN.md #2.
+- **One start path:** builder → preview, so custom challenges back-date too.
+  Template import no longer drops `isAvoidance`.
+- **UX:** Settings gear on every tab; notification toggles say what fires when
+  (+ Open Settings path when blocked); builder field alignment fixed via shared
+  form primitives; 44pt/VoiceOver/Dynamic Type QA pass.
+- **Copy:** founder references removed ("Founder's Protocol" → "80/80/80
+  Classic"; onboarding sign-off and the premature "premium free for life"
+  promise cut). Voice documented in BRAND_VOICE.md.
+- **Left to do → fresh EAS build/submit** to get all of this (plus the widget
+  heartbeat diagnostic) onto TestFlight; then merge `mvp-polish`.
+
 ## 2026-07-23 — Week-1 refinements (from real TestFlight use)
 
 Committed the stranded EAS `app.json` (projectId + widget config) first, then four items,

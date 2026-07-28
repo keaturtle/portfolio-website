@@ -5,6 +5,23 @@ override any of them on review. Newest on top. Nothing here is irreversible.
 
 ---
 
+## 2026-07-27 — MVP polish review calls (branch `mvp-polish`)
+
+All made autonomously during the review pass; rationale + full list in
+[REVIEW_NOTES.md](./REVIEW_NOTES.md). The ones you might want to override:
+
+- **Skipped calendar days now count as missed** on "Move on" (disclosed in the
+  banner first, back-fillable from the calendar). Matches PLAN.md #2 and the
+  engine's `fillGaps`; the old behavior silently paused the challenge.
+  **Reversible:** one small change in `closeDay` restores the pause model.
+- **"Founder's Protocol" → "80/80/80 Classic"** (Part C: no personal names in
+  product copy). Existing installs keep their stored challenge name.
+- **Cut the "premium free for life" onboarding promise** — an unshipped pricing
+  commitment shouldn't live in beta copy. Decide the founding-user reward
+  deliberately and it can come back, worded on purpose.
+- **Avoidance and Bonus are mutually exclusive** for custom items (auto-counting
+  bonus credit would be free points).
+
 ## 2026-07-23 (later) — Onboarding + avoidance behavior (Task 2)
 
 - **Palette:** you picked **Midnight Indigo** (the app's shipped palette) for onboarding —
