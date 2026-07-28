@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, Stack } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { Strictness, validateConfig } from '@engine';
 import { useActiveChallenge } from '@/data/useActiveChallenge';
 import { usePalette, radius, type as t } from '@/theme/tokens';
+import { FieldLabel, NumberField, ToggleRow } from '@/ui/forms';
 
 const STRICTNESS_OPTIONS: { key: Strictness; label: string }[] = [
   { key: 'flexible', label: 'Flexible' },
@@ -56,7 +57,6 @@ export default function EditChallengeScreen() {
   }
 
   const setToggle = (field: 'noRepeatMiss' | 'travelExemption', value: boolean) => {
-    Haptics.selectionAsync();
     repo.updateChallengeConfig(active.challengeId, { [field]: value });
   };
 
@@ -117,21 +117,22 @@ export default function EditChallengeScreen() {
       >
         <View style={[card, styles.section]}>
           <Text style={[t.cardTitle, { color: p.ink, marginBottom: 10 }]}>Basics</Text>
-          <FieldLabel p={p}>Name</FieldLabel>
+          <FieldLabel palette={p}>Name</FieldLabel>
           <TextInput
             style={[styles.input, { backgroundColor: p.card2, color: p.ink }]}
             value={name}
             onChangeText={setName}
             placeholder={active.name}
             placeholderTextColor={p.sub}
+            accessibilityLabel="Challenge name"
           />
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
-            <NumberField label="Duration (days)" value={durationDays} onChange={setDurationDays} p={p} />
-            <NumberField label="Daily threshold %" value={dailyPct} onChange={setDailyPct} p={p} />
-            <NumberField label="Challenge threshold %" value={challengePct} onChange={setChallengePct} p={p} />
+            <NumberField label="Duration (days)" value={durationDays} onChange={setDurationDays} palette={p} />
+            <NumberField label="Daily threshold %" value={dailyPct} onChange={setDailyPct} palette={p} />
+            <NumberField label="Challenge threshold %" value={challengePct} onChange={setChallengePct} palette={p} />
           </View>
 
-          <FieldLabel p={p} style={{ marginTop: 12 }}>
+          <FieldLabel palette={p} style={{ marginTop: 12 }}>
             Strictness
           </FieldLabel>
           <View style={{ flexDirection: 'row', gap: 8 }}>
@@ -165,17 +166,17 @@ export default function EditChallengeScreen() {
           </Text>
           <ToggleRow
             label="No-repeat-miss"
-            hint="Never fail the same item two days in a row"
+            hint="Missing the same item two days in a row fails the second day"
             value={cfg.noRepeatMiss}
             onChange={(v) => setToggle('noRepeatMiss', v)}
-            p={p}
+            palette={p}
           />
           <ToggleRow
             label="Travel exemption"
             hint="Travel days relax the no-repeat rule"
             value={cfg.travelExemption}
             onChange={(v) => setToggle('travelExemption', v)}
-            p={p}
+            palette={p}
           />
         </View>
 
@@ -190,71 +191,10 @@ export default function EditChallengeScreen() {
   );
 }
 
-function NumberField({
-  label,
-  value,
-  onChange,
-  p,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  p: ReturnType<typeof usePalette>;
-}) {
-  return (
-    <View style={{ flex: 1 }}>
-      <FieldLabel p={p}>{label}</FieldLabel>
-      <TextInput
-        style={[styles.input, { backgroundColor: p.card2, color: p.ink }]}
-        value={value}
-        onChangeText={onChange}
-        keyboardType="number-pad"
-      />
-    </View>
-  );
-}
-
-function FieldLabel({ children, p, style }: { children: string; p: ReturnType<typeof usePalette>; style?: object }) {
-  return (
-    <Text style={[{ fontSize: 11.5, fontWeight: '700', color: p.sub, marginBottom: 5 }, style]}>{children}</Text>
-  );
-}
-
-function ToggleRow({
-  label,
-  hint,
-  value,
-  onChange,
-  p,
-}: {
-  label: string;
-  hint: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-  p: ReturnType<typeof usePalette>;
-}) {
-  return (
-    <View style={styles.toggleRow}>
-      <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 13.5, color: p.ink }}>{label}</Text>
-        <Text style={{ fontSize: 11, color: p.sub, marginTop: 1 }}>{hint}</Text>
-      </View>
-      <Switch
-        value={value}
-        onValueChange={onChange}
-        trackColor={{ true: p.mint, false: p.card2 }}
-        thumbColor={p.card}
-        accessibilityLabel={`${label}. ${hint}`}
-      />
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 },
   section: { padding: 16, marginBottom: 14 },
-  input: { borderRadius: radius.notes, padding: 10, fontSize: 13.5 },
+  input: { borderRadius: radius.notes, padding: 10, fontSize: 13.5, minHeight: 40 },
   pill: { borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7 },
-  toggleRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 9, marginTop: 4 },
   saveBtn: { borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center', marginTop: 4 },
 });

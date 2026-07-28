@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, Stack } from 'expo-router';
@@ -17,6 +17,7 @@ import {
 } from '@/data/notifications';
 import { usePalette, radius, type as t } from '@/theme/tokens';
 import { ThemeOverride, useThemeOverride } from '@/theme/ThemeContext';
+import { ToggleRow } from '@/ui/forms';
 
 const THEME_OPTIONS: { key: ThemeOverride; label: string }[] = [
   { key: 'auto', label: 'Auto' },
@@ -162,18 +163,18 @@ export default function SettingsScreen() {
             Local notifications only — nothing leaves your phone.
           </Text>
           <ToggleRow
-            label="Morning close-out"
-            hint="8:00 AM — nudge to close out yesterday"
+            label="Morning kickoff"
+            hint="Every day at 8:00 AM — wrap up yesterday and move on to the new day"
             value={morning}
             onChange={toggleMorning}
-            p={p}
+            palette={p}
           />
           <ToggleRow
             label="Evening check-in"
-            hint="9:00 PM — nudge for unchecked items today"
+            hint="Every day at 9:00 PM — a nudge to close anything still open before bed"
             value={evening}
             onChange={toggleEvening}
-            p={p}
+            palette={p}
           />
         </View>
 
@@ -236,43 +237,9 @@ export default function SettingsScreen() {
   );
 }
 
-function ToggleRow({
-  label,
-  hint,
-  value,
-  onChange,
-  p,
-}: {
-  label: string;
-  hint: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-  p: ReturnType<typeof usePalette>;
-}) {
-  return (
-    <View style={styles.toggleRow}>
-      <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 13.5, color: p.ink }}>{label}</Text>
-        <Text style={{ fontSize: 11, color: p.sub, marginTop: 1 }}>{hint}</Text>
-      </View>
-      <Switch
-        value={value}
-        onValueChange={(v) => {
-          Haptics.selectionAsync();
-          onChange(v);
-        }}
-        trackColor={{ true: p.mint, false: p.card2 }}
-        thumbColor={p.card}
-        accessibilityLabel={`${label}. ${hint}`}
-      />
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   section: { padding: 16, marginBottom: 14 },
   pill: { borderRadius: radius.pill, paddingHorizontal: 16, paddingVertical: 9 },
-  toggleRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 9 },
   dataBtn: {
     flexDirection: 'row',
     justifyContent: 'center',

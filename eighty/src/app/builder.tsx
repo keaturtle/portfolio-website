@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -9,6 +9,7 @@ import { EIGHTY_PRESET, HARD_75_PRESET } from '@/data/presets';
 import { ChallengePreset, PresetItem } from '@/data/repository';
 import { presetToConfig } from '@/data/templates';
 import { usePalette, radius, type as t } from '@/theme/tokens';
+import { FieldLabel, NumberField, ToggleRow } from '@/ui/forms';
 
 const STRICTNESS_OPTIONS: { key: Strictness; label: string }[] = [
   { key: 'flexible', label: 'Flexible' },
@@ -64,6 +65,13 @@ export default function BuilderScreen() {
   const insets = useSafeAreaInsets();
   const { presetJson } = useLocalSearchParams<{ presetJson?: string }>();
   const [draft, setDraft] = useState<ChallengePreset>(() => initialDraft(presetJson));
+  // Numeric fields edit as strings and parse at review time — typing never fights
+  // the user (clearing a field doesn't snap to 0).
+  const [numbers, setNumbers] = useState(() => ({
+    duration: String(draft.durationDays),
+    daily: String(draft.dailyThresholdPct),
+    challenge: String(draft.challengeThresholdPct),
+  }));
   const [newCategory, setNewCategory] = useState('');
   const [newItem, setNewItem] = useState<Record<string, NewItemDraft>>({});
   const card = { backgroundColor: p.card, borderRadius: radius.card };
@@ -74,6 +82,11 @@ export default function BuilderScreen() {
   const loadPreset = (preset: ChallengePreset) => {
     Haptics.selectionAsync();
     setDraft({ ...preset, categories: [...preset.categories], items: preset.items.map((i) => ({ ...i })) });
+    setNumbers({
+      duration: String(preset.durationDays),
+      daily: String(preset.dailyThresholdPct),
+      challenge: String(preset.challengeThresholdPct),
+    });
   };
 
   const addCategory = () => {
@@ -111,7 +124,13 @@ export default function BuilderScreen() {
   // Hands off to the preview screen — the one start path for presets, custom
   // builds, and imports alike, so every challenge gets the start-date picker.
   const reviewDraft = () => {
-    const finalPreset = { ...draft, name: draft.name.trim() || 'Custom challenge' };
+    const finalPreset: ChallengePreset = {
+      ...draft,
+      name: draft.name.trim() || 'Custom challenge',
+      durationDays: Number(numbers.duration) || 0,
+      dailyThresholdPct: Number(numbers.daily) || 0,
+      challengeThresholdPct: Number(numbers.challenge) || 0,
+    };
     const errors = validateConfig(presetToConfig(finalPreset));
     if (errors.length > 0) {
       Alert.alert('A few things to fix first', errors.map((e) => `• ${e.message}`).join('\n'));
@@ -152,45 +171,37 @@ export default function BuilderScreen() {
 
         <View style={[card, styles.section]}>
           <Text style={[t.cardTitle, { color: p.ink, marginBottom: 10 }]}>Basics</Text>
-          <FieldLabel p={p}>Name</FieldLabel>
+          <FieldLabel palette={p}>Name</FieldLabel>
           <TextInput
             style={[styles.input, { backgroundColor: p.card2, color: p.ink }]}
             value={draft.name}
             onChangeText={(v) => setDraft((d) => ({ ...d, name: v }))}
             placeholder="My challenge"
             placeholderTextColor={p.sub}
+            accessibilityLabel="Challenge name"
           />
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
-            <View style={{ flex: 1 }}>
-              <FieldLabel p={p}>Duration (days)</FieldLabel>
-              <TextInput
-                style={[styles.input, { backgroundColor: p.card2, color: p.ink }]}
-                value={String(draft.durationDays)}
-                onChangeText={(v) => setDraft((d) => ({ ...d, durationDays: Number(v) || 0 }))}
-                keyboardType="number-pad"
-              />
-            </View>
-            <View style={{ flex: 1 }}>
-              <FieldLabel p={p}>Daily threshold %</FieldLabel>
-              <TextInput
-                style={[styles.input, { backgroundColor: p.card2, color: p.ink }]}
-                value={String(draft.dailyThresholdPct)}
-                onChangeText={(v) => setDraft((d) => ({ ...d, dailyThresholdPct: Number(v) || 0 }))}
-                keyboardType="number-pad"
-              />
-            </View>
-            <View style={{ flex: 1 }}>
-              <FieldLabel p={p}>Challenge threshold %</FieldLabel>
-              <TextInput
-                style={[styles.input, { backgroundColor: p.card2, color: p.ink }]}
-                value={String(draft.challengeThresholdPct)}
-                onChangeText={(v) => setDraft((d) => ({ ...d, challengeThresholdPct: Number(v) || 0 }))}
-                keyboardType="number-pad"
-              />
-            </View>
+            <NumberField
+              label="Duration (days)"
+              value={numbers.duration}
+              onChange={(v) => setNumbers((s) => ({ ...s, duration: v }))}
+              palette={p}
+            />
+            <NumberField
+              label="Daily threshold %"
+              value={numbers.daily}
+              onChange={(v) => setNumbers((s) => ({ ...s, daily: v }))}
+              palette={p}
+            />
+            <NumberField
+              label="Challenge threshold %"
+              value={numbers.challenge}
+              onChange={(v) => setNumbers((s) => ({ ...s, challenge: v }))}
+              palette={p}
+            />
           </View>
 
-          <FieldLabel p={p} style={{ marginTop: 12 }}>
+          <FieldLabel palette={p} style={{ marginTop: 12 }}>
             Strictness
           </FieldLabel>
           <View style={{ flexDirection: 'row', gap: 8 }}>
@@ -218,17 +229,17 @@ export default function BuilderScreen() {
 
           <ToggleRow
             label="No-repeat-miss"
-            hint="Never fail the same item two days in a row"
+            hint="Missing the same item two days in a row fails the second day"
             value={draft.noRepeatMiss}
             onChange={(v) => setDraft((d) => ({ ...d, noRepeatMiss: v }))}
-            p={p}
+            palette={p}
           />
           <ToggleRow
             label="Travel exemption"
             hint="Travel days relax the no-repeat rule"
             value={draft.travelExemption}
             onChange={(v) => setDraft((d) => ({ ...d, travelExemption: v }))}
-            p={p}
+            palette={p}
           />
         </View>
 
@@ -369,45 +380,6 @@ export default function BuilderScreen() {
   );
 }
 
-function FieldLabel({ children, p, style }: { children: string; p: ReturnType<typeof usePalette>; style?: object }) {
-  return (
-    <Text style={[{ fontSize: 11.5, fontWeight: '700', color: p.sub, marginBottom: 5 }, style]}>{children}</Text>
-  );
-}
-
-function ToggleRow({
-  label,
-  hint,
-  value,
-  onChange,
-  p,
-}: {
-  label: string;
-  hint: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-  p: ReturnType<typeof usePalette>;
-}) {
-  return (
-    <View style={styles.toggleRow}>
-      <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 13.5, color: p.ink }}>{label}</Text>
-        <Text style={{ fontSize: 11, color: p.sub, marginTop: 1 }}>{hint}</Text>
-      </View>
-      <Switch
-        value={value}
-        onValueChange={(v) => {
-          Haptics.selectionAsync();
-          onChange(v);
-        }}
-        trackColor={{ true: p.mint, false: p.card2 }}
-        thumbColor={p.card}
-        accessibilityLabel={`${label}. ${hint}`}
-      />
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   section: { padding: 16, marginBottom: 14 },
   input: { borderRadius: radius.notes, padding: 10, fontSize: 13.5 },
@@ -417,8 +389,7 @@ const styles = StyleSheet.create({
   addPill: { borderRadius: radius.pill, paddingHorizontal: 16, paddingVertical: 7, marginLeft: 'auto' },
   quickBtn: { flex: 1, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 10, alignItems: 'center' },
   catHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  removeLink: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  removeLink: { flexDirection: 'row', alignItems: 'center', gap: 4, padding: 4 },
   itemRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 5 },
-  toggleRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 9, marginTop: 4 },
   startBtn: { borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center', marginTop: 4 },
 });
