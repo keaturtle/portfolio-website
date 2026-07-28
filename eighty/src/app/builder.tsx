@@ -1,15 +1,13 @@
 import { useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { Strictness, TimeOfDay, validateConfig } from '@engine';
 import { EIGHTY_PRESET, HARD_75_PRESET } from '@/data/presets';
 import { ChallengePreset, PresetItem } from '@/data/repository';
-import { confirmAndStart } from '@/data/startFlow';
 import { presetToConfig } from '@/data/templates';
-import { useActiveChallenge } from '@/data/useActiveChallenge';
 import { usePalette, radius, type as t } from '@/theme/tokens';
 
 const STRICTNESS_OPTIONS: { key: Strictness; label: string }[] = [
@@ -52,15 +50,26 @@ function initialDraft(presetJson: string | undefined): ChallengePreset {
   return BLANK;
 }
 
+interface NewItemDraft {
+  label: string;
+  isBonus: boolean;
+  isAvoidance: boolean;
+  timeOfDay: TimeOfDay;
+}
+
+const BLANK_ITEM: NewItemDraft = { label: '', isBonus: false, isAvoidance: false, timeOfDay: 'day' };
+
 export default function BuilderScreen() {
   const p = usePalette();
   const insets = useSafeAreaInsets();
   const { presetJson } = useLocalSearchParams<{ presetJson?: string }>();
-  const { repo, active } = useActiveChallenge();
   const [draft, setDraft] = useState<ChallengePreset>(() => initialDraft(presetJson));
   const [newCategory, setNewCategory] = useState('');
-  const [newItem, setNewItem] = useState<Record<string, { label: string; isBonus: boolean; timeOfDay: TimeOfDay }>>({});
+  const [newItem, setNewItem] = useState<Record<string, NewItemDraft>>({});
   const card = { backgroundColor: p.card, borderRadius: radius.card };
+
+  const patchNewItem = (categoryId: string, patch: Partial<NewItemDraft>) =>
+    setNewItem((n) => ({ ...n, [categoryId]: { ...BLANK_ITEM, ...n[categoryId], ...patch } }));
 
   const loadPreset = (preset: ChallengePreset) => {
     Haptics.selectionAsync();
@@ -89,23 +98,26 @@ export default function BuilderScreen() {
       categoryId,
       label: draftItem.label.trim(),
       isBonus: draftItem.isBonus,
+      isAvoidance: draftItem.isAvoidance,
       timeOfDay: draftItem.timeOfDay,
     };
+    Haptics.selectionAsync();
     setDraft((d) => ({ ...d, items: [...d.items, item] }));
-    setNewItem((n) => ({ ...n, [categoryId]: { label: '', isBonus: false, timeOfDay: 'day' } }));
+    setNewItem((n) => ({ ...n, [categoryId]: { ...BLANK_ITEM } }));
   };
 
   const removeItem = (id: string) => setDraft((d) => ({ ...d, items: d.items.filter((i) => i.id !== id) }));
 
-  const startDraft = () => {
-    const cfg = presetToConfig({ ...draft, name: draft.name.trim() || 'Custom challenge' });
-    const errors = validateConfig(cfg);
+  // Hands off to the preview screen — the one start path for presets, custom
+  // builds, and imports alike, so every challenge gets the start-date picker.
+  const reviewDraft = () => {
+    const finalPreset = { ...draft, name: draft.name.trim() || 'Custom challenge' };
+    const errors = validateConfig(presetToConfig(finalPreset));
     if (errors.length > 0) {
-      Alert.alert('Fix these first', errors.map((e) => `• ${e.message}`).join('\n'));
+      Alert.alert('A few things to fix first', errors.map((e) => `• ${e.message}`).join('\n'));
       return;
     }
-    const finalPreset = { ...draft, name: draft.name.trim() || 'Custom challenge' };
-    confirmAndStart(repo, active, finalPreset);
+    router.push({ pathname: '/preview', params: { presetJson: JSON.stringify(finalPreset) } });
   };
 
   return (
@@ -235,8 +247,14 @@ export default function BuilderScreen() {
                 <View key={i.id} style={styles.itemRow}>
                   {i.isBonus && <Ionicons name="sparkles-outline" size={13} color={p.sienna} />}
                   <Text style={{ flex: 1, fontSize: 13.5, color: p.ink }}>{i.label}</Text>
+                  {i.isAvoidance && (
+                    <Text style={{ fontSize: 9, fontWeight: '800', color: p.mint, letterSpacing: 0.5 }}>
+                      AUTO
+                    </Text>
+                  )}
                   <Pressable
                     onPress={() => removeItem(i.id)}
+                    hitSlop={10}
                     accessibilityRole="button"
                     accessibilityLabel={`Remove ${i.label}`}
                   >
@@ -247,51 +265,79 @@ export default function BuilderScreen() {
             <View style={{ marginTop: 8 }}>
               <TextInput
                 style={[styles.input, { backgroundColor: p.card2, color: p.ink }]}
-                placeholder="New item label…"
+                placeholder="New item…"
                 placeholderTextColor={p.sub}
                 value={newItem[cat.id]?.label ?? ''}
-                onChangeText={(v) =>
-                  setNewItem((n) => ({
-                    ...n,
-                    [cat.id]: { label: v, isBonus: n[cat.id]?.isBonus ?? false, timeOfDay: n[cat.id]?.timeOfDay ?? 'day' },
-                  }))
-                }
+                onChangeText={(v) => patchNewItem(cat.id, { label: v })}
+                accessibilityLabel={`New item in ${cat.name}`}
+                onSubmitEditing={() => addItem(cat.id)}
+                returnKeyType="done"
               />
-              <View style={{ flexDirection: 'row', gap: 6, marginTop: 8, alignItems: 'center' }}>
+              <View style={styles.pillRow}>
                 {TIME_OPTIONS.map((opt) => {
                   const sel = (newItem[cat.id]?.timeOfDay ?? 'day') === opt.key;
                   return (
                     <Pressable
                       key={opt.key}
-                      onPress={() =>
-                        setNewItem((n) => ({
-                          ...n,
-                          [cat.id]: { label: n[cat.id]?.label ?? '', isBonus: n[cat.id]?.isBonus ?? false, timeOfDay: opt.key },
-                        }))
-                      }
+                      onPress={() => patchNewItem(cat.id, { timeOfDay: opt.key })}
                       style={[styles.tinyPill, { backgroundColor: sel ? p.mint : p.card2 }]}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: sel }}
+                      accessibilityLabel={`Time of day: ${opt.label}`}
                     >
-                      <Text style={{ fontSize: 10.5, fontWeight: '700', color: sel ? p.onAccent : p.sub }}>
+                      <Text style={{ fontSize: 11, fontWeight: '700', color: sel ? p.onAccent : p.sub }}>
                         {opt.label}
                       </Text>
                     </Pressable>
                   );
                 })}
+              </View>
+              <View style={styles.pillRow}>
                 <Pressable
                   onPress={() =>
-                    setNewItem((n) => ({
-                      ...n,
-                      [cat.id]: { label: n[cat.id]?.label ?? '', isBonus: !(n[cat.id]?.isBonus ?? false), timeOfDay: n[cat.id]?.timeOfDay ?? 'day' },
-                    }))
+                    patchNewItem(cat.id, {
+                      isBonus: !(newItem[cat.id]?.isBonus ?? false),
+                      isAvoidance: false,
+                    })
                   }
                   style={[styles.tinyPill, { backgroundColor: newItem[cat.id]?.isBonus ? p.sienna : p.card2 }]}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: newItem[cat.id]?.isBonus ?? false }}
+                  accessibilityLabel="Bonus item — extra credit, never counts against you"
                 >
-                  <Text style={{ fontSize: 10.5, fontWeight: '700', color: newItem[cat.id]?.isBonus ? p.onAccent : p.sub }}>
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: newItem[cat.id]?.isBonus ? p.onAccent : p.sub }}>
                     Bonus
                   </Text>
                 </Pressable>
-                <Pressable onPress={() => addItem(cat.id)} style={[styles.tinyPill, { backgroundColor: p.mintSoft, marginLeft: 'auto' }]}>
-                  <Text style={{ fontSize: 11, fontWeight: '700', color: p.mint }}>Add</Text>
+                <Pressable
+                  onPress={() =>
+                    patchNewItem(cat.id, {
+                      isAvoidance: !(newItem[cat.id]?.isAvoidance ?? false),
+                      isBonus: false,
+                    })
+                  }
+                  style={[styles.tinyPill, { backgroundColor: newItem[cat.id]?.isAvoidance ? p.mint : p.card2 }]}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: newItem[cat.id]?.isAvoidance ?? false }}
+                  accessibilityLabel="Counts automatically — tap it on the day only to log a slip"
+                >
+                  <Text
+                    style={{
+                      fontSize: 11,
+                      fontWeight: '700',
+                      color: newItem[cat.id]?.isAvoidance ? p.onAccent : p.sub,
+                    }}
+                  >
+                    Counts by default
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => addItem(cat.id)}
+                  style={[styles.addPill, { backgroundColor: p.mintSoft }]}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Add item to ${cat.name}`}
+                >
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: p.mint }}>Add</Text>
                 </Pressable>
               </View>
             </View>
@@ -312,8 +358,9 @@ export default function BuilderScreen() {
         </View>
 
         <Pressable
-          onPress={startDraft}
+          onPress={reviewDraft}
           style={({ pressed }) => [styles.startBtn, { backgroundColor: p.mint, opacity: pressed ? 0.8 : 1 }]}
+          accessibilityRole="button"
         >
           <Text style={{ color: p.onAccent, fontWeight: '800', fontSize: 15 }}>Review & start</Text>
         </Pressable>
@@ -365,7 +412,9 @@ const styles = StyleSheet.create({
   section: { padding: 16, marginBottom: 14 },
   input: { borderRadius: radius.notes, padding: 10, fontSize: 13.5 },
   pill: { borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7 },
-  tinyPill: { borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 5 },
+  pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8, alignItems: 'center' },
+  tinyPill: { borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 7 },
+  addPill: { borderRadius: radius.pill, paddingHorizontal: 16, paddingVertical: 7, marginLeft: 'auto' },
   quickBtn: { flex: 1, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 10, alignItems: 'center' },
   catHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   removeLink: { flexDirection: 'row', alignItems: 'center', gap: 4 },

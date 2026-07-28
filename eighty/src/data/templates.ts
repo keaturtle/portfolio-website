@@ -72,6 +72,8 @@ export function parseTemplateJson(text: string): ParseResult {
       categoryId: rec.categoryId,
       label: rec.label,
       isBonus: rec.isBonus,
+      // Optional metadata (older exports don't have it); anything but true means false.
+      isAvoidance: rec.isAvoidance === true,
       timeOfDay: rec.timeOfDay as TimeOfDay,
     });
   }

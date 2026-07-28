@@ -126,11 +126,22 @@ export default function PreviewScreen() {
                 {items.map((it) => (
                   <View key={it.id} style={styles.itemRow}>
                     <Ionicons
-                      name={it.isBonus ? 'sparkles-outline' : 'checkmark-circle-outline'}
+                      name={
+                        it.isBonus
+                          ? 'sparkles-outline'
+                          : it.isAvoidance
+                            ? 'shield-checkmark-outline'
+                            : 'checkmark-circle-outline'
+                      }
                       size={15}
-                      color={it.isBonus ? p.sienna : p.sub}
+                      color={it.isBonus ? p.sienna : it.isAvoidance ? p.mint : p.sub}
                     />
                     <Text style={{ flex: 1, fontSize: 13.5, color: p.ink }}>{it.label}</Text>
+                    {it.isAvoidance && (
+                      <Text style={{ fontSize: 9, fontWeight: '800', color: p.mint, letterSpacing: 0.5 }}>
+                        AUTO
+                      </Text>
+                    )}
                   </View>
                 ))}
               </View>
