@@ -37,7 +37,10 @@ export function ItemStatRow({ label, categoryName, pct, isBonus, palette: p }: P
           ]}
         />
       </View>
-      <Text style={{ fontSize: 12, fontWeight: '700', color: p.ink, width: 38, textAlign: 'right' }}>
+      <Text
+        maxFontSizeMultiplier={1.2}
+        style={{ fontSize: 12, fontWeight: '700', color: p.ink, width: 38, textAlign: 'right' }}
+      >
         {Math.round(pct)}%
       </Text>
     </View>

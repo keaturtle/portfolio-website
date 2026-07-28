@@ -78,7 +78,9 @@ export function HeatGrid({
                 accessibilityRole={score ? 'button' : undefined}
                 accessibilityLabel={`Day ${cell.dayIndex + 1}${score ? `, ${score.outcome}` : ', not started'}`}
               >
-                <Text style={{ fontSize: 10, fontWeight: '700', color: text }}>{cell.dayIndex + 1}</Text>
+                <Text maxFontSizeMultiplier={1.2} style={{ fontSize: 10, fontWeight: '700', color: text }}>
+                  {cell.dayIndex + 1}
+                </Text>
                 {isTravel && <View style={[styles.travelDot, { backgroundColor: p.sub }]} />}
               </Pressable>
             );

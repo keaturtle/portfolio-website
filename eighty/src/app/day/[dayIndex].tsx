@@ -187,6 +187,7 @@ export default function DayDetailScreen() {
             style={[styles.notes, { backgroundColor: p.card2, color: p.ink }]}
             placeholder="Notes…"
             placeholderTextColor={p.sub}
+            accessibilityLabel="Notes for this day"
             multiline
             defaultValue={log.notes ?? ''}
             onEndEditing={(e) => repo.setDayMeta(active.attemptId, dayIndex, { notes: e.nativeEvent.text })}

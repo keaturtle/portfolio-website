@@ -60,7 +60,13 @@ export default function Onboarding() {
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <View style={{ flex: 1, backgroundColor: p.bg }}>
-        <Pressable onPress={lookAround} style={[styles.skip, { top: insets.top + 8 }]} accessibilityLabel="Skip intro">
+        <Pressable
+          onPress={lookAround}
+          style={[styles.skip, { top: insets.top + 8 }]}
+          hitSlop={10}
+          accessibilityRole="button"
+          accessibilityLabel="Skip intro"
+        >
           <Text style={{ fontSize: 13, color: p.sub, fontWeight: '600' }}>Skip</Text>
         </Pressable>
 

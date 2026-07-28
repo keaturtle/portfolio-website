@@ -175,18 +175,20 @@ export default function ChallengesScreen() {
                   <Pressable
                     onPress={() => exportChallenge(item)}
                     style={styles.iconBtn}
+                    hitSlop={4}
                     accessibilityRole="button"
                     accessibilityLabel={`Export ${item.name} as a file`}
                   >
-                    <Ionicons name="share-outline" size={16} color={p.sub} />
+                    <Ionicons name="share-outline" size={18} color={p.sub} />
                   </Pressable>
                   <Pressable
                     onPress={() => remove(item)}
                     style={styles.iconBtn}
+                    hitSlop={4}
                     accessibilityRole="button"
                     accessibilityLabel={`Delete ${item.name}`}
                   >
-                    <Ionicons name="trash-outline" size={16} color={p.sienna} />
+                    <Ionicons name="trash-outline" size={18} color={p.sienna} />
                   </Pressable>
                 </View>
               </View>
@@ -251,7 +253,7 @@ const styles = StyleSheet.create({
   historyHead: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 },
   currentPill: { borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 4 },
   historyActions: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 },
-  iconBtn: { padding: 6 },
+  iconBtn: { padding: 11 },
   linkBtn: {
     flex: 1,
     flexDirection: 'row',

@@ -75,7 +75,12 @@ export default function TodayScreen() {
         <Text style={{ fontSize: 14, color: p.sub, textAlign: 'center', marginTop: 10, lineHeight: 21 }}>
           Check off your checklist daily and hit a threshold to succeed — miss days, not habits.
         </Text>
-        <Pressable onPress={() => setShowInfo(true)} style={styles.infoLink}>
+        <Pressable
+          onPress={() => setShowInfo(true)}
+          style={styles.infoLink}
+          hitSlop={10}
+          accessibilityRole="button"
+        >
           <Ionicons name="information-circle-outline" size={15} color={p.mint} />
           <Text style={{ fontSize: 12.5, color: p.mint, fontWeight: '700' }}>How scoring works</Text>
         </Pressable>
@@ -282,7 +287,10 @@ export default function TodayScreen() {
                 <CheckRow
                   key={it.id}
                   label={it.label}
-                  categoryName={categoryName(it.categoryId)}
+                  // Time-grouped checklists (the flagship) would repeat the section
+                  // header as a chip on every row — show the chip only when the
+                  // category says something the section header doesn't.
+                  categoryName={it.categoryId === it.timeOfDay ? '' : categoryName(it.categoryId)}
                   done={done.has(it.id)}
                   isBonus={false}
                   isAvoidance={it.isAvoidance}
@@ -363,6 +371,7 @@ export default function TodayScreen() {
             style={[styles.notes, { backgroundColor: p.card2, color: p.ink }]}
             placeholder="Notes…"
             placeholderTextColor={p.sub}
+            accessibilityLabel="Notes for today"
             multiline
             defaultValue={openDay.notes ?? ''}
             onEndEditing={(e) =>

@@ -75,10 +75,17 @@ export function ProgressRing({ pct, goalPct, palette: p, size = 118 }: Props) {
         />
       </Svg>
       <View style={[StyleSheet.absoluteFill, styles.center]}>
-        <Text style={[t.ringPct, { color: p.ink, fontSize: compact ? size * 0.26 : t.ringPct.fontSize }]}>
+        <Text
+          maxFontSizeMultiplier={1.1}
+          style={[t.ringPct, { color: p.ink, fontSize: compact ? size * 0.26 : t.ringPct.fontSize }]}
+        >
           {Math.round(pct)}%
         </Text>
-        {!compact && <Text style={{ fontSize: 10.5, fontWeight: '600', color: p.sub }}>goal {goalPct}%</Text>}
+        {!compact && (
+          <Text maxFontSizeMultiplier={1.1} style={{ fontSize: 10.5, fontWeight: '600', color: p.sub }}>
+            goal {goalPct}%
+          </Text>
+        )}
       </View>
     </View>
   );

@@ -186,7 +186,7 @@ export default function SettingsScreen() {
           />
         </View>
 
-        <Pressable onPress={sendFeedback} style={[card, styles.section]}>
+        <Pressable onPress={sendFeedback} style={[card, styles.section]} accessibilityRole="button">
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <Ionicons name="chatbubble-ellipses-outline" size={16} color={p.mint} />
             <Text style={{ fontSize: 14, fontWeight: '700', color: p.ink }}>Send feedback</Text>
@@ -197,19 +197,33 @@ export default function SettingsScreen() {
         </Pressable>
 
         {repo.getActive() && (
-          <Pressable onPress={() => router.push('/edit-challenge')} style={[card, styles.section]}>
-            <Text style={{ fontSize: 14, fontWeight: '700', color: p.ink }}>Edit current challenge</Text>
-            <Text style={{ fontSize: 12, color: p.sub, marginTop: 2 }}>
-              Change duration, thresholds, strictness, or rules — your past days recalculate.
-            </Text>
+          <Pressable
+            onPress={() => router.push('/edit-challenge')}
+            style={[card, styles.section, styles.navRow]}
+            accessibilityRole="button"
+          >
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: p.ink }}>Edit current challenge</Text>
+              <Text style={{ fontSize: 12, color: p.sub, marginTop: 2 }}>
+                Change duration, thresholds, strictness, or rules — your past days recalculate.
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color={p.sub} />
           </Pressable>
         )}
 
-        <Pressable onPress={() => router.push('/challenges')} style={[card, styles.section]}>
-          <Text style={{ fontSize: 14, fontWeight: '700', color: p.ink }}>Manage challenges</Text>
-          <Text style={{ fontSize: 12, color: p.sub, marginTop: 2 }}>
-            Switch challenges, export one as a file, or import one.
-          </Text>
+        <Pressable
+          onPress={() => router.push('/challenges')}
+          style={[card, styles.section, styles.navRow]}
+          accessibilityRole="button"
+        >
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: p.ink }}>Manage challenges</Text>
+            <Text style={{ fontSize: 12, color: p.sub, marginTop: 2 }}>
+              Switch challenges, export one as a file, or import one.
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={16} color={p.sub} />
         </Pressable>
 
         <View style={[card, styles.section]}>
@@ -228,9 +242,16 @@ export default function SettingsScreen() {
           </Pressable>
         </View>
 
-        <Pressable onPress={() => router.push('/onboarding')} style={[card, styles.section]}>
-          <Text style={{ fontSize: 14, fontWeight: '700', color: p.ink }}>Replay intro</Text>
-          <Text style={{ fontSize: 12, color: p.sub, marginTop: 2 }}>See the welcome walkthrough again.</Text>
+        <Pressable
+          onPress={() => router.push('/onboarding')}
+          style={[card, styles.section, styles.navRow]}
+          accessibilityRole="button"
+        >
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: p.ink }}>Replay intro</Text>
+            <Text style={{ fontSize: 12, color: p.sub, marginTop: 2 }}>See the welcome walkthrough again.</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={16} color={p.sub} />
         </Pressable>
 
         <View style={[card, styles.section]}>
@@ -247,6 +268,7 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
   section: { padding: 16, marginBottom: 14 },
+  navRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   pill: { borderRadius: radius.pill, paddingHorizontal: 16, paddingVertical: 9 },
   dataBtn: {
     flexDirection: 'row',
