@@ -217,7 +217,10 @@ export class SqliteRepository implements ChallengeRepository {
   startChallenge(preset: ChallengePreset, todayLabel: string, startLabel = todayLabel): ActiveChallenge {
     // Never start in the future; never pre-create more days than the challenge length.
     const start = startLabel < todayLabel ? startLabel : todayLabel;
-    const lastIndex = Math.min(Math.max(0, diffDays(start, todayLabel)), preset.durationDays - 1);
+    const elapsed = Math.max(0, diffDays(start, todayLabel));
+    const lastIndex = Math.min(elapsed, preset.durationDays - 1);
+    // Start so far back that the whole window already passed: every day closes, none opens.
+    const windowElapsed = elapsed > preset.durationDays - 1;
     let result: ActiveChallenge | undefined;
     this.db.withTransactionSync(() => {
       // v1 shows a single active challenge (PLAN.md #10) — starting a new one
@@ -264,11 +267,11 @@ export class SqliteRepository implements ChallengeRepository {
       for (let i = 0; i <= lastIndex; i++) {
         const res = this.db.runSync(
           `INSERT INTO day (attempt_id, day_index, local_date, closed_at_utc) VALUES (?, ?, ?, ?)`,
-          [attemptId, i, addDays(start, i), i < lastIndex ? closedAt : null],
+          [attemptId, i, addDays(start, i), i < lastIndex || windowElapsed ? closedAt : null],
         );
         if (i === lastIndex) openDayId = Number(res.lastInsertRowId);
       }
-      this.seedAvoidanceCompletions(openDayId, challengeId);
+      if (!windowElapsed) this.seedAvoidanceCompletions(openDayId, challengeId);
       const row = this.db.getFirstSync<ChallengeRow>(`SELECT * FROM challenge WHERE id = ?`, [
         challengeId,
       ]);
