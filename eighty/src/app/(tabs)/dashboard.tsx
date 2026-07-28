@@ -12,6 +12,11 @@ import { HeatGrid } from '@/ui/HeatGrid';
 import { ItemStatRow } from '@/ui/ItemStatRow';
 import { SettingsGear } from '@/ui/SettingsGear';
 
+const RESTART_REASON_LABEL = {
+  'no-repeat-miss': 'same item missed twice',
+  'incomplete-day': 'incomplete day',
+} as const;
+
 export default function DashboardScreen() {
   const p = usePalette();
   const insets = useSafeAreaInsets();
@@ -68,7 +73,7 @@ export default function DashboardScreen() {
             {state.status === 'succeeded' && <Ionicons name="trophy" size={13} color={p.mint} />}
             <Text style={{ fontSize: 13, color: p.sub }}>
               {active.name} · {ATTEMPT_STATUS_LABEL[state.status]}
-              {state.restartReason ? ` (${state.restartReason})` : ''}
+              {state.restartReason ? ` — ${RESTART_REASON_LABEL[state.restartReason]}` : ''}
             </Text>
           </View>
         </View>
@@ -90,8 +95,9 @@ export default function DashboardScreen() {
         <View style={[styles.banner, { backgroundColor: p.siennaSoft }]}>
           <Ionicons name="warning-outline" size={18} color={p.sienna} />
           <Text style={{ flex: 1, fontSize: 13.5, lineHeight: 18, color: p.ink }}>
-            <Text style={{ fontWeight: '700', color: p.sienna }}>Success is out of reach</Text> at
-            the current pace. You can restart or keep logging — stats keep computing either way.
+            <Text style={{ fontWeight: '700', color: p.sienna }}>The threshold is out of reach</Text>{' '}
+            this attempt. Keep logging — every stat still counts — or start fresh from the
+            Challenges tab.
           </Text>
         </View>
       )}

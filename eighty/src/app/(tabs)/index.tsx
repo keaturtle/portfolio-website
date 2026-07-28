@@ -139,8 +139,15 @@ export default function TodayScreen() {
   if (!openDay) {
     return (
       <View style={[styles.startWrap, { backgroundColor: p.bg }]}>
-        <Text style={[t.h1, { color: p.ink }]}>Challenge complete</Text>
-        <Text style={{ color: p.sub, marginTop: 8 }}>Check the Dashboard tab for the full picture.</Text>
+        <SettingsGear palette={p} floating top={insets.top + 8} />
+        <Text style={[t.h1, { color: p.ink, textAlign: 'center' }]}>
+          That's the whole challenge
+        </Text>
+        <Text style={{ color: p.sub, marginTop: 8, textAlign: 'center' }}>
+          {state.status === 'succeeded'
+            ? `${state.successDays} success days — see the full story on the Dashboard tab.`
+            : 'See how it went on the Dashboard tab, or start your next one from Challenges.'}
+        </Text>
       </View>
     );
   }

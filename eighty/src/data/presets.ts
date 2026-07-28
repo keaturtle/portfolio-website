@@ -83,11 +83,11 @@ export const HARD_75_PRESET: ChallengePreset = {
 };
 
 /**
- * Founder's Protocol — the original 25-item flagship list, kept as an advanced tier
+ * 80/80/80 Classic — the original 25-item list, kept as the maximalist tier
  * (hit 20 of 25 daily). Domain-grouped (workout / diet / sleep / …).
  */
-export const FOUNDERS_PROTOCOL_PRESET: ChallengePreset = {
-  name: "Founder's Protocol",
+export const CLASSIC_80_PRESET: ChallengePreset = {
+  name: '80/80/80 Classic',
   durationDays: 80,
   dailyThresholdPct: 80,
   challengeThresholdPct: 80,
@@ -137,4 +137,4 @@ export const FOUNDERS_PROTOCOL_PRESET: ChallengePreset = {
   ],
 };
 
-export const PRESETS: ChallengePreset[] = [EIGHTY_PRESET, HARD_75_PRESET, FOUNDERS_PROTOCOL_PRESET];
+export const PRESETS: ChallengePreset[] = [EIGHTY_PRESET, HARD_75_PRESET, CLASSIC_80_PRESET];

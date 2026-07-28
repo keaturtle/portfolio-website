@@ -165,8 +165,8 @@ function ScreenTwo({ p, insets }: SP) {
         That's not a loophole. That's the design.
       </Text>
       <Text style={{ fontSize: 12, color: p.sub, opacity: 0.85, marginTop: 16, lineHeight: 18 }}>
-        Research puts real habit formation at ~66 days. Eighty is the first challenge long enough to
-        actually get you there.
+        Research puts real habit formation at around 66 days. Eighty gives you 80 — long enough to
+        actually get there.
       </Text>
     </Page>
   );
@@ -229,17 +229,14 @@ function ScreenFour({
   return (
     <Page insets={insets}>
       <Text style={[styles.eyebrow, { color: p.mint }]}>BETA</Text>
-      <Text style={[styles.h1, { color: p.ink, fontSize: 34, marginTop: 8 }]}>You're early.{'\n'}Thank you.</Text>
+      <Text style={[styles.h1, { color: p.ink, fontSize: 34, marginTop: 8 }]}>You're in early.</Text>
       <Text style={[styles.body, { color: p.sub, marginTop: 16 }]}>
-        Eighty is in beta, and it's free while it is. As a beta tester, you keep premium free for
-        life — that's permanent, our thanks for helping shape this.
+        Eighty is in beta — new, improving fast, and shaped by the people using it. Everything you
+        log stays on your phone: no account, no cloud, no tracking.
       </Text>
       <Text style={[styles.body, { color: p.sub, marginTop: 12 }]}>
-        If something feels off, confusing, or missing, I genuinely want to know. There's a feedback
-        button in Settings, always one tap away.
-      </Text>
-      <Text style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: 14, color: p.ink, marginTop: 16 }}>
-        — Keaten, builder of Eighty
+        If something feels off, confusing, or missing, say so. Send feedback lives in Settings, one
+        tap away — every message gets read.
       </Text>
 
       <View style={{ flex: 1 }} />

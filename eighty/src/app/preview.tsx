@@ -91,10 +91,10 @@ export default function PreviewScreen() {
 
           {isFlagship && (
             <View style={[styles.callout, { backgroundColor: p.mintSoft }]}>
-              <Ionicons name="person-outline" size={14} color={p.mint} />
+              <Ionicons name="ribbon-outline" size={14} color={p.mint} />
               <Text style={{ flex: 1, fontSize: 12.5, color: p.ink, lineHeight: 17 }}>
-                This is Keaten’s own ruleset — tweak anything that doesn’t fit your life before you
-                start.
+                The flagship ruleset — a full day, built to be sustainable. Tweak anything that
+                doesn’t fit your life before you start.
               </Text>
             </View>
           )}

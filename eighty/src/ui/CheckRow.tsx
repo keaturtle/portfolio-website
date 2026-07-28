@@ -47,7 +47,9 @@ export function CheckRow({
       accessibilityRole="checkbox"
       accessibilityState={{ checked: done }}
       accessibilityLabel={
-        isAvoidance ? `${label}. ${done ? 'On track, auto-confirmed' : 'Slip logged'}` : label
+        isAvoidance
+          ? `${label}. ${done ? 'Counting as done. Tap only if you slipped.' : 'Slip logged. Tap to undo.'}`
+          : label
       }
     >
       <View style={[styles.tick, tickStyle, isBonus && { borderRadius: 9 }]}>
@@ -64,7 +66,7 @@ export function CheckRow({
         </Text>
         {isAvoidance && (
           <Text style={{ fontSize: 11, fontWeight: '600', color: done ? p.mint : p.sienna, marginTop: 2 }}>
-            {done ? 'On track · auto-confirms at day close' : 'Slip logged · tap to undo'}
+            {done ? 'Counts as done — tap only if you slipped' : 'Slip logged · tap to undo'}
           </Text>
         )}
         {missedYesterday && !done && !isAvoidance && (

@@ -25,6 +25,8 @@ const THEME_OPTIONS: { key: ThemeOverride; label: string }[] = [
   { key: 'dark', label: 'Dark' },
 ];
 
+const FEEDBACK_EMAIL = 'keatentuttle@gmail.com';
+
 export default function SettingsScreen() {
   const p = usePalette();
   const insets = useSafeAreaInsets();
@@ -71,10 +73,8 @@ export default function SettingsScreen() {
     const body =
       "\n\nWhat's working, what's not, anything missing — all welcome.\n\n—\nSent from Eighty (iOS beta)";
     Linking.openURL(
-      `mailto:keatentuttle@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
-    ).catch(() =>
-      Alert.alert('No mail app', 'Email keatentuttle@gmail.com with your feedback — thank you.'),
-    );
+      `mailto:${FEEDBACK_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
+    ).catch(() => Alert.alert('No mail app set up', `Email ${FEEDBACK_EMAIL} — thank you.`));
   };
 
   const backupAll = async () => {
@@ -192,7 +192,7 @@ export default function SettingsScreen() {
             <Text style={{ fontSize: 14, fontWeight: '700', color: p.ink }}>Send feedback</Text>
           </View>
           <Text style={{ fontSize: 12, color: p.sub, marginTop: 4 }}>
-            One tap to email me — what's off, confusing, or missing. I read every one.
+            What's off, confusing, or missing — one tap to email it in. Every message gets read.
           </Text>
         </Pressable>
 
