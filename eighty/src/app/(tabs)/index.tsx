@@ -51,7 +51,9 @@ export default function TodayScreen() {
   const insets = useSafeAreaInsets();
   const { repo, active, logs } = useActiveChallenge();
   const [showInfo, setShowInfo] = useState(false);
-  const [onboarded] = useState(() => repo.getSetting('onboarding_completed') === '1');
+  // Read live (not captured in state): finishing the intro writes the flag and
+  // emits, so this re-evaluates and can never bounce back into onboarding.
+  const onboarded = repo.getSetting('onboarding_completed') === '1';
   // Memoized so the full-attempt walk doesn't re-run when only local UI state
   // (the info modal, ring animation) changes.
   const state = useMemo(
