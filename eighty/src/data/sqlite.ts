@@ -363,22 +363,42 @@ export class SqliteRepository implements ChallengeRepository {
 
   closeDay(attemptId: number, dayIndex: number, nextLabel: string): void {
     this.db.withTransactionSync(() => {
+      const closedAt = new Date().toISOString();
       this.db.runSync(
         `UPDATE day SET closed_at_utc = ? WHERE attempt_id = ? AND day_index = ? AND closed_at_utc IS NULL`,
-        [new Date().toISOString(), attemptId, dayIndex],
+        [closedAt, attemptId, dayIndex],
+      );
+      const closedDay = this.db.getFirstSync<{ local_date: string }>(
+        `SELECT local_date FROM day WHERE attempt_id = ? AND day_index = ?`,
+        [attemptId, dayIndex],
       );
       const info = this.db.getFirstSync<{ duration_days: number; challenge_id: number }>(
         `SELECT c.duration_days, c.id AS challenge_id FROM challenge c JOIN attempt a ON a.challenge_id = c.id WHERE a.id = ?`,
         [attemptId],
       );
-      if (info && dayIndex + 1 < info.duration_days) {
+      if (!closedDay || !info) return;
+      // Calendar days skipped between the closed day and `nextLabel` become real,
+      // closed, empty rows: they count as missed (PLAN.md #2, same as the engine's
+      // fillGaps) and stay editable from the calendar like any other past day.
+      // INSERT OR IGNORE + the (attempt_id, day_index) UNIQUE key keep this whole
+      // routine idempotent under a double tap or a stale caller.
+      const gap = Math.max(0, diffDays(closedDay.local_date, nextLabel) - 1);
+      let idx = dayIndex;
+      for (let g = 1; g <= gap && idx + 1 < info.duration_days; g++) {
+        idx++;
+        this.db.runSync(
+          `INSERT OR IGNORE INTO day (attempt_id, day_index, local_date, closed_at_utc) VALUES (?, ?, ?, ?)`,
+          [attemptId, idx, addDays(closedDay.local_date, g), closedAt],
+        );
+      }
+      if (idx + 1 < info.duration_days) {
         this.db.runSync(
           `INSERT OR IGNORE INTO day (attempt_id, day_index, local_date) VALUES (?, ?, ?)`,
-          [attemptId, dayIndex + 1, nextLabel],
+          [attemptId, idx + 1, nextLabel],
         );
         const newDay = this.db.getFirstSync<{ id: number }>(
           `SELECT id FROM day WHERE attempt_id = ? AND day_index = ?`,
-          [attemptId, dayIndex + 1],
+          [attemptId, idx + 1],
         );
         if (newDay) this.seedAvoidanceCompletions(newDay.id, info.challenge_id);
       }

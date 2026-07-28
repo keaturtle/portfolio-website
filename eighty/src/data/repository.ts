@@ -128,7 +128,12 @@ export interface ChallengeRepository {
   getLogs(attemptId: number): DayLog[];
   setItemDone(attemptId: number, dayIndex: number, itemId: string, done: boolean): void;
   setDayMeta(attemptId: number, dayIndex: number, meta: DayMeta): void;
-  /** Closes the day and opens the next one (labelled with the current local date). */
+  /**
+   * Closes the day. Calendar days skipped since it was opened become closed, empty
+   * rows (they count as missed and can be back-filled from the calendar); then the
+   * next day opens labelled `nextLabel` — unless the challenge window is exhausted,
+   * in which case no day opens and the challenge is over.
+   */
   closeDay(attemptId: number, dayIndex: number, nextLabel: string): void;
   getSetting(key: string): string | null;
   setSetting(key: string, value: string): void;

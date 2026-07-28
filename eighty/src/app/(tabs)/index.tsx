@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Redirect, router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
-import { TimeOfDay, atRiskItems, evaluateAttempt, requiredItems, scoreDay } from '@engine';
+import { TimeOfDay, atRiskItems, diffDays, evaluateAttempt, requiredItems, scoreDay } from '@engine';
 import { EIGHTY_PRESET, HARD_75_PRESET } from '@/data/presets';
 import { todayLabel } from '@/data/startFlow';
 import { useActiveChallenge } from '@/data/useActiveChallenge';
@@ -141,8 +141,11 @@ export default function TodayScreen() {
   const today = todayLabel();
   const needsCloseout = openDay.localDate < today;
   const dayNum = openDay.dayIndex + 1;
-  const nextDayNum = dayNum + 1;
-  const isLastDay = dayNum >= config.durationDays;
+  // Calendar days skipped while away become missed days on move-on (see closeDay);
+  // the banner discloses that and numbers the next day accordingly.
+  const gapDays = Math.max(0, diffDays(openDay.localDate, today) - 1);
+  const nextDayNum = dayNum + gapDays + 1;
+  const challengeEnds = nextDayNum > config.durationDays;
   const yesterday = logs.find((l) => l.dayIndex === openDay.dayIndex - 1);
   const atRisk = new Set(atRiskItems(config, yesterday, openDay.isTravel));
   const score = scoreDay(config, openDay, yesterday);
@@ -192,10 +195,16 @@ export default function TodayScreen() {
             <View style={styles.forwardHead}>
               <Ionicons name="checkmark-done-circle" size={20} color={p.mint} />
               <Text style={{ flex: 1, fontSize: 13.5, lineHeight: 18, color: p.ink }}>
-                <Text style={{ fontWeight: '800', color: p.mint }}>You finished Day {dayNum}.</Text>{' '}
-                {isLastDay
-                  ? 'Log any last sleep & bedtime items first.'
-                  : "Still logging last night's sleep? Do that first — you're not on the next day until you tap below."}
+                <Text style={{ fontWeight: '800', color: p.mint }}>
+                  {challengeEnds ? `Day ${dayNum} was your last day.` : `You finished Day ${dayNum}.`}
+                </Text>{' '}
+                {gapDays > 0
+                  ? `You've been away ${gapDays === 1 ? 'a day' : `${gapDays} days`} — moving on logs ${
+                      gapDays === 1 ? 'it' : 'them'
+                    } as missed. You can fill ${gapDays === 1 ? 'it' : 'them'} in from the calendar.`
+                  : challengeEnds
+                    ? 'Log anything still open, then wrap it up.'
+                    : "Still logging last night's items? Finish those first — you're not on the next day until you tap."}
               </Text>
             </View>
             <Pressable
@@ -208,10 +217,10 @@ export default function TodayScreen() {
                 { backgroundColor: p.mint, opacity: pressed ? 0.85 : 1 },
               ]}
               accessibilityRole="button"
-              accessibilityLabel={isLastDay ? `Finish Day ${dayNum}` : `Move on to Day ${nextDayNum}`}
+              accessibilityLabel={challengeEnds ? 'Finish the challenge' : `Move on to Day ${nextDayNum}`}
             >
               <Text style={{ color: p.onAccent, fontWeight: '800', fontSize: 14.5 }}>
-                {isLastDay ? `Finish Day ${dayNum}` : `Move on to Day ${nextDayNum}`}
+                {challengeEnds ? 'Finish the challenge' : `Move on to Day ${nextDayNum}`}
               </Text>
               <Ionicons name="arrow-forward" size={16} color={p.onAccent} />
             </Pressable>

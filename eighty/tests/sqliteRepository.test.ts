@@ -178,6 +178,49 @@ describe('closeDay', () => {
     expect(logs).toHaveLength(1);
     expect(logs[0]!.closed).toBe(true);
   });
+
+  it('records skipped calendar days as closed, empty (missed) days', () => {
+    const { repo } = fresh();
+    const active = repo.startChallenge(PRESET, TODAY);
+    // User disappears for two days: open day is 07-27, they come back on 07-30.
+    repo.closeDay(active.attemptId, 0, '2026-07-30');
+    const logs = repo.getLogs(active.attemptId);
+    expect(logs.map((l) => [l.dayIndex, l.localDate, l.closed])).toEqual([
+      [0, '2026-07-27', true],
+      [1, '2026-07-28', true],
+      [2, '2026-07-29', true],
+      [3, '2026-07-30', false],
+    ]);
+    // Skipped days are fully empty — they count as missed, no avoidance credit.
+    expect(logs[1]!.completedItemIds).toEqual([]);
+    expect(logs[2]!.completedItemIds).toEqual([]);
+    // The freshly opened day gets its avoidance seeds as usual.
+    expect(logs[3]!.completedItemIds).toEqual(['avoid']);
+  });
+
+  it('caps gap fill at the challenge duration (long absence ends the challenge)', () => {
+    const { repo } = fresh();
+    const short = { ...PRESET, durationDays: 3 };
+    const active = repo.startChallenge(short, TODAY);
+    repo.closeDay(active.attemptId, 0, '2026-08-10'); // 14 days later, only 3-day window
+    const logs = repo.getLogs(active.attemptId);
+    expect(logs.map((l) => [l.dayIndex, l.localDate, l.closed])).toEqual([
+      [0, '2026-07-27', true],
+      [1, '2026-07-28', true],
+      [2, '2026-07-29', true],
+    ]);
+  });
+
+  it('is idempotent under a double tap (same close called twice)', () => {
+    const { repo } = fresh();
+    const active = repo.startChallenge(PRESET, TODAY);
+    repo.setItemDone(active.attemptId, 0, 'a', true);
+    repo.closeDay(active.attemptId, 0, '2026-07-30');
+    const first = repo.getLogs(active.attemptId);
+    repo.closeDay(active.attemptId, 0, '2026-07-30');
+    const second = repo.getLogs(active.attemptId);
+    expect(second).toEqual(first);
+  });
 });
 
 describe('config, activation, settings', () => {
