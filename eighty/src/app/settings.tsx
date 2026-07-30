@@ -15,6 +15,7 @@ import {
   setEveningReminder,
   setMorningReminder,
 } from '@/data/notifications';
+import { checkWidgetBridge, WidgetBridgeStatus } from '@/data/widget';
 import { usePalette, radius, type as t } from '@/theme/tokens';
 import { ThemeOverride, useThemeOverride } from '@/theme/ThemeContext';
 import { ToggleRow } from '@/ui/forms';
@@ -33,6 +34,7 @@ export default function SettingsScreen() {
   const { override, setOverride } = useThemeOverride();
   const [morning, setMorning] = useState(false);
   const [evening, setEvening] = useState(false);
+  const [bridge, setBridge] = useState<WidgetBridgeStatus>('unavailable');
   const card = { backgroundColor: p.card, borderRadius: radius.card };
 
   useEffect(() => {
@@ -40,6 +42,7 @@ export default function SettingsScreen() {
       setMorning(m);
       setEvening(e);
     });
+    setBridge(checkWidgetBridge());
   }, []);
 
   // 'blocked' means iOS won't show the prompt again — offer the direct path to
@@ -185,6 +188,29 @@ export default function SettingsScreen() {
             palette={p}
           />
         </View>
+
+        {bridge !== 'unavailable' && (
+          <Pressable
+            onPress={() => setBridge(checkWidgetBridge())}
+            style={[card, styles.section]}
+            accessibilityRole="button"
+            accessibilityLabel="Home-screen widget status. Tap to re-check."
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Ionicons
+                name={bridge === 'ok' ? 'checkmark-circle' : 'alert-circle'}
+                size={16}
+                color={bridge === 'ok' ? p.mint : p.sienna}
+              />
+              <Text style={{ fontSize: 14, fontWeight: '700', color: p.ink }}>Home-screen widget</Text>
+            </View>
+            <Text style={{ fontSize: 12, color: p.sub, marginTop: 4, lineHeight: 17 }}>
+              {bridge === 'ok'
+                ? 'Connected. Add it from your home screen: long-press an empty area → + → search Eighty. If it looks empty, make sure a challenge is active.'
+                : "Not connected. The widget can't reach Eighty's data yet — this needs a one-time App Group setup in the Apple Developer account for this app. Tap to re-check after that's done."}
+            </Text>
+          </Pressable>
+        )}
 
         <Pressable onPress={sendFeedback} style={[card, styles.section]} accessibilityRole="button">
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>

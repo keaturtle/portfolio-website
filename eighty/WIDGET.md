@@ -2,6 +2,47 @@
 
 **Status: BUILT + LIVE on TestFlight. Home + lock screen. Re-build to get the lock-screen face.**
 
+---
+
+## ⚠️ Troubleshooting: widget shows "not synced" / stays empty
+
+The widget reads its data from a shared **App Group** container. "not synced"
+means the widget couldn't read the heartbeat the app writes there — i.e. the
+App Group bridge isn't working in the signed build. The code and config are
+correct and identical on both sides (verified), so the remaining cause is
+almost always an **Apple-side App Group setup step** that EAS's auto-sync
+enabled the *capability* for but didn't fully wire up (the specific group
+container must exist and be assigned to **both** App IDs).
+
+**First, get a precise diagnosis (no widget needed).** Open the app →
+**Settings → Home-screen widget**. It round-trips a probe through the App Group:
+
+- **"Connected"** → the app's App Group access works. The problem (if the ring
+  is still empty) is on the *widget's* App ID — make sure App Groups is enabled
+  on `com.keatentuttle.eighty.widget` too (step 2 below), then rebuild.
+- **"Not connected"** → the *app's* own App Group access is failing → do the
+  portal steps below, then rebuild.
+
+**Fix (Apple Developer portal — ~3 min, only you can do it):**
+
+1. Go to <https://developer.apple.com/account/resources/identifiers/list/applicationGroup>
+   → **＋** → App Groups → identifier `group.com.keatentuttle.eighty` (create it
+   if it isn't there).
+2. Identifiers → open **`com.keatentuttle.eighty`** → enable **App Groups** →
+   Edit → check `group.com.keatentuttle.eighty` → Save. Repeat for
+   **`com.keatentuttle.eighty.widget`**. Both App IDs must have the *same* group
+   checked.
+3. Rebuild so the new provisioning profiles are picked up:
+   `npx eas-cli build --platform ios --profile production --auto-submit`.
+   When EAS asks about credentials/capabilities, say **yes**.
+4. Update via TestFlight, open the app once, then remove and re-add the widget.
+   Settings → Home-screen widget should now read **Connected**.
+
+If it *still* says "Not connected" after that, the bundle IDs or group id don't
+match somewhere — check that all five references read exactly
+`group.com.keatentuttle.eighty` (app.json ×2, `targets/widget/expo-target.config.js`,
+`targets/widget/index.swift`, `src/data/widget.ts`).
+
 > **Update 2026-07-23 (item 4):** added a **lock-screen** face (`accessoryCircular`, iOS 16+ —
 > a circular gauge that fills to today's %) alongside the home-screen ring, and recolored the
 > widget to the Midnight Indigo palette (electric blue / persimmon) to match the app. The App

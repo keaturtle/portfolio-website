@@ -59,17 +59,53 @@ export function buildWidgetSnapshot(
 }
 
 const storage = new ExtensionStorage(WIDGET_APP_GROUP);
+const PROBE_KEY = 'bridge_probe';
+
+/** True when the native App Group module is present (false in Expo Go). */
+export function isWidgetBridgeAvailable(): boolean {
+  const g = globalThis as { expo?: { modules?: Record<string, unknown> } };
+  return g.expo?.modules?.ExtensionStorage != null;
+}
+
+export type WidgetBridgeStatus = 'ok' | 'broken' | 'unavailable';
+
+/**
+ * Round-trips a probe value through the shared App Group to test the *app* half of the
+ * widget bridge, independent of the widget itself:
+ *   - 'ok'          the app can write AND read the shared container — any remaining
+ *                   empty-widget is on the widget's side (or just needs a refresh);
+ *   - 'broken'      the app can't read back its own write — the App Group entitlement
+ *                   isn't valid in this build (an Apple-side App Group setup step);
+ *   - 'unavailable' no native module (Expo Go) — nothing to test here.
+ * This is what makes the widget's "not synced" actionable: it says which side to fix.
+ */
+export function checkWidgetBridge(): WidgetBridgeStatus {
+  if (!isWidgetBridgeAvailable()) return 'unavailable';
+  try {
+    const token = `probe-${Date.now()}`;
+    storage.set(PROBE_KEY, token);
+    return storage.get(PROBE_KEY) === token ? 'ok' : 'broken';
+  } catch {
+    return 'broken';
+  }
+}
 
 /** Write the snapshot to the shared App Group and ask WidgetKit to refresh. No-op in Expo Go. */
 export function publishWidgetSnapshot(snap: WidgetSnapshot | null): void {
+  // Heartbeat first, on its own, so the "is the bridge alive?" signal lands even if
+  // writing the snapshot itself ever fails. The widget's empty state reads it to tell
+  // "no data yet" apart from "bridge broken".
   try {
-    storage.set(TODAY_KEY, snap ? JSON.stringify(snap) : undefined);
-    // Heartbeat proves the app→App Group→widget bridge works even when there's no snapshot;
-    // the widget's empty state reads it to distinguish "no data" from "bridge broken".
     storage.set(HEARTBEAT_KEY, new Date().toISOString());
+  } catch {
+    // No native module (Expo Go) or App Group not provisioned — ignore.
+  }
+  try {
+    if (snap) storage.set(TODAY_KEY, JSON.stringify(snap));
+    else storage.remove(TODAY_KEY);
     ExtensionStorage.reloadWidget();
   } catch {
-    // No native module (Expo Go) or App Group not provisioned yet — ignore.
+    // ignore
   }
 }
 

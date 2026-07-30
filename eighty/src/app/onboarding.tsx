@@ -131,8 +131,8 @@ function ScreenOne({ p, insets }: SP) {
         <Text style={[styles.h1, { color: p.ink }]}>Progress isn't perfect.</Text>
         <Text style={[styles.body, { color: p.sub, marginTop: 20 }]}>
           Streak apps punish one bad day like it erases every good one. It doesn't. Real change is
-          built on showing up <Text style={{ color: p.ink, fontStyle: 'italic' }}>most</Text> of the
-          time — and having a system that expects you to be human.
+          built by compounding small wins. Make the changes you want without giving up the life you
+          have.
         </Text>
       </View>
     </Page>
@@ -165,8 +165,7 @@ function ScreenTwo({ p, insets }: SP) {
         That's not a loophole. That's the design.
       </Text>
       <Text style={{ fontSize: 12, color: p.sub, opacity: 0.85, marginTop: 16, lineHeight: 18 }}>
-        Research puts real habit formation at around 66 days. Eighty gives you 80 — long enough to
-        actually get there.
+        Research puts habit formation at around 66 days. You get 80, hit it with days to spare.
       </Text>
     </Page>
   );
