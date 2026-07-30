@@ -314,39 +314,41 @@ export default function TodayScreen() {
           );
         })}
 
-        {/* Bonus */}
-        <View style={[styles.cat, styles.bonus, { borderColor: p.sienna }]}>
-          <View style={styles.catHead}>
-            <View style={styles.catHeadLeft}>
-              <Ionicons name="sparkles-outline" size={15} color={p.sienna} />
-              <Text style={[t.cardTitle, { color: p.sienna }]}>Bonus · Extra credit</Text>
+        {/* Bonus — only when the challenge actually has bonus items */}
+        {active.items.some((it) => it.isBonus) && (
+          <View style={[styles.cat, styles.bonus, { borderColor: p.sienna }]}>
+            <View style={styles.catHead}>
+              <View style={styles.catHeadLeft}>
+                <Ionicons name="sparkles-outline" size={15} color={p.sienna} />
+                <Text style={[t.cardTitle, { color: p.sienna }]}>Bonus · Extra credit</Text>
+              </View>
+              <View style={[styles.pill, { backgroundColor: p.siennaSoft }]}>
+                <Text style={{ fontSize: 11.5, fontWeight: '700', color: p.sienna }}>
+                  +{score.completedBonus}
+                </Text>
+              </View>
             </View>
-            <View style={[styles.pill, { backgroundColor: p.siennaSoft }]}>
-              <Text style={{ fontSize: 11.5, fontWeight: '700', color: p.sienna }}>
-                +{score.completedBonus}
-              </Text>
-            </View>
+            <Text style={{ fontSize: 11.5, color: p.sub, paddingBottom: 10 }}>
+              Counts toward your %, never against it.
+            </Text>
+            {active.items
+              .filter((it) => it.isBonus)
+              .map((it) => (
+                <CheckRow
+                  key={it.id}
+                  label={it.label}
+                  categoryName=""
+                  done={done.has(it.id)}
+                  isBonus
+                  missedYesterday={false}
+                  palette={p}
+                  onToggle={() =>
+                    repo.setItemDone(active.attemptId, openDay.dayIndex, it.id, !done.has(it.id))
+                  }
+                />
+              ))}
           </View>
-          <Text style={{ fontSize: 11.5, color: p.sub, paddingBottom: 10 }}>
-            Counts toward your %, never against it.
-          </Text>
-          {active.items
-            .filter((it) => it.isBonus)
-            .map((it) => (
-              <CheckRow
-                key={it.id}
-                label={it.label}
-                categoryName=""
-                done={done.has(it.id)}
-                isBonus
-                missedYesterday={false}
-                palette={p}
-                onToggle={() =>
-                  repo.setItemDone(active.attemptId, openDay.dayIndex, it.id, !done.has(it.id))
-                }
-              />
-            ))}
-        </View>
+        )}
 
         {/* Day log */}
         <View style={[card, styles.daylog]}>

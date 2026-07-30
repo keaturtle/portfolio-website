@@ -15,8 +15,9 @@ const av = (id: string, categoryId: string, label: string, timeOfDay: TimeOfDay)
   i(id, categoryId, label, timeOfDay, false, true);
 
 /**
- * The flagship 80/80/80 preset — 10 regular items grouped by time of day (the grouping
- * is the Today-screen display order for this preset) + 7 bonus. Daily success = 8 of 10.
+ * The flagship 80/80/80 preset — 10 focused items grouped by time of day (the grouping
+ * is the Today-screen display order for this preset). Daily success = 8 of 10, no bonus
+ * items. Users can add their own from the builder.
  */
 export const EIGHTY_PRESET: ChallengePreset = {
   name: '80/80/80',
@@ -35,24 +36,16 @@ export const EIGHTY_PRESET: ChallengePreset = {
     // Morning
     i('hydrate', 'morning', 'Hydrate — drink 3L+ of water today', 'morning'),
     i('move', 'morning', 'Move — 30+ min of intentional exercise, any kind', 'morning'),
+    i('sunlight', 'morning', 'Morning sunlight — 10 min within an hour of waking', 'morning'),
     // Through the day
-    i('protein', 'day', 'Protein — hit your protein target', 'day'),
-    av('noalcohol', 'day', 'Drink clean — water, coffee, tea, and zero-proof only today', 'day'),
-    av('nosweets', 'day', 'Eat clean — zero added-sugar desserts today', 'day'),
+    i('diet', 'day', 'Meet your diet goals — high protein, no processed foods', 'day'),
+    av('noalcohol', 'day', 'Drink clean — no alcohol or added-sugar drinks', 'day'),
     av('fast', 'day', 'Fast — complete your 8pm–10am fast (14 hours)', 'day'),
     i('read', 'day', 'Read — 10+ minutes', 'day'),
     i('meditate', 'day', 'Meditate — 10+ minutes', 'day'),
     // Evening
     av('nophonebed', 'evening', "Park the phone — charge it out of arm's reach overnight, wake without it", 'evening'),
     i('bed11', 'evening', 'Lights out — in bed by 11pm', 'evening'),
-    // Bonus — count toward the numerator only, never against you
-    i('bsun', 'morning', 'Morning sunlight — 10 min within an hour of waking', 'morning', true),
-    i('bcold', 'morning', 'Cold exposure', 'morning', true),
-    i('bworkout2', 'day', 'Second workout', 'day', true),
-    i('bsocial', 'day', '1+ hr social time with friends', 'day', true),
-    i('bselfless', 'day', '1 selfless act', 'day', true),
-    i('bkitchen', 'evening', 'Clean kitchen before bed', 'evening', true),
-    i('bcreative', 'day', 'Creative hobby time', 'day', true),
   ],
 };
 
