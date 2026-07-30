@@ -166,7 +166,7 @@ export default function EditChallengeScreen() {
           </Text>
           <ToggleRow
             label="No-repeat-miss"
-            hint="Missing the same item two days in a row fails the second day"
+            hint="Flags the same item missed two days running (restarts strict/hardcore challenges)"
             value={cfg.noRepeatMiss}
             onChange={(v) => setToggle('noRepeatMiss', v)}
             palette={p}

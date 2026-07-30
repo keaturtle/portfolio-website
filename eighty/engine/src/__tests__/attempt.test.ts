@@ -15,11 +15,11 @@ describe('config changes re-score prior days (edit-challenge safety)', () => {
   // above threshold, so the only thing that can fail day 1 is the no-repeat rule.
   const violationLogs = [day(0, allBut('w1')), day(1, allBut('w1'))];
 
-  test('turning noRepeatMiss off clears the violation and un-fails the day', () => {
-    const on = evaluateAttempt(eighty, violationLogs); // noRepeatMiss: true
-    expect(on.dayScores[1]?.outcome).toBe('fail');
-    expect(on.dayScores[1]?.failReason).toBe('no-repeat-miss');
-    expect(on.successDays).toBe(1);
+  test('flexible records a repeat but the day still succeeds; turning the rule off clears the record', () => {
+    const on = evaluateAttempt(eighty, violationLogs); // flexible, noRepeatMiss: true
+    expect(on.dayScores[1]?.outcome).toBe('success'); // flexible: repeat no longer fails the day
+    expect(on.dayScores[1]?.violations).toHaveLength(1);
+    expect(on.successDays).toBe(2);
 
     const off = evaluateAttempt({ ...eighty, noRepeatMiss: false }, violationLogs);
     expect(off.dayScores[1]?.outcome).toBe('success');
@@ -146,12 +146,12 @@ describe('evaluateAttempt — basics', () => {
 });
 
 describe('unlogged days', () => {
-  test('count as failed with every item missed, and feed the no-repeat rule', () => {
+  test('an unlogged gap counts as a failed day and still feeds the no-repeat record', () => {
     // day 1 never logged; day 2 misses wpull → pair with synthetic day 1
     const s = evaluateAttempt(eighty, [successDay(0), day(2, allBut('wpull'))]);
-    expect(s.failedDays).toBe(2); // synthetic day 1 + violation-failed day 2
+    expect(s.failedDays).toBe(1); // just the synthetic day 1; day 2 met threshold
     expect(s.dayScores[1]?.failReason).toBe('below-threshold');
-    expect(s.dayScores[2]?.failReason).toBe('no-repeat-miss');
+    expect(s.dayScores[2]?.outcome).toBe('success'); // flexible: the repeat doesn't fail day 2
     expect(s.dayScores[2]?.violations).toContainEqual({
       itemId: 'wpull',
       firstDayIndex: 1,
@@ -163,12 +163,13 @@ describe('unlogged days', () => {
 describe('strictness modes', () => {
   const pairMiss = [day(0, allBut('wpull')), day(1, allBut('wpull'))];
 
-  test('flexible: violation fails the second day; challenge stays active', () => {
+  test('flexible: a repeat is recorded but does not fail the day; challenge stays active', () => {
     const s = evaluateAttempt(eighty, pairMiss);
     expect(s.status).toBe('active');
     expect(s.dayScores[0]?.outcome).toBe('success');
-    expect(s.dayScores[1]?.outcome).toBe('fail');
-    expect(s.failedDays).toBe(1);
+    expect(s.dayScores[1]?.outcome).toBe('success');
+    expect(s.dayScores[1]?.violations).toHaveLength(1);
+    expect(s.failedDays).toBe(0);
   });
 
   test('strict: violation requires a restart; earlier days keep their outcomes', () => {
@@ -243,26 +244,25 @@ describe('challenge success and mathematical impossibility', () => {
 });
 
 describe('retroactive edits recompute everything downstream', () => {
-  test('completing one item on an old day flips a later violation and both day outcomes', () => {
+  test('amending an old day clears a later violation and lifts the strict restart it caused', () => {
     const logs = [
       ...Array.from({ length: 3 }, (_, i) => successDay(i)),
       day(3, allBut('wpull')), // wpull missed…
-      day(4, allBut('wpull')), // …twice: day 4 fails by violation
+      day(4, allBut('wpull')), // …twice: day 4 violation → strict restart
       ...Array.from({ length: 5 }, (_, i) => successDay(i + 5)),
     ];
-    const before = evaluateAttempt(eighty, logs);
+    const before = evaluateAttempt(strict, logs);
+    expect(before.status).toBe('restart-required');
     expect(before.dayScores[4]?.outcome).toBe('fail');
-    expect(before.successDays).toBe(9);
 
-    // amend day 3: user actually did their pull-ups
+    // amend day 3: user actually did their pull-ups → the day-4 pair is gone
     const amended = logs.map((l) =>
       l.dayIndex === 3 ? { ...l, completedItemIds: [...l.completedItemIds, 'wpull'] } : l,
     );
-    const after = evaluateAttempt(eighty, amended);
+    const after = evaluateAttempt(strict, amended);
+    expect(after.status).not.toBe('restart-required');
     expect(after.dayScores[4]?.outcome).toBe('success');
     expect(after.dayScores[4]?.violations).toEqual([]);
-    expect(after.successDays).toBe(10); // every one of the 10 logged days now succeeds
-    expect(after.failedDays).toBe(0);
   });
 
   test('an edit can retroactively trigger a strict restart', () => {

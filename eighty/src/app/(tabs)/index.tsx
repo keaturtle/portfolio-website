@@ -31,7 +31,7 @@ const HOW_IT_WORKS = [
   ['Daily threshold', 'Hit a set % of your checklist each day (80% for 80/80/80, 100% for 75 Hard).'],
   ['Challenge threshold', 'Succeed on enough days across the whole challenge, not every single one.'],
   ['Bonus items', 'Extra credit — they help your percentage and never hurt it.'],
-  ['No-repeat-miss', "Miss the same item two days running and that second day fails, even if you hit the daily %."],
+  ['No-repeat-miss', 'Flags the same item missed two days running. Flexible just flags it — your day still counts if you hit the threshold; strict and hardcore restart the attempt.'],
   ['Strictness', 'Flexible keeps going after a bad day; strict/hardcore restart the attempt on certain misses.'],
 ] as const;
 

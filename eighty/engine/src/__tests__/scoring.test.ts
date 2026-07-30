@@ -64,10 +64,20 @@ describe('scoreDay', () => {
     expect(s.failReason).toBeUndefined();
   });
 
-  test('a day that met the threshold still fails on a no-repeat violation', () => {
+  test('flexible: a repeat violation is recorded but does not fail a met-threshold day', () => {
     const prev = day(0, allBut('wpull'));
     const today = day(1, allBut('wpull'));
-    const s = scoreDay(eighty, today, prev);
+    const s = scoreDay(eighty, today, prev); // eighty is flexible
+    expect(s.metThreshold).toBe(true);
+    expect(s.outcome).toBe('success');
+    expect(s.failReason).toBeUndefined();
+    expect(s.violations).toEqual([{ itemId: 'wpull', firstDayIndex: 0, secondDayIndex: 1 }]);
+  });
+
+  test('strict: the same repeat violation does fail the met-threshold day', () => {
+    const prev = day(0, allBut('wpull'));
+    const today = day(1, allBut('wpull'));
+    const s = scoreDay({ ...eighty, strictness: 'strict' }, today, prev);
     expect(s.metThreshold).toBe(true);
     expect(s.outcome).toBe('fail');
     expect(s.failReason).toBe('no-repeat-miss');

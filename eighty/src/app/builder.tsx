@@ -229,7 +229,7 @@ export default function BuilderScreen() {
 
           <ToggleRow
             label="No-repeat-miss"
-            hint="Missing the same item two days in a row fails the second day"
+            hint="Flags the same item missed two days running (restarts strict/hardcore challenges)"
             value={draft.noRepeatMiss}
             onChange={(v) => setDraft((d) => ({ ...d, noRepeatMiss: v }))}
             palette={p}

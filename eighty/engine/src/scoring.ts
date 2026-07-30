@@ -16,8 +16,11 @@ export function requiredSuccessDays(cfg: ChallengeConfig): number {
 }
 
 /**
- * Score a single day. Mode-independent: a no-repeat violation always marks the day
- * failed; what that failure *causes* (nothing / restart) is decided in attempt.ts.
+ * Score a single day. In flexible mode a no-repeat violation is recorded (in
+ * `violations`, for the warning and stats) but does NOT fail an otherwise-passing
+ * day — the day succeeds on the daily threshold alone. In strict/hardcore a
+ * violation still fails the day; what that failure *causes* (restart) is decided
+ * in attempt.ts.
  */
 export function scoreDay(cfg: ChallengeConfig, log: DayLog, prev?: DayLog): DayScore {
   const regularIds = new Set(regularItems(cfg).map((i) => i.id));
@@ -54,7 +57,9 @@ export function scoreDay(cfg: ChallengeConfig, log: DayLog, prev?: DayLog): DayS
     if (!metThreshold) {
       score.outcome = 'fail';
       score.failReason = 'below-threshold';
-    } else if (violations.length > 0) {
+    } else if (violations.length > 0 && cfg.strictness !== 'flexible') {
+      // Flexible: a repeat no longer fails a day that hit its threshold (the
+      // violation is still recorded above). Strict/hardcore still fail it.
       score.outcome = 'fail';
       score.failReason = 'no-repeat-miss';
     } else {
