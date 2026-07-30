@@ -79,7 +79,9 @@ export default function DashboardScreen() {
         </View>
         <View style={styles.headerBtns}>
           <Pressable
-            onPress={() => router.push('/edit-challenge')}
+            onPress={() =>
+              router.push({ pathname: '/builder', params: { editId: String(active.challengeId) } })
+            }
             style={styles.gear}
             hitSlop={4}
             accessibilityRole="button"

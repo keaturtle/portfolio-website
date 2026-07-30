@@ -5,6 +5,7 @@ import { router, Stack, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { Strictness, TimeOfDay, validateConfig } from '@engine';
+import { repo } from '@/data/db';
 import { EIGHTY_PRESET, HARD_75_PRESET } from '@/data/presets';
 import { ChallengePreset, PresetItem } from '@/data/repository';
 import { presetToConfig } from '@/data/templates';
@@ -51,6 +52,23 @@ function initialDraft(presetJson: string | undefined): ChallengePreset {
   return BLANK;
 }
 
+/** Load an existing challenge into an editable draft (edit-mode entry). */
+function challengeToDraft(challengeId: number): ChallengePreset | null {
+  const d = repo.getChallengeDetail(challengeId);
+  if (!d) return null;
+  return {
+    name: d.name,
+    durationDays: d.config.durationDays,
+    dailyThresholdPct: d.config.dailyThresholdPct,
+    challengeThresholdPct: d.config.challengeThresholdPct,
+    strictness: d.config.strictness,
+    noRepeatMiss: d.config.noRepeatMiss,
+    travelExemption: d.config.travelExemption,
+    categories: d.categories.map((c) => ({ ...c })),
+    items: d.items.map((i) => ({ ...i })),
+  };
+}
+
 interface NewItemDraft {
   label: string;
   isBonus: boolean;
@@ -63,8 +81,11 @@ const BLANK_ITEM: NewItemDraft = { label: '', isBonus: false, isAvoidance: false
 export default function BuilderScreen() {
   const p = usePalette();
   const insets = useSafeAreaInsets();
-  const { presetJson } = useLocalSearchParams<{ presetJson?: string }>();
-  const [draft, setDraft] = useState<ChallengePreset>(() => initialDraft(presetJson));
+  const { presetJson, editId } = useLocalSearchParams<{ presetJson?: string; editId?: string }>();
+  const editingId = editId ? Number(editId) : null;
+  const [draft, setDraft] = useState<ChallengePreset>(
+    () => (editingId != null ? challengeToDraft(editingId) : null) ?? initialDraft(presetJson),
+  );
   // Numeric fields edit as strings and parse at review time — typing never fights
   // the user (clearing a field doesn't snap to 0).
   const [numbers, setNumbers] = useState(() => ({
@@ -139,12 +160,54 @@ export default function BuilderScreen() {
     router.push({ pathname: '/preview', params: { presetJson: JSON.stringify(finalPreset) } });
   };
 
+  // Edit mode: save changes in place on the active challenge (config + checklist),
+  // behind a confirmation since it re-scores every past day.
+  const saveEdits = () => {
+    if (editingId == null) return;
+    const finalPreset: ChallengePreset = {
+      ...draft,
+      name: draft.name.trim() || 'My challenge',
+      durationDays: Number(numbers.duration) || 0,
+      dailyThresholdPct: Number(numbers.daily) || 0,
+      challengeThresholdPct: Number(numbers.challenge) || 0,
+    };
+    const errors = validateConfig(presetToConfig(finalPreset));
+    if (errors.length > 0) {
+      Alert.alert('A few things to fix first', errors.map((e) => `• ${e.message}`).join('\n'));
+      return;
+    }
+    Alert.alert(
+      'Save changes?',
+      'This updates your challenge and recalculates your past days with the new checklist and settings. Items you removed lose their history; items you kept keep theirs.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Save',
+          onPress: () => {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            repo.updateChallengeConfig(editingId, {
+              name: finalPreset.name,
+              durationDays: finalPreset.durationDays,
+              dailyThresholdPct: finalPreset.dailyThresholdPct,
+              challengeThresholdPct: finalPreset.challengeThresholdPct,
+              strictness: finalPreset.strictness,
+              noRepeatMiss: finalPreset.noRepeatMiss,
+              travelExemption: finalPreset.travelExemption,
+            });
+            repo.updateChallengeChecklist(editingId, finalPreset.categories, finalPreset.items);
+            router.back();
+          },
+        },
+      ],
+    );
+  };
+
   return (
     <>
       <Stack.Screen
         options={{
           headerShown: true,
-          title: 'Build a challenge',
+          title: editingId != null ? 'Edit challenge' : 'Build a challenge',
           headerStyle: { backgroundColor: p.bg },
           headerTintColor: p.ink,
           headerShadowVisible: false,
@@ -154,20 +217,22 @@ export default function BuilderScreen() {
         style={{ backgroundColor: p.bg }}
         contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 60 }}
       >
-        <View style={{ flexDirection: 'row', gap: 10, marginBottom: 14 }}>
-          <Pressable
-            onPress={() => loadPreset(EIGHTY_PRESET)}
-            style={[styles.quickBtn, { backgroundColor: p.card2 }]}
-          >
-            <Text style={{ color: p.ink, fontSize: 12.5, fontWeight: '700' }}>Start from 80/80/80</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => loadPreset(HARD_75_PRESET)}
-            style={[styles.quickBtn, { backgroundColor: p.card2 }]}
-          >
-            <Text style={{ color: p.ink, fontSize: 12.5, fontWeight: '700' }}>Start from 75 Hard</Text>
-          </Pressable>
-        </View>
+        {editingId == null && (
+          <View style={{ flexDirection: 'row', gap: 10, marginBottom: 14 }}>
+            <Pressable
+              onPress={() => loadPreset(EIGHTY_PRESET)}
+              style={[styles.quickBtn, { backgroundColor: p.card2 }]}
+            >
+              <Text style={{ color: p.ink, fontSize: 12.5, fontWeight: '700' }}>Start from 80/80/80</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => loadPreset(HARD_75_PRESET)}
+              style={[styles.quickBtn, { backgroundColor: p.card2 }]}
+            >
+              <Text style={{ color: p.ink, fontSize: 12.5, fontWeight: '700' }}>Start from 75 Hard</Text>
+            </Pressable>
+          </View>
+        )}
 
         <View style={[card, styles.section]}>
           <Text style={[t.cardTitle, { color: p.ink, marginBottom: 10 }]}>Basics</Text>
@@ -369,11 +434,13 @@ export default function BuilderScreen() {
         </View>
 
         <Pressable
-          onPress={reviewDraft}
+          onPress={editingId != null ? saveEdits : reviewDraft}
           style={({ pressed }) => [styles.startBtn, { backgroundColor: p.mint, opacity: pressed ? 0.8 : 1 }]}
           accessibilityRole="button"
         >
-          <Text style={{ color: p.onAccent, fontWeight: '800', fontSize: 15 }}>Review & start</Text>
+          <Text style={{ color: p.onAccent, fontWeight: '800', fontSize: 15 }}>
+            {editingId != null ? 'Save changes' : 'Review & start'}
+          </Text>
         </Pressable>
       </ScrollView>
     </>

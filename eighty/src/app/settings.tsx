@@ -35,6 +35,7 @@ export default function SettingsScreen() {
   const [morning, setMorning] = useState(false);
   const [evening, setEvening] = useState(false);
   const [bridge, setBridge] = useState<WidgetBridgeStatus>('unavailable');
+  const activeChallenge = repo.getActive();
   const card = { backgroundColor: p.card, borderRadius: radius.card };
 
   useEffect(() => {
@@ -222,16 +223,19 @@ export default function SettingsScreen() {
           </Text>
         </Pressable>
 
-        {repo.getActive() && (
+        {activeChallenge && (
           <Pressable
-            onPress={() => router.push('/edit-challenge')}
+            onPress={() =>
+              router.push({ pathname: '/builder', params: { editId: String(activeChallenge.challengeId) } })
+            }
             style={[card, styles.section, styles.navRow]}
             accessibilityRole="button"
           >
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 14, fontWeight: '700', color: p.ink }}>Edit current challenge</Text>
               <Text style={{ fontSize: 12, color: p.sub, marginTop: 2 }}>
-                Change duration, thresholds, strictness, or rules — your past days recalculate.
+                Change anything — add or remove items, duration, thresholds, rules. Your past days
+                recalculate.
               </Text>
             </View>
             <Ionicons name="chevron-forward" size={16} color={p.sub} />

@@ -145,6 +145,13 @@ export interface ChallengeRepository {
   getChallengeDetail(challengeId: number): ActiveChallenge | null;
   /** Updates scalar config fields in place. Stats re-score from raw logs on next read. */
   updateChallengeConfig(challengeId: number, update: ChallengeConfigUpdate): void;
+  /**
+   * Replaces the challenge's categories + checklist in place (edit mid-challenge).
+   * Items kept by id keep their logged completions; removed items' completions are
+   * dropped. Everything re-scores from raw logs on next read — removing an item can
+   * lift past days, adding one can retroactively lower them.
+   */
+  updateChallengeChecklist(challengeId: number, categories: PresetCategory[], items: PresetItem[]): void;
   /** Archives whatever is active and reactivates this challenge's existing attempt in place. */
   activateChallenge(challengeId: number): void;
   /** Deletes a challenge and everything under it. Irreversible. */

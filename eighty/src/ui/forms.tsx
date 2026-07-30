@@ -3,8 +3,8 @@ import * as Haptics from 'expo-haptics';
 import { Palette, radius } from '@/theme/tokens';
 
 /**
- * Shared form primitives for the builder, edit-challenge, and settings screens —
- * one source of truth for caption/input/toggle styling and alignment.
+ * Shared form primitives for the builder and settings screens — one source of
+ * truth for caption/input/toggle styling and alignment.
  */
 
 export function FieldLabel({

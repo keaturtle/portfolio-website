@@ -8,6 +8,8 @@ import {
   ChallengePreset,
   ChallengeRepository,
   DayMeta,
+  PresetCategory,
+  PresetItem,
 } from './repository';
 import { SqliteRepository } from './sqlite';
 
@@ -73,6 +75,9 @@ class NotifyingRepository implements ChallengeRepository {
   }
   updateChallengeConfig(challengeId: number, update: ChallengeConfigUpdate): void {
     this.mutate(() => this.inner.updateChallengeConfig(challengeId, update));
+  }
+  updateChallengeChecklist(challengeId: number, categories: PresetCategory[], items: PresetItem[]): void {
+    this.mutate(() => this.inner.updateChallengeChecklist(challengeId, categories, items));
   }
   activateChallenge(challengeId: number): void {
     this.mutate(() => this.inner.activateChallenge(challengeId));

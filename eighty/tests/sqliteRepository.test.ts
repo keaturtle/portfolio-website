@@ -1,5 +1,5 @@
 import { SqliteRepository } from '@/data/sqlite';
-import { ChallengePreset } from '@/data/repository';
+import { ChallengePreset, PresetItem } from '@/data/repository';
 import { openDatabaseSync } from './expoSqliteMock';
 
 const TODAY = '2026-07-27';
@@ -246,6 +246,43 @@ describe('config, activation, settings', () => {
     expect(detail.config.dailyThresholdPct).toBe(90);
     expect(detail.config.noRepeatMiss).toBe(false);
     expect(detail.config.durationDays).toBe(10); // untouched
+  });
+
+  it('updateChallengeChecklist removes an item and its completions, keeps the rest', () => {
+    const { repo, name } = fresh();
+    const active = repo.startChallenge(PRESET, TODAY);
+    repo.setItemDone(active.attemptId, 0, 'a', true);
+    repo.setItemDone(active.attemptId, 0, 'b', true);
+
+    const kept = PRESET.items.filter((it) => it.id !== 'b');
+    repo.updateChallengeChecklist(active.challengeId, PRESET.categories, kept);
+
+    const detail = repo.getChallengeDetail(active.challengeId)!;
+    expect(detail.items.map((i) => i.id).sort()).toEqual(['a', 'avoid', 'bonus']);
+    const day0 = repo.getLogs(active.attemptId)[0]!;
+    expect(day0.completedItemIds).toContain('a'); // kept item's history survives
+    expect(day0.completedItemIds).not.toContain('b'); // removed item's completion is gone
+    // and physically gone from day_item
+    const db = openDatabaseSync(name);
+    expect(db.getAllSync(`SELECT * FROM day_item WHERE item_id = 'b'`)).toHaveLength(0);
+  });
+
+  it('updateChallengeChecklist adds an item and edits a label, preserving history by id', () => {
+    const { repo } = fresh();
+    const active = repo.startChallenge(PRESET, TODAY);
+    repo.setItemDone(active.attemptId, 0, 'a', true);
+
+    const items: PresetItem[] = [
+      { id: 'a', categoryId: 'main', label: 'Item A (edited)', isBonus: false, timeOfDay: 'morning' },
+      ...PRESET.items.filter((it) => it.id !== 'a'),
+      { id: 'newone', categoryId: 'extra', label: 'Brand new', isBonus: false, timeOfDay: 'day' },
+    ];
+    repo.updateChallengeChecklist(active.challengeId, PRESET.categories, items);
+
+    const detail = repo.getChallengeDetail(active.challengeId)!;
+    expect(detail.items.find((i) => i.id === 'a')?.label).toBe('Item A (edited)');
+    expect(detail.items.some((i) => i.id === 'newone')).toBe(true);
+    expect(repo.getLogs(active.attemptId)[0]!.completedItemIds).toContain('a'); // history kept by id
   });
 
   it('activateChallenge swaps which challenge is active', () => {

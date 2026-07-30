@@ -452,6 +452,42 @@ export class SqliteRepository implements ChallengeRepository {
     this.db.runSync(`UPDATE challenge SET ${sets.join(', ')} WHERE id = ?`, [...args, challengeId]);
   }
 
+  updateChallengeChecklist(challengeId: number, categories: PresetCategory[], items: PresetItem[]): void {
+    this.db.withTransactionSync(() => {
+      // Replace categories + items in place. Items kept by id keep their logged
+      // completions (day_item references item_id as text, no FK), so mid-challenge
+      // edits don't lose history for the items you keep.
+      this.db.runSync(`DELETE FROM category WHERE challenge_id = ?`, [challengeId]);
+      this.db.runSync(`DELETE FROM item WHERE challenge_id = ?`, [challengeId]);
+      categories.forEach((c, idx) =>
+        this.db.runSync(`INSERT INTO category (challenge_id, id, name, sort_order) VALUES (?, ?, ?, ?)`, [
+          challengeId,
+          c.id,
+          c.name,
+          idx,
+        ]),
+      );
+      items.forEach((it, idx) =>
+        this.db.runSync(
+          `INSERT INTO item (challenge_id, id, category_id, label, is_bonus, is_avoidance, time_of_day, sort_order)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [challengeId, it.id, it.categoryId, it.label, it.isBonus ? 1 : 0, it.isAvoidance ? 1 : 0, it.timeOfDay, idx],
+        ),
+      );
+      // Drop logged completions for items no longer in the checklist, across every
+      // attempt of this challenge, so removed items leave nothing dangling.
+      const keptIds = items.map((it) => it.id);
+      const notIn = keptIds.length > 0 ? `AND item_id NOT IN (${keptIds.map(() => '?').join(',')})` : '';
+      this.db.runSync(
+        `DELETE FROM day_item
+          WHERE day_id IN (
+            SELECT d.id FROM day d JOIN attempt a ON a.id = d.attempt_id WHERE a.challenge_id = ?
+          ) ${notIn}`,
+        [challengeId, ...keptIds],
+      );
+    });
+  }
+
   activateChallenge(challengeId: number): void {
     this.db.withTransactionSync(() => {
       this.db.runSync(`UPDATE challenge SET status = 'archived' WHERE status = 'active'`);
