@@ -5,6 +5,29 @@ override any of them on review. Newest on top. Nothing here is irreversible.
 
 ---
 
+## 2026-07-29 — Flagship + rules + editing pass (branch `mvp-polish`)
+
+- **No-repeat rule softened for flexible mode.** A repeated miss is still recorded
+  (the "don't miss twice" nudge, stats, and the day-detail note) but no longer fails
+  a day that hit its threshold — flexible success is threshold-only now. Strict and
+  hardcore are unchanged (a repeat still fails/restarts). This is what you asked for
+  on the flagship; it's a real engine semantic change, shipped with tests at 100%.
+  **Reversible:** revert the one-line guard in `engine/src/scoring.ts`.
+- **Flagship 80/80/80 reworked:** all bonus items dropped; morning sunlight promoted
+  to required; "Protein" + "Eat clean" merged into "Meet your diet goals — high
+  protein, no processed foods"; clean-drinks reworded to "no alcohol or added-sugar
+  drinks". Only affects challenges started from now on.
+- **`edit-challenge` screen retired.** Editing an active challenge now uses the
+  builder in edit mode (`/builder?editId=`), which does the full checklist *and* the
+  scalars/rules in one place — so you can add/remove items mid-challenge. Kept items
+  keep their logged history; removed items' completions are cleaned up; saving
+  re-scores past days behind a confirmation.
+- **Widget "not synced":** added an in-app probe (Settings → Home-screen widget) that
+  says whether the app side of the App Group works, so the fix is targeted. Most
+  likely root cause is the App Group container not assigned to both App IDs in the
+  Apple portal — steps in WIDGET.md. Only you can do that part.
+- **buildNumber → 5** (explicit, autoIncrement stays off).
+
 ## 2026-07-27 — MVP polish review calls (branch `mvp-polish`)
 
 All made autonomously during the review pass; rationale + full list in

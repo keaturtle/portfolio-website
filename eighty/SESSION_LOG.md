@@ -4,6 +4,28 @@ A running, human-readable log so you can catch up in two minutes. Newest entry o
 
 ---
 
+## 2026-07-29 — Flagship, rules, mid-challenge editing, widget diagnostic
+
+On `mvp-polish`. Each committed + verified (69 engine @ 100%, 29 data tests, tsc,
+iOS export). See DECISIONS.md for the reasoning on each.
+
+- **Onboarding copy:** two intro lines reworded (compounding small wins; 80 days
+  with days to spare).
+- **Widget "not synced":** the config is verified identical on both sides, so this
+  can't be fixed further in code alone — added an in-app probe (Settings →
+  Home-screen widget: "Connected"/"Not connected") that says which side is broken,
+  hardened the write, and wrote the exact Apple-portal App Group steps in WIDGET.md.
+  **You** create/assign the App Group container, then rebuild.
+- **Flagship 80/80/80:** dropped all bonus; sunlight now required; merged the diet
+  goals; reworded clean drinks. 10 items, 8-of-10.
+- **No-repeat rule:** in flexible mode a repeat is recorded but no longer fails a
+  threshold-passing day (strict/hardcore unchanged). Engine change + tests.
+- **Mid-challenge editing:** the builder is now a full editor for the active
+  challenge (add/remove/rename items + scalars), reached from "Edit current
+  challenge"/the Dashboard pencil. Kept items keep history. Retired the old
+  scalar-only edit screen.
+- **buildNumber → 5** so the next TestFlight upload doesn't collide.
+
 ## 2026-07-27 — Full MVP polish review (branch `mvp-polish`)
 
 Senior review-board pass over the whole app; baseline tagged
